@@ -1,0 +1,17 @@
+{
+  "name": "bloome-edgespark-pizzaria-campy",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "server"
+  ],
+  "scripts": {
+    "typecheck": "npm --workspace server run typecheck"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "stripe": "^22.3.0"
+  }
+}
