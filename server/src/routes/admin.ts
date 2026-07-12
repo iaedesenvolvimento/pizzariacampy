@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { db } from "edgespark";
 import { menuItems, orders, settings } from "../defs/db_schema";
+import { coupons, subscriptions, loyaltyPoints } from "../defs/monetization_schema";
 import { sql, eq } from "drizzle-orm";
 
 const admin = new Hono();
@@ -107,6 +108,80 @@ admin.delete("/orders", async (c) => {
   if (!(await checkAdmin(c))) return c.json({ ok: false, error: "Unauthorized" }, 401);
   await db.delete(orders);
   return c.json({ ok: true, message: "Todos os pedidos foram excluídos" });
+});
+
+// ==================== CUPONS ====================
+
+// GET /api/public/admin/coupons - Listar cupons
+admin.get("/coupons", async (c) => {
+  if (!(await checkAdmin(c))) return c.json({ ok: false, error: "Unauthorized" }, 401);
+  const result = await db.select().from(coupons).orderBy(sql`${coupons.createdAt} DESC`);
+  return c.json({ ok: true, coupons: result });
+});
+
+// POST /api/public/admin/coupons - Criar cupom
+admin.post("/coupons", async (c) => {
+  if (!(await checkAdmin(c))) return c.json({ ok: false, error: "Unauthorized" }, 401);
+  const body = await c.req.json();
+  const { code, type, value, minOrder, maxUses, validFrom, validUntil } = body;
+  
+  if (!code || !type || !value || !validFrom || !validUntil) {
+    return c.json({ ok: false, error: "Campos obrigatórios: code, type, value, validFrom, validUntil" }, 400);
+  }
+
+  const couponId = "coupon_" + Date.now().toString(36);
+  await db.insert(coupons).values({
+    id: couponId,
+    code: code.toUpperCase(),
+    type,
+    value: parseFloat(value),
+    minOrder: parseFloat(minOrder) || 0,
+    maxUses: parseInt(maxUses) || 100,
+    usedCount: 0,
+    validFrom,
+    validUntil,
+    active: true,
+    createdAt: new Date().toISOString(),
+  });
+
+  return c.json({ ok: true, couponId });
+});
+
+// PATCH /api/public/admin/coupons/:id/toggle - Toggle cupom
+admin.patch("/coupons/:id/toggle", async (c) => {
+  if (!(await checkAdmin(c))) return c.json({ ok: false, error: "Unauthorized" }, 401);
+  const [existing] = await db.select().from(coupons).where(sql`${coupons.id} = ${c.req.param("id")}`);
+  if (!existing) return c.json({ ok: false, error: "Cupom não encontrado" }, 404);
+  
+  await db.update(coupons).set({ active: !existing.active }).where(sql`${coupons.id} = ${c.req.param("id")}`);
+  return c.json({ ok: true, active: !existing.active });
+});
+
+// DELETE /api/public/admin/coupons/:id - Excluir cupom
+admin.delete("/coupons/:id", async (c) => {
+  if (!(await checkAdmin(c))) return c.json({ ok: false, error: "Unauthorized" }, 401);
+  await db.delete(coupons).where(sql`${coupons.id} = ${c.req.param("id")}`);
+  return c.json({ ok: true });
+});
+
+// ==================== ASSINATURAS ====================
+
+// GET /api/public/admin/subscriptions - Listar assinaturas
+admin.get("/subscriptions", async (c) => {
+  if (!(await checkAdmin(c))) return c.json({ ok: false, error: "Unauthorized" }, 401);
+  const result = await db.select().from(subscriptions).orderBy(sql`${subscriptions.createdAt} DESC`);
+  return c.json({ ok: true, subscriptions: result });
+});
+
+// ==================== PONTOS ====================
+
+// GET /api/public/admin/points - Estatísticas de pontos
+admin.get("/points", async (c) => {
+  if (!(await checkAdmin(c))) return c.json({ ok: false, error: "Unauthorized" }, 401);
+  const result = await db.select().from(loyaltyPoints);
+  const totalPoints = result.reduce((sum, p) => sum + p.points, 0);
+  const totalEarned = result.reduce((sum, p) => sum + p.totalEarned, 0);
+  return c.json({ ok: true, members: result.length, totalPoints, totalEarned });
 });
 
 export default admin;

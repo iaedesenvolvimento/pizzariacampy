@@ -15,6 +15,7 @@ import pwaRoutes from "./routes/pwa";
 import soundsRoutes from "./routes/sounds";
 import landingRoutes from "./routes/landing";
 import monetizationRoutes from "./routes/monetization";
+import monetizationAdminRoutes from "./routes/monetization-admin";
 
 const app = new Hono();
 
@@ -37,6 +38,9 @@ app.route("/api/public/landing", landingRoutes);
 
 // Monetization (subscriptions, loyalty, coupons)
 app.route("/api/public/monetization", monetizationRoutes);
+
+// Monetization Admin Panel
+app.route("/api/public/monetizacao", monetizationAdminRoutes);
 
 // Admin Panel - BEFORE other admin routes
 app.route("/api/public/painel-admin", adminPanelRoutes);
