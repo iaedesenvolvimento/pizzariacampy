@@ -13,6 +13,7 @@ import adminPanelRoutes from "./routes/admin-panel";
 import gerenciarRoutes from "./routes/gerenciar";
 import pwaRoutes from "./routes/pwa";
 import soundsRoutes from "./routes/sounds";
+import landingRoutes from "./routes/landing";
 
 const app = new Hono();
 
@@ -29,6 +30,9 @@ app.use("/api/public/*", async (c, next) => {
   }
   await next();
 });
+
+// Landing page
+app.route("/api/public/landing", landingRoutes);
 
 // Admin Panel - BEFORE other admin routes
 app.route("/api/public/painel-admin", adminPanelRoutes);
