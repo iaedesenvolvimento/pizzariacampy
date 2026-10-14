@@ -29,7 +29,9 @@ Caddy solicita e renova o certificado HTTPS automaticamente quando o DNS e as po
 
 ## Importação do catálogo no Render
 
-Depois do primeiro deploy da imagem que contém `catalogo-real.json`, abra o Shell do serviço no Render e execute:
+Depois do primeiro deploy da imagem que contém `catalogo-real.json`, configure `IMPORT_CATALOG_ON_STARTUP=true` nas variáveis de ambiente do serviço Render e faça um novo deploy. O entrypoint executará a importação depois das migrations, sem exigir acesso ao Shell.
+
+Depois que os produtos aparecerem, altere a variável para `false` e faça outro deploy. Se o Shell estiver disponível, a importação manual equivalente é:
 
 ```bash
 python scripts/import_catalog.py catalogo-real.json --dry-run
