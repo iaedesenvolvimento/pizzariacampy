@@ -27,6 +27,17 @@ Copy-Item .env.production.deploy.example .env
 
 Caddy solicita e renova o certificado HTTPS automaticamente quando o DNS e as portas 80/443 estiverem corretos.
 
+## Importação do catálogo no Render
+
+Depois do primeiro deploy da imagem que contém `catalogo-real.json`, abra o Shell do serviço no Render e execute:
+
+```bash
+python scripts/import_catalog.py catalogo-real.json --dry-run
+python scripts/import_catalog.py catalogo-real.json
+```
+
+O primeiro comando valida o arquivo sem gravar dados. O segundo cadastra ou atualiza o catálogo oficial no PostgreSQL configurado em `DATABASE_URL`. Depois, confirme `GET /api/v1/categories` e `GET /api/v1/products`.
+
 ## Rollback
 
 - Preserve a imagem anterior e o backup antes do deploy.

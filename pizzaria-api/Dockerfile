@@ -12,6 +12,7 @@ COPY pyproject.toml README.md ./
 COPY app ./app
 COPY migrations ./migrations
 COPY scripts ./scripts
+COPY catalogo-real.json ./catalogo-real.json
 COPY catalog.real.example.json ./catalog.real.example.json
 COPY alembic.ini ./
 COPY docker-entrypoint.sh ./
