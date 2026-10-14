@@ -12,7 +12,7 @@ def test_normalizes_neon_connection_string_for_asyncpg() -> None:
 
     assert normalize_async_database_url(url) == (
         "postgresql+asyncpg://user:password@ep-example.neon.tech/db?"
-        "channel_binding=require&ssl=require"
+        "ssl=require"
     )
 
 

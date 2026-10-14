@@ -13,6 +13,7 @@ def normalize_async_database_url(database_url: str) -> str:
 
     query = dict(parse_qsl(parsed.query, keep_blank_values=True))
     sslmode = query.pop("sslmode", None)
+    query.pop("channel_binding", None)
     if sslmode and "ssl" not in query:
         query["ssl"] = sslmode
 
