@@ -1,0 +1,94 @@
+import 'package:flutter/foundation.dart';
+
+import '../../core/errors/app_exception.dart';
+import '../../core/network/api_client.dart';
+import '../cart/cart_controller.dart';
+
+enum CheckoutStatus { idle, submitting, success, error }
+
+class CheckoutResult {
+  const CheckoutResult({required this.orderId, required this.orderNumber, required this.total});
+
+  final String orderId;
+  final String orderNumber;
+  final String total;
+}
+
+class CheckoutController extends ChangeNotifier {
+  CheckoutController(this._apiClient, this.accessToken);
+
+  final ApiClient _apiClient;
+  final String? accessToken;
+  CheckoutStatus status = CheckoutStatus.idle;
+  String? errorMessage;
+  CheckoutResult? result;
+
+  Future<bool> submit({
+    required CartController cart,
+    required String fulfillmentType,
+    required String paymentMethod,
+    String? customerNote,
+    double? changeFor,
+    String? deliveryAddress,
+    String? deliveryNeighborhood,
+    String? deliveryCity,
+    String? couponCode,
+  }) async {
+    status = CheckoutStatus.submitting;
+    errorMessage = null;
+    result = null;
+    notifyListeners();
+    try {
+      final response = await _apiClient.post(
+        '/orders',
+        headers: accessToken == null
+            ? null
+            : {'Authorization': 'Bearer $accessToken'},
+        body: {
+          'items': cart.items
+              .map(
+                (item) => {
+                  'product_id': item.productId,
+                  'product_size_id': item.sizeId,
+                  'flavor_ids': item.flavorIds,
+                  'edge_id': item.edgeId,
+                  'extras': item.extras
+                      .map((extra) => {'extra_id': extra.id, 'quantity': 1})
+                      .toList(),
+                  'quantity': item.quantity,
+                },
+              )
+              .toList(),
+          'fulfillment_type': fulfillmentType,
+          'payment_method': paymentMethod,
+          'change_for': changeFor,
+          'delivery_address': deliveryAddress,
+          'delivery_neighborhood': deliveryNeighborhood,
+          'delivery_city': deliveryCity,
+          'coupon_code': couponCode?.trim().isEmpty == true ? null : couponCode?.trim(),
+          'customer_note': customerNote?.trim().isEmpty == true ? null : customerNote?.trim(),
+        },
+      );
+      if (response is! Map<String, dynamic>) {
+        throw const FormatException('Resposta de pedido inválida.');
+      }
+      result = CheckoutResult(
+        orderId: response['id']?.toString() ?? '',
+        orderNumber: response['order_number']?.toString() ?? '',
+        total: response['total_amount']?.toString() ?? '0.00',
+      );
+      status = CheckoutStatus.success;
+      await cart.clear();
+      notifyListeners();
+      return true;
+    } on AppException catch (error) {
+      status = CheckoutStatus.error;
+      errorMessage = error.message;
+    } catch (_) {
+      status = CheckoutStatus.error;
+      errorMessage = 'Não foi possível confirmar o pedido.';
+    }
+    notifyListeners();
+    return false;
+  }
+}

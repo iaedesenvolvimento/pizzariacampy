@@ -1,0 +1,36 @@
+# Secrets and local configuration
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.*.example
+**/key.properties
+**/*.jks
+**/*.keystore
+
+# Build and tool output
+**/build/
+**/.dart_tool/
+**/.pytest_cache/
+**/.ruff_cache/
+**/__pycache__/
+**/*.py[cod]
+**/*.egg-info/
+**/.idea/
+**/.vscode/
+**/*.iml
+
+# Generated installers and local archives
+*.apk
+*.aab
+*.ipa
+*.exe
+*.zip
+
+# Local/private source documents
+*.xlsx
+*.xls
+*.pdf
+
+# OS files
+Thumbs.db
+.DS_Store

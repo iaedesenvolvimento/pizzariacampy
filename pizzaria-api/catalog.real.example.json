@@ -1,0 +1,42 @@
+{
+  "categories": [
+    {
+      "name": "Pizzas",
+      "slug": "pizzas",
+      "description": "Pizzas da casa",
+      "sort_order": 1
+    }
+  ],
+  "products": [
+    {
+      "category_slug": "pizzas",
+      "name": "Nome real da pizza",
+      "slug": "nome-real-da-pizza",
+      "description": "Descrição real do produto",
+      "product_type": "PIZZA",
+      "image_url": "https://exemplo.com/imagem.jpg",
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "49.90",
+          "slices": 8,
+          "max_flavors": 2,
+          "flavors": [
+            {
+              "name": "Sabor real",
+              "description": "Ingredientes do sabor",
+              "price": "49.90"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {"name": "Borda real", "price": "8.00"}
+  ],
+  "extras": [
+    {"name": "Adicional real", "price": "5.00"}
+  ]
+}

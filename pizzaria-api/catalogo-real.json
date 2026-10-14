@@ -1,0 +1,4851 @@
+{
+  "categories": [
+    {
+      "name": "Pizzas salgadas",
+      "slug": "pizzas-salgadas",
+      "sort_order": 0
+    },
+    {
+      "name": "Pizzas doces",
+      "slug": "pizzas-doces",
+      "sort_order": 1
+    },
+    {
+      "name": "Bebidas",
+      "slug": "bebidas",
+      "sort_order": 2
+    },
+    {
+      "name": "Esfihas salgadas",
+      "slug": "esfihas-salgadas",
+      "sort_order": 3
+    },
+    {
+      "name": "Esfihas doces",
+      "slug": "esfihas-doces",
+      "sort_order": 4
+    },
+    {
+      "name": "Combos de esfihas",
+      "slug": "combos-de-esfihas",
+      "sort_order": 5
+    }
+  ],
+  "products": [
+    {
+      "name": "A Moda do Chefe I",
+      "slug": "a-moda-do-chefe-i",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Palmito, champignon e mussarela",
+      "sort_order": 0,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "A Moda do Chefe I",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "A Moda do Chefe I",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "A Moda do Chefe II",
+      "slug": "a-moda-do-chefe-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Palmito, champignon, catupiry, mussarela e bacon",
+      "sort_order": 1,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "55.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "A Moda do Chefe II",
+              "price": "55.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "36.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "A Moda do Chefe II",
+              "price": "36.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "A Moda do Chefe III",
+      "slug": "a-moda-do-chefe-iii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Palmito, mussarela e cheddar",
+      "sort_order": 2,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "A Moda do Chefe III",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "A Moda do Chefe III",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Alho I",
+      "slug": "alho-i",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Mussarela e alho frito",
+      "sort_order": 3,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Alho I",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Alho I",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Alho II",
+      "slug": "alho-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Catupiry, mussarela e alho frito",
+      "sort_order": 4,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "49.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Alho II",
+              "price": "49.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Alho II",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Alho III",
+      "slug": "alho-iii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Catupiry e alho frito",
+      "sort_order": 5,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "49.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Alho III",
+              "price": "49.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Alho III",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Atum I",
+      "slug": "atum-i",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Atum e cebola",
+      "sort_order": 6,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Atum I",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Atum I",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Atum II",
+      "slug": "atum-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Atum e vinagrete",
+      "sort_order": 7,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "49.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Atum II",
+              "price": "49.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Atum II",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Americana",
+      "slug": "americana",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Presunto, ervilhas, palmito, ovos e cebola",
+      "sort_order": 8,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Americana",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Americana",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Acácias",
+      "slug": "acacias",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Lombo, catupiry, mussarela, tomate e alho frito",
+      "sort_order": 10,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "53.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Acácias",
+              "price": "53.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "35.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Acácias",
+              "price": "35.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bacon",
+      "slug": "bacon",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Mussarela e bacon",
+      "sort_order": 11,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "49.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Bacon",
+              "price": "49.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Bacon",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bacon III",
+      "slug": "bacon-iii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Catupiry, mussarela e bacon",
+      "sort_order": 12,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Bacon III",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Bacon III",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bauru",
+      "slug": "bauru",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Presunto moído, rodelas de tomate e mussarela",
+      "sort_order": 13,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Bauru",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Bauru",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Baiana",
+      "slug": "baiana",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Calabresa moída, ovos, cebola e molho de pimenta",
+      "sort_order": 14,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Baiana",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Baiana",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Batata Palha",
+      "slug": "batata-palha",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Mussarela e batata palha",
+      "sort_order": 15,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "47.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Batata Palha",
+              "price": "47.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "31.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Batata Palha",
+              "price": "31.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bolonhesa I",
+      "slug": "bolonhesa-i",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Carne moída refogada coberta por mussarela",
+      "sort_order": 16,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Bolonhesa I",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "35.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Bolonhesa I",
+              "price": "35.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bolonhesa II",
+      "slug": "bolonhesa-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Carne moída refogada, mussarela e bacon",
+      "sort_order": 17,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "52.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Bolonhesa II",
+              "price": "52.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "35.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Bolonhesa II",
+              "price": "35.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bolonhesa III",
+      "slug": "bolonhesa-iii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Carne moída refogada com catupiry",
+      "sort_order": 18,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "53.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Bolonhesa III",
+              "price": "53.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "35.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Bolonhesa III",
+              "price": "35.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Brócolis com Mussarela",
+      "slug": "brocolis-com-mussarela-pizzas-salgadas",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Brócolis com mussarela e bacon",
+      "sort_order": 19,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "52.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Brócolis com Mussarela",
+              "price": "52.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "34.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Brócolis com Mussarela",
+              "price": "34.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Brócolis com Catupiry",
+      "slug": "brocolis-com-catupiry",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Brócolis com catupiry",
+      "sort_order": 20,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "52.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Brócolis com Catupiry",
+              "price": "52.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "34.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Brócolis com Catupiry",
+              "price": "34.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Brócolis Especial I",
+      "slug": "brocolis-especial-i",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Brócolis, cream cheese Philadelphia, mussarela e bacon",
+      "sort_order": 21,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "65.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Brócolis Especial I",
+              "price": "65.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "43.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Brócolis Especial I",
+              "price": "43.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Brócolis Especial II",
+      "slug": "brocolis-especial-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Brócolis, palmito, ervilha, champignon, mussarela e bacon",
+      "sort_order": 22,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "60.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Brócolis Especial II",
+              "price": "60.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "40.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Brócolis Especial II",
+              "price": "40.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Carapicuíba I",
+      "slug": "carapicuiba-i",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Lombo, palmito, ervilha e mussarela",
+      "sort_order": 23,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Carapicuíba I",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Carapicuíba I",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Carapicuíba II",
+      "slug": "carapicuiba-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Lombo, palmito, ervilha, mussarela e bacon",
+      "sort_order": 24,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Carapicuíba II",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Carapicuíba II",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Carapicuíba III",
+      "slug": "carapicuiba-iii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Lombo, palmito, ervilha e catupiry",
+      "sort_order": 25,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "49.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Carapicuíba III",
+              "price": "49.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Carapicuíba III",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Calabresa I",
+      "slug": "calabresa-i",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Calabresa e cebola",
+      "sort_order": 26,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "45.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Calabresa I",
+              "price": "45.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "30.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Calabresa I",
+              "price": "30.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Calabresa II",
+      "slug": "calabresa-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Calabresa, cebola e mussarela",
+      "sort_order": 27,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Calabresa II",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Calabresa II",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Calabresa III",
+      "slug": "calabresa-iii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Calabresa e catupiry",
+      "sort_order": 28,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Calabresa III",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Calabresa III",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Calabresa e Cheddar",
+      "slug": "calabresa-e-cheddar",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Calabresa fatiada, cheddar e bacon",
+      "sort_order": 29,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "59.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Calabresa e Cheddar",
+              "price": "59.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Calabresa e Cheddar",
+              "price": "48.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Calabresa e Vinagrete",
+      "slug": "calabresa-e-vinagrete",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Calabresa, vinagrete e cebola",
+      "sort_order": 30,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Calabresa e Vinagrete",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Calabresa e Vinagrete",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Catupiry",
+      "slug": "catupiry",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Catupiry",
+      "sort_order": 31,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Catupiry",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Catupiry",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Carne Seca",
+      "slug": "carne-seca",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Carne seca desfiada e mussarela",
+      "sort_order": 32,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "55.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Carne Seca",
+              "price": "55.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "36.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Carne Seca",
+              "price": "36.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Carne Seca II",
+      "slug": "carne-seca-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Carne seca desfiada e catupiry",
+      "sort_order": 33,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "56.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Carne Seca II",
+              "price": "56.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "37.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Carne Seca II",
+              "price": "37.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Carne Seca Especial",
+      "slug": "carne-seca-especial",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Carne seca desfiada, cream cheese Philadelphia, mussarela e bacon",
+      "sort_order": 34,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "65.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Carne Seca Especial",
+              "price": "65.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "43.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Carne Seca Especial",
+              "price": "43.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Camarão I",
+      "slug": "camarao-i",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Camarão e mussarela",
+      "sort_order": 35,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "65.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Camarão I",
+              "price": "65.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "43.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Camarão I",
+              "price": "43.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Camarão II",
+      "slug": "camarao-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Camarão, palmito e mussarela",
+      "sort_order": 36,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "70.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Camarão II",
+              "price": "70.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "46.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Camarão II",
+              "price": "46.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Camarão III",
+      "slug": "camarao-iii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Camarão e catupiry",
+      "sort_order": 37,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "70.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Camarão III",
+              "price": "70.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "46.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Camarão III",
+              "price": "46.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Campy",
+      "slug": "campy",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Presunto, palmito, ervilhas, ovos, mussarela e bacon",
+      "sort_order": 38,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "52.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Campy",
+              "price": "52.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "34.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Campy",
+              "price": "34.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Campy II",
+      "slug": "campy-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Presunto, palmito, ervilhas, ovos, milho e catupiry",
+      "sort_order": 39,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "51.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Campy II",
+              "price": "51.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "34.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Campy II",
+              "price": "34.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Champignon I",
+      "slug": "champignon-i",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Champignon, mussarela e bacon",
+      "sort_order": 40,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Champignon I",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Champignon I",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Champignon II",
+      "slug": "champignon-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Champignon, palmito, mussarela e bacon",
+      "sort_order": 41,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "52.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Champignon II",
+              "price": "52.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "34.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Champignon II",
+              "price": "34.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Champignon III",
+      "slug": "champignon-iii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Champignon, catupiry e bacon",
+      "sort_order": 42,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "52.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Champignon III",
+              "price": "52.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "34.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Champignon III",
+              "price": "34.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Chester I",
+      "slug": "chester-i",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Peito de peru defumado e mussarela",
+      "sort_order": 43,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Chester I",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Chester I",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Chester II",
+      "slug": "chester-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Peito de peru defumado, mussarela e bacon",
+      "sort_order": 44,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "52.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Chester II",
+              "price": "52.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Chester II",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Chester III",
+      "slug": "chester-iii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Peito de peru defumado e catupiry",
+      "sort_order": 45,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "51.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Chester III",
+              "price": "51.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "34.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Chester III",
+              "price": "34.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Dois Queijos",
+      "slug": "dois-queijos",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Mussarela e catupiry",
+      "sort_order": 46,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Dois Queijos",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Dois Queijos",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Doritos",
+      "slug": "doritos",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Mussarela, cheddar e Doritos",
+      "sort_order": 47,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "55.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Doritos",
+              "price": "55.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "36.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Doritos",
+              "price": "36.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Escarola I",
+      "slug": "escarola-i",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Escarola refogada, mussarela e bacon",
+      "sort_order": 48,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Escarola I",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Escarola I",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Escarola II",
+      "slug": "escarola-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Escarola refogada, catupiry e bacon",
+      "sort_order": 49,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Escarola II",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Escarola II",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Escarola III",
+      "slug": "escarola-iii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Escarola refogada, mussarela e tomate",
+      "sort_order": 50,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Escarola III",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Escarola III",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Escarola Especial",
+      "slug": "escarola-especial",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Escarola refogada, ervilha, palmito, champignon, cream cheese Philadelphia, milho e mussarela",
+      "sort_order": 51,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "65.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Escarola Especial",
+              "price": "65.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "43.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Escarola Especial",
+              "price": "43.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Frango",
+      "slug": "frango-pizzas-salgadas",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Peito de frango desfiado e cebola",
+      "sort_order": 52,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "46.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango",
+              "price": "46.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "31.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango",
+              "price": "31.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Frango I",
+      "slug": "frango-i",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Peito de frango desfiado e mussarela",
+      "sort_order": 53,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango I",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango I",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Frango II",
+      "slug": "frango-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Peito de frango desfiado, mussarela e milho verde",
+      "sort_order": 54,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "49.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango II",
+              "price": "49.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango II",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Frango III",
+      "slug": "frango-iii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Peito de frango desfiado e requeijão comum",
+      "sort_order": 55,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "47.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango III",
+              "price": "47.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "31.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango III",
+              "price": "31.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Frango IV",
+      "slug": "frango-iv",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Peito de frango desfiado, palmito, catupiry e milho verde",
+      "sort_order": 56,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango IV",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango IV",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Frango V",
+      "slug": "frango-v",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Peito de frango desfiado, catupiry e milho verde",
+      "sort_order": 57,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango V",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango V",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Frango VI",
+      "slug": "frango-vi",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Peito de frango desfiado, catupiry e bacon",
+      "sort_order": 58,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "51.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango VI",
+              "price": "51.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "34.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango VI",
+              "price": "34.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Frango VII",
+      "slug": "frango-vii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Peito de frango desfiado, mussarela e bacon",
+      "sort_order": 59,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango VII",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango VII",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Frango VIII",
+      "slug": "frango-viii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Peito de frango desfiado, catupiry e batata palha",
+      "sort_order": 60,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "60.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango VIII",
+              "price": "60.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "40.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango VIII",
+              "price": "40.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Frango com Catupiry",
+      "slug": "frango-com-catupiry-pizzas-salgadas",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Peito de frango desfiado com catupiry",
+      "sort_order": 61,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango com Catupiry",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango com Catupiry",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Frango com Philadelphia",
+      "slug": "frango-com-philadelphia",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Peito de frango desfiado com cream cheese Philadelphia",
+      "sort_order": 62,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "59.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango com Philadelphia",
+              "price": "59.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "46.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango com Philadelphia",
+              "price": "46.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Frango com Cheddar",
+      "slug": "frango-com-cheddar",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Peito de frango desfiado com cheddar e bacon",
+      "sort_order": 63,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "60.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango com Cheddar",
+              "price": "60.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "40.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Frango com Cheddar",
+              "price": "40.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Galinhada",
+      "slug": "galinhada",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Peito de frango desfiado, milho, ovos e mussarela",
+      "sort_order": 64,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Galinhada",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Galinhada",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Galinhada II",
+      "slug": "galinhada-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Peito de frango desfiado, milho, ovos, mussarela e bacon",
+      "sort_order": 65,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "52.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Galinhada II",
+              "price": "52.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "34.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Galinhada II",
+              "price": "34.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Lombinho I",
+      "slug": "lombinho-i",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Lombo canadense e cebola",
+      "sort_order": 66,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Lombinho I",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Lombinho I",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Lombinho II",
+      "slug": "lombinho-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Lombo canadense e catupiry",
+      "sort_order": 67,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "49.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Lombinho II",
+              "price": "49.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Lombinho II",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Lombinho III",
+      "slug": "lombinho-iii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Lombo canadense e mussarela",
+      "sort_order": 68,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Lombinho III",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Lombinho III",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Lombinho Especial",
+      "slug": "lombinho-especial",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Lombo, milho, palmito, ervilha, ovos, mussarela e bacon",
+      "sort_order": 69,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "59.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Lombinho Especial",
+              "price": "59.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "40.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Lombinho Especial",
+              "price": "40.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Lusitana",
+      "slug": "lusitana",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Presunto picado, calabresa, cebola, ovos, champignon, mussarela e parmesão",
+      "sort_order": 70,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "52.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Lusitana",
+              "price": "52.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "34.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Lusitana",
+              "price": "34.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Maluca I",
+      "slug": "maluca-i",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Presunto moído, calabresa moída, ervilha e mussarela",
+      "sort_order": 71,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "49.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Maluca I",
+              "price": "49.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Maluca I",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Maluca II",
+      "slug": "maluca-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Presunto moído, calabresa moída, mussarela e bacon",
+      "sort_order": 72,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Maluca II",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Maluca II",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Maluca III",
+      "slug": "maluca-iii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Presunto moído, calabresa moída, ervilha e catupiry",
+      "sort_order": 73,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Maluca III",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Maluca III",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Marguerita",
+      "slug": "marguerita",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Mussarela, molho de tomate, manjericão e parmesão",
+      "sort_order": 74,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Marguerita",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Marguerita",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Milho Verde I",
+      "slug": "milho-verde-i",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Mussarela e milho verde",
+      "sort_order": 75,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "47.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Milho Verde I",
+              "price": "47.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "31.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Milho Verde I",
+              "price": "31.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Milho Verde II",
+      "slug": "milho-verde-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Catupiry e milho verde",
+      "sort_order": 76,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Milho Verde II",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Milho Verde II",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Milho Verde III",
+      "slug": "milho-verde-iii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Mussarela, milho verde e bacon",
+      "sort_order": 77,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "49.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Milho Verde III",
+              "price": "49.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Milho Verde III",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Mussarela",
+      "slug": "mussarela",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Mussarela e rodelas de tomate",
+      "sort_order": 78,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "45.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Mussarela",
+              "price": "45.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "30.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Mussarela",
+              "price": "30.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Malva",
+      "slug": "malva",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Presunto, palmito, ovos e catupiry",
+      "sort_order": 79,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Malva",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Malva",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Misto Quente",
+      "slug": "misto-quente",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Presunto moído e mussarela",
+      "sort_order": 80,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Misto Quente",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Misto Quente",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Napole",
+      "slug": "napole",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Calabresa fatiada, palmito, catupiry, mussarela e bacon",
+      "sort_order": 81,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "60.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Napole",
+              "price": "60.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "40.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Napole",
+              "price": "40.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Napolitana",
+      "slug": "napolitana",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Mussarela de búfala, tomate seco e manjericão",
+      "sort_order": 82,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "53.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Napolitana",
+              "price": "53.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "34.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Napolitana",
+              "price": "34.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Napolitana II",
+      "slug": "napolitana-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Mussarela, tomate fresco e parmesão",
+      "sort_order": 83,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "51.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Napolitana II",
+              "price": "51.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "34.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Napolitana II",
+              "price": "34.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Palmito I",
+      "slug": "palmito-i",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Palmito e mussarela",
+      "sort_order": 84,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "49.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Palmito I",
+              "price": "49.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Palmito I",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Palmito II",
+      "slug": "palmito-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Palmito, champignon, mussarela e bacon",
+      "sort_order": 85,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "52.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Palmito II",
+              "price": "52.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "35.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Palmito II",
+              "price": "35.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Palmito III",
+      "slug": "palmito-iii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Palmito e catupiry",
+      "sort_order": 86,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "49.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Palmito III",
+              "price": "49.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Palmito III",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Peito de Peru Mais Dois Queijos",
+      "slug": "peito-de-peru-mais-dois-queijos",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Peito de peru defumado, catupiry e mussarela",
+      "sort_order": 87,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "60.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Peito de Peru Mais Dois Queijos",
+              "price": "60.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "40.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Peito de Peru Mais Dois Queijos",
+              "price": "40.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Peruana I",
+      "slug": "peruana-i",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Atum e mussarela",
+      "sort_order": 88,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "52.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Peruana I",
+              "price": "52.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "34.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Peruana I",
+              "price": "34.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Peruana II",
+      "slug": "peruana-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Atum, mussarela e catupiry",
+      "sort_order": 89,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "52.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Peruana II",
+              "price": "52.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "34.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Peruana II",
+              "price": "34.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Peruana III",
+      "slug": "peruana-iii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Atum e catupiry",
+      "sort_order": 90,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "53.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Peruana III",
+              "price": "53.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "35.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Peruana III",
+              "price": "35.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Peperone",
+      "slug": "peperone",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Mussarela e peperone",
+      "sort_order": 91,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Peperone",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Peperone",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Peperone II",
+      "slug": "peperone-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Catupiry, mussarela e peperone",
+      "sort_order": 92,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "60.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Peperone II",
+              "price": "60.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "40.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Peperone II",
+              "price": "40.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Provolone",
+      "slug": "provolone",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Provolone, mussarela e milho verde",
+      "sort_order": 93,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Provolone",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Provolone",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Portuguesa I",
+      "slug": "portuguesa-i",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Presunto, ervilha, ovos, cebola e mussarela",
+      "sort_order": 94,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Portuguesa I",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Portuguesa I",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Portuguesa II",
+      "slug": "portuguesa-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Presunto, ervilha, ovos, cebola e catupiry",
+      "sort_order": 95,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "49.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Portuguesa II",
+              "price": "49.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Portuguesa II",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Portuguesa Especial",
+      "slug": "portuguesa-especial",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Presunto, palmito, ervilha, ovos, cebola, catupiry, mussarela e batata palha",
+      "sort_order": 96,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "60.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Portuguesa Especial",
+              "price": "60.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "40.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Portuguesa Especial",
+              "price": "40.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Presunto",
+      "slug": "presunto",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Presunto moído e cebola",
+      "sort_order": 97,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "45.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Presunto",
+              "price": "45.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "30.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Presunto",
+              "price": "30.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Quatro Queijos",
+      "slug": "quatro-queijos",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Mussarela, catupiry, provolone e gorgonzola",
+      "sort_order": 98,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "53.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Quatro Queijos",
+              "price": "53.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "34.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Quatro Queijos",
+              "price": "34.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Romana",
+      "slug": "romana",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Mussarela, atum e catupiry",
+      "sort_order": 99,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "55.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Romana",
+              "price": "55.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "36.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Romana",
+              "price": "36.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Rúcula",
+      "slug": "rucula",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Mussarela, rúcula e tomate seco",
+      "sort_order": 100,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "49.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Rúcula",
+              "price": "49.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Rúcula",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Salame com Mussarela",
+      "slug": "salame-com-mussarela",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Salame e mussarela",
+      "sort_order": 101,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "52.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Salame com Mussarela",
+              "price": "52.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "34.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Salame com Mussarela",
+              "price": "34.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Siciliana I",
+      "slug": "siciliana-i",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Mussarela salpicada com calabresa",
+      "sort_order": 102,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Siciliana I",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Siciliana I",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Siciliana II",
+      "slug": "siciliana-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Catupiry salpicado com calabresa",
+      "sort_order": 103,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "49.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Siciliana II",
+              "price": "49.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Siciliana II",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Siciliana III",
+      "slug": "siciliana-iii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Mussarela e catupiry salpicados com calabresa",
+      "sort_order": 104,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Siciliana III",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Siciliana III",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Toscana",
+      "slug": "toscana",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Calabresa, mussarela e pimentão",
+      "sort_order": 105,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Toscana",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Toscana",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Toscana II",
+      "slug": "toscana-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Calabresa, catupiry e pimentão",
+      "sort_order": 106,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Toscana II",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Toscana II",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Toscana III",
+      "slug": "toscana-iii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Calabresa, palmito, mussarela e pimentão",
+      "sort_order": 107,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Toscana III",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Toscana III",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Tropical I",
+      "slug": "tropical-i",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Atum, vinagrete e mussarela",
+      "sort_order": 109,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "55.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Tropical I",
+              "price": "55.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "36.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Tropical I",
+              "price": "36.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Tropical II",
+      "slug": "tropical-ii",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Atum, vinagrete e catupiry",
+      "sort_order": 110,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "55.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Tropical II",
+              "price": "55.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "36.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Tropical II",
+              "price": "36.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Vinagrete",
+      "slug": "vinagrete",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Catupiry, vinagrete e mussarela",
+      "sort_order": 111,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "56.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Vinagrete",
+              "price": "56.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "35.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Vinagrete",
+              "price": "35.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Banana",
+      "slug": "banana",
+      "category_slug": "pizzas-doces",
+      "product_type": "PIZZA",
+      "description": "Banana fatiada com leite condensado e canela",
+      "sort_order": 112,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "45.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Banana",
+              "price": "45.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "30.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Banana",
+              "price": "30.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bis com Chocolate ao Leite",
+      "slug": "bis-com-chocolate-ao-leite",
+      "category_slug": "pizzas-doces",
+      "product_type": "PIZZA",
+      "description": "Chocolate ao leite e Bis de chocolate",
+      "sort_order": 113,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Bis com Chocolate ao Leite",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Bis com Chocolate ao Leite",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Brigadeiro",
+      "slug": "brigadeiro",
+      "category_slug": "pizzas-doces",
+      "product_type": "PIZZA",
+      "description": "Chocolate ao leite com chocolate granulado",
+      "sort_order": 114,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Brigadeiro",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Brigadeiro",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Chocolate ao Leite com Banana",
+      "slug": "chocolate-ao-leite-com-banana",
+      "category_slug": "pizzas-doces",
+      "product_type": "PIZZA",
+      "description": "Chocolate ao leite com banana fatiada",
+      "sort_order": 115,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Chocolate ao Leite com Banana",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Chocolate ao Leite com Banana",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Chocolate ao Leite com Morango",
+      "slug": "chocolate-ao-leite-com-morango",
+      "category_slug": "pizzas-doces",
+      "product_type": "PIZZA",
+      "description": "Chocolate ao leite com morango fatiado",
+      "sort_order": 116,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Chocolate ao Leite com Morango",
+              "price": "50.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "33.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Chocolate ao Leite com Morango",
+              "price": "33.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Ferrero Rocher ao Leite",
+      "slug": "ferrero-rocher-ao-leite",
+      "category_slug": "pizzas-doces",
+      "product_type": "PIZZA",
+      "description": "Chocolate ao leite com bombons Ferrero Rocher",
+      "sort_order": 117,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "66.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Ferrero Rocher ao Leite",
+              "price": "66.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "43.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Ferrero Rocher ao Leite",
+              "price": "43.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "M&M's ao Leite",
+      "slug": "m-m-s-ao-leite",
+      "category_slug": "pizzas-doces",
+      "product_type": "PIZZA",
+      "description": "Chocolate ao leite com M&M's",
+      "sort_order": 118,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "56.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "M&M's ao Leite",
+              "price": "56.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "37.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "M&M's ao Leite",
+              "price": "37.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Nutella com Morango e Leite Ninho",
+      "slug": "nutella-com-morango-e-leite-ninho",
+      "category_slug": "pizzas-doces",
+      "product_type": "PIZZA",
+      "description": "Nutella com morangos fatiados e leite Ninho",
+      "sort_order": 119,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "66.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Nutella com Morango e Leite Ninho",
+              "price": "66.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "44.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Nutella com Morango e Leite Ninho",
+              "price": "44.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Prestígio",
+      "slug": "prestigio-pizzas-doces",
+      "category_slug": "pizzas-doces",
+      "product_type": "PIZZA",
+      "description": "Chocolate ao leite e coco ralado",
+      "sort_order": 120,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "48.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Prestígio",
+              "price": "48.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "32.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Prestígio",
+              "price": "32.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Romeu e Julieta",
+      "slug": "romeu-e-julieta-pizzas-doces",
+      "category_slug": "pizzas-doces",
+      "product_type": "PIZZA",
+      "description": "Mussarela com goiabada derretida",
+      "sort_order": 121,
+      "sizes": [
+        {
+          "name": "Grande",
+          "slug": "grande",
+          "price": "45.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Romeu e Julieta",
+              "price": "45.00"
+            }
+          ]
+        },
+        {
+          "name": "Broto",
+          "slug": "broto",
+          "price": "30.00",
+          "slices": 8,
+          "max_flavors": 1,
+          "flavors": [
+            {
+              "name": "Romeu e Julieta",
+              "price": "30.00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Atum com Mussarela",
+      "slug": "atum-com-mussarela",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "sort_order": 126,
+      "sizes": [
+        {
+          "name": "Unidade",
+          "slug": "unidade",
+          "price": "3.50",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Brócolis com Mussarela",
+      "slug": "brocolis-com-mussarela-esfihas-salgadas",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "sort_order": 127,
+      "sizes": [
+        {
+          "name": "Unidade",
+          "slug": "unidade",
+          "price": "3.50",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Calabresa",
+      "slug": "calabresa",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "sort_order": 128,
+      "sizes": [
+        {
+          "name": "Unidade",
+          "slug": "unidade",
+          "price": "3.50",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Calabresa com Cheddar",
+      "slug": "calabresa-com-cheddar",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "sort_order": 129,
+      "sizes": [
+        {
+          "name": "Unidade",
+          "slug": "unidade",
+          "price": "3.50",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Carne",
+      "slug": "carne",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "sort_order": 130,
+      "sizes": [
+        {
+          "name": "Unidade",
+          "slug": "unidade",
+          "price": "3.50",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Carne com Queijo",
+      "slug": "carne-com-queijo",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "sort_order": 131,
+      "sizes": [
+        {
+          "name": "Unidade",
+          "slug": "unidade",
+          "price": "3.50",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Carne Seca com Mussarela",
+      "slug": "carne-seca-com-mussarela",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "sort_order": 132,
+      "sizes": [
+        {
+          "name": "Unidade",
+          "slug": "unidade",
+          "price": "3.50",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Escarola com Mussarela",
+      "slug": "escarola-com-mussarela",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "sort_order": 133,
+      "sizes": [
+        {
+          "name": "Unidade",
+          "slug": "unidade",
+          "price": "3.50",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Frango",
+      "slug": "frango-esfihas-salgadas",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "sort_order": 134,
+      "sizes": [
+        {
+          "name": "Unidade",
+          "slug": "unidade",
+          "price": "3.50",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Frango com Catupiry",
+      "slug": "frango-com-catupiry-esfihas-salgadas",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "sort_order": 135,
+      "sizes": [
+        {
+          "name": "Unidade",
+          "slug": "unidade",
+          "price": "3.50",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Milho com Mussarela",
+      "slug": "milho-com-mussarela",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "sort_order": 136,
+      "sizes": [
+        {
+          "name": "Unidade",
+          "slug": "unidade",
+          "price": "3.50",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Mussarela com Alho",
+      "slug": "mussarela-com-alho",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "sort_order": 137,
+      "sizes": [
+        {
+          "name": "Unidade",
+          "slug": "unidade",
+          "price": "3.50",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Peperone com Mussarela",
+      "slug": "peperone-com-mussarela",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "sort_order": 138,
+      "sizes": [
+        {
+          "name": "Unidade",
+          "slug": "unidade",
+          "price": "3.50",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Presunto com Queijo",
+      "slug": "presunto-com-queijo",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "sort_order": 139,
+      "sizes": [
+        {
+          "name": "Unidade",
+          "slug": "unidade",
+          "price": "3.50",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Queijo",
+      "slug": "queijo",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "sort_order": 140,
+      "sizes": [
+        {
+          "name": "Unidade",
+          "slug": "unidade",
+          "price": "3.50",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Chocolate",
+      "slug": "chocolate",
+      "category_slug": "esfihas-doces",
+      "product_type": "DESSERT",
+      "description": null,
+      "sort_order": 141,
+      "sizes": [
+        {
+          "name": "Unidade",
+          "slug": "unidade",
+          "price": "5.50",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Chocolate com M&M's",
+      "slug": "chocolate-com-m-m-s",
+      "category_slug": "esfihas-doces",
+      "product_type": "DESSERT",
+      "description": null,
+      "sort_order": 142,
+      "sizes": [
+        {
+          "name": "Unidade",
+          "slug": "unidade",
+          "price": "5.50",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Romeu e Julieta",
+      "slug": "romeu-e-julieta-esfihas-doces",
+      "category_slug": "esfihas-doces",
+      "product_type": "DESSERT",
+      "description": null,
+      "sort_order": 143,
+      "sizes": [
+        {
+          "name": "Unidade",
+          "slug": "unidade",
+          "price": "5.50",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Prestígio",
+      "slug": "prestigio-esfihas-doces",
+      "category_slug": "esfihas-doces",
+      "product_type": "DESSERT",
+      "description": null,
+      "sort_order": 144,
+      "sizes": [
+        {
+          "name": "Unidade",
+          "slug": "unidade",
+          "price": "5.50",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Combo 1",
+      "slug": "combo-1",
+      "category_slug": "combos-de-esfihas",
+      "product_type": "COMBO",
+      "description": "20 esfihas dos sabores: carne, frango e mussarela. 1 refrigerante Dolly (2L)",
+      "sort_order": 145,
+      "sizes": [
+        {
+          "name": "20 esfihas + 1 refrigerante 2L",
+          "slug": "20-esfihas-1-refrigerante-2l",
+          "price": "65.00",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Combo 2",
+      "slug": "combo-2",
+      "category_slug": "combos-de-esfihas",
+      "product_type": "COMBO",
+      "description": "20 esfihas dos sabores: carne, mussarela e frango com catupiry. 1 refrigerante Kuat (2L)",
+      "sort_order": 146,
+      "sizes": [
+        {
+          "name": "20 esfihas + 1 refrigerante 2L",
+          "slug": "20-esfihas-1-refrigerante-2l",
+          "price": "65.00",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Combo 3",
+      "slug": "combo-3",
+      "category_slug": "combos-de-esfihas",
+      "product_type": "COMBO",
+      "description": "30 esfihas dos sabores: carne, frango com catupiry e calabresa. 1 refrigerante Coca-Cola (2L)",
+      "sort_order": 147,
+      "sizes": [
+        {
+          "name": "30 esfihas + 1 refrigerante 2L",
+          "slug": "30-esfihas-1-refrigerante-2l",
+          "price": "90.00",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Combo 4",
+      "slug": "combo-4",
+      "category_slug": "combos-de-esfihas",
+      "product_type": "COMBO",
+      "description": "40 esfihas dos sabores: carne e frango com mussarela. 1 refrigerante Dolly (2L)",
+      "sort_order": 148,
+      "sizes": [
+        {
+          "name": "40 esfihas + 1 refrigerante 2L",
+          "slug": "40-esfihas-1-refrigerante-2l",
+          "price": "110.00",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "A Moda do Freguês",
+      "slug": "a-moda-do-fregues",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Pizza salgada personalizada",
+      "sort_order": 9,
+      "sizes": [
+        {
+          "name": "Personalizada",
+          "slug": "personalizada",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Três Estações",
+      "slug": "tres-estacoes",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Pizza salgada personalizada",
+      "sort_order": 100,
+      "sizes": [
+        {
+          "name": "Personalizada",
+          "slug": "personalizada",
+          "price": "50.00",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Sucos de Caixinha",
+      "slug": "sucos-de-caixinha",
+      "category_slug": "bebidas",
+      "product_type": "BEVERAGE",
+      "description": "Suco de caixinha 1 litro",
+      "sort_order": 149,
+      "sizes": [
+        {
+          "name": "1L",
+          "slug": "1l",
+          "price": "13.00",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Refrigerante",
+      "slug": "refrigerante",
+      "category_slug": "bebidas",
+      "product_type": "BEVERAGE",
+      "description": "Refrigerante 2 litros",
+      "sort_order": 150,
+      "sizes": [
+        {
+          "name": "2L",
+          "slug": "2l",
+          "price": "15.00",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Refrigerante Lata",
+      "slug": "refrigerante-lata",
+      "category_slug": "bebidas",
+      "product_type": "BEVERAGE",
+      "description": "Refrigerante lata 350 ml",
+      "sort_order": 151,
+      "sizes": [
+        {
+          "name": "350 ml",
+          "slug": "350-ml",
+          "price": "6.00",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    },
+    {
+      "name": "Cerveja Lata",
+      "slug": "cerveja-lata",
+      "category_slug": "bebidas",
+      "product_type": "BEVERAGE",
+      "description": "Cerveja lata",
+      "sort_order": 152,
+      "sizes": [
+        {
+          "name": "Lata",
+          "slug": "lata",
+          "price": "7.00",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ]
+    }
+  ],
+  "edges": [],
+  "extras": []
+}
