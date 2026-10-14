@@ -4,7 +4,9 @@ class AppConfig {
   factory AppConfig.fromEnvironment() {
     const configuredUrl = String.fromEnvironment('API_BASE_URL');
     return AppConfig(
-      apiBaseUrl: configuredUrl.isEmpty ? 'http://localhost:8000/api/v1' : configuredUrl,
+      apiBaseUrl: configuredUrl.isEmpty
+          ? 'https://pizzariacampy.onrender.com/api/v1'
+          : configuredUrl,
     );
   }
 

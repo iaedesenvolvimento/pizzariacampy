@@ -25,7 +25,7 @@ flutter pub get
 flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api/v1
 ```
 
-Para um dispositivo físico, use o endereço acessível da máquina que executa a API. O valor padrão aponta para `http://localhost:8000/api/v1`.
+Para produção, o valor padrão aponta para `https://pizzariacampy.onrender.com/api/v1`. Em desenvolvimento, informe a API local com `--dart-define=API_BASE_URL=http://10.0.2.2:8000/api/v1` ou com o endereço da máquina no dispositivo físico.
 
 ## Estrutura
 
