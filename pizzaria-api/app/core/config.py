@@ -1,7 +1,22 @@
 from functools import lru_cache
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def normalize_async_database_url(database_url: str) -> str:
+    parsed = urlsplit(database_url)
+    scheme = parsed.scheme
+    if scheme in {"postgres", "postgresql"}:
+        scheme = "postgresql+asyncpg"
+
+    query = dict(parse_qsl(parsed.query, keep_blank_values=True))
+    sslmode = query.pop("sslmode", None)
+    if sslmode and "ssl" not in query:
+        query["ssl"] = sslmode
+
+    return urlunsplit((scheme, parsed.netloc, parsed.path, urlencode(query), parsed.fragment))
 
 
 class Settings(BaseSettings):
@@ -42,6 +57,10 @@ class Settings(BaseSettings):
     @property
     def allowed_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.allowed_origins.split(",") if origin.strip()]
+
+    @property
+    def async_database_url(self) -> str:
+        return normalize_async_database_url(self.database_url)
 
 
 @lru_cache
