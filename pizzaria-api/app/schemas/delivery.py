@@ -18,6 +18,15 @@ class DeliveryZoneResponse(DeliveryZoneRequest):
     id: UUID
 
 
+class DeliveryZoneBulkStatusRequest(BaseModel):
+    is_active: bool
+
+
+class DeliveryZoneBulkStatusResponse(BaseModel):
+    updated_count: int
+    is_active: bool
+
+
 class DeliveryZoneQuoteResponse(BaseModel):
     zone_id: UUID
     zone_name: str

@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_session
@@ -9,7 +9,12 @@ from app.dependencies.auth import get_admin_user
 from app.models.coverage_location import CoverageLocation
 from app.models.delivery import DeliveryZone
 from app.models.user import User
-from app.schemas.delivery import DeliveryZoneRequest, DeliveryZoneResponse
+from app.schemas.delivery import (
+    DeliveryZoneBulkStatusRequest,
+    DeliveryZoneBulkStatusResponse,
+    DeliveryZoneRequest,
+    DeliveryZoneResponse,
+)
 from app.schemas.coverage_locations import CoverageLocationResponse, CoverageLocationUpdate
 from app.services.delivery import list_active_zones
 
@@ -32,6 +37,22 @@ async def list_admin_delivery_zones(
         select(DeliveryZone).order_by(DeliveryZone.city, DeliveryZone.neighborhood)
     )
     return list(result)
+
+
+@admin_router.post("/bulk-status", response_model=DeliveryZoneBulkStatusResponse)
+async def update_all_delivery_zones_status(
+    payload: DeliveryZoneBulkStatusRequest,
+    session: AsyncSession = Depends(get_session),
+    _: User = Depends(get_admin_user),
+) -> DeliveryZoneBulkStatusResponse:
+    result = await session.execute(
+        update(DeliveryZone).values(is_active=payload.is_active, updated_at=func.now())
+    )
+    await session.commit()
+    return DeliveryZoneBulkStatusResponse(
+        updated_count=result.rowcount or 0,
+        is_active=payload.is_active,
+    )
 
 
 @admin_router.post("", response_model=DeliveryZoneResponse, status_code=status.HTTP_201_CREATED)

@@ -112,6 +112,37 @@ class _AdminDeliveryZonesPageState extends State<AdminDeliveryZonesPage> {
     }
   }
 
+  Future<void> _setAllZonesStatus(bool isActive) async {
+    if (_adminApi == null) return;
+    final action = isActive ? 'habilitar' : 'desabilitar';
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('${isActive ? 'Habilitar' : 'Desabilitar'} todas as zonas?'),
+        content: Text('Esta ação vai $action todas as zonas, sem alterar taxas, mínimos ou prazos.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(isActive ? 'Habilitar' : 'Desabilitar')),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      final response = await _adminApi!.post(
+        '/admin/delivery-zones/bulk-status',
+        body: {'is_active': isActive},
+      );
+      await _load();
+      if (!mounted) return;
+      final count = response is Map<String, dynamic> ? response['updated_count'] : null;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${count ?? 'Todas as'} zonas foram ${isActive ? 'habilitadas' : 'desabilitadas'}.')),
+      );
+    } catch (error) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
+    }
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text('Zonas de entrega')),
@@ -123,9 +154,28 @@ class _AdminDeliveryZonesPageState extends State<AdminDeliveryZonesPage> {
                     onRefresh: _load,
                     child: ListView(
                       padding: const EdgeInsets.all(16),
-                      children: _zones.isEmpty
-                          ? [const Padding(padding: EdgeInsets.all(24), child: Center(child: Text('Nenhuma zona cadastrada.')))]
-                          : _zones.map((zone) => Card(
+                      children: [
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            OutlinedButton.icon(
+                              onPressed: () => _setAllZonesStatus(true),
+                              icon: const Icon(Icons.public),
+                              label: const Text('Habilitar todas'),
+                            ),
+                            OutlinedButton.icon(
+                              onPressed: () => _setAllZonesStatus(false),
+                              icon: const Icon(Icons.public_off),
+                              label: const Text('Desabilitar todas'),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        if (_zones.isEmpty)
+                          const Padding(padding: EdgeInsets.all(24), child: Center(child: Text('Nenhuma zona cadastrada.')))
+                        else
+                          ..._zones.map((zone) => Card(
                                 child: ListTile(
                                   title: Text('${zone['neighborhood']} · ${zone['city']}'),
                                   subtitle: Text('Taxa R\$ ${zone['delivery_fee']} · mínimo R\$ ${zone['minimum_order_amount']} · ${zone['estimated_minutes']} min'),
@@ -135,7 +185,8 @@ class _AdminDeliveryZonesPageState extends State<AdminDeliveryZonesPage> {
                                     IconButton(icon: const Icon(Icons.delete_outline), onPressed: () => _delete(zone)),
                                   ]),
                                 ),
-                              )).toList(),
+                              )),
+                      ],
                     ),
                   ),
         floatingActionButton: FloatingActionButton.extended(onPressed: _edit, icon: const Icon(Icons.add), label: const Text('Zona')),
