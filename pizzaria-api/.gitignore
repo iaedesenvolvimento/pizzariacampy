@@ -10,3 +10,7 @@ htmlcov/
 backups/
 assets/catalog-images/
 catalog-images-manifest.json
+!assets/
+!assets/catalog-images/
+!assets/catalog-images/*
+!catalog-images-manifest.json
