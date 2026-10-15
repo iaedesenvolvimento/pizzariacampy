@@ -9,7 +9,7 @@ from sqlalchemy.orm import selectinload
 
 from app.models.catalog import Edge, Extra, Flavor, Product, ProductSize
 from app.models.coupon import CouponRedemption
-from app.services.delivery import resolve_zone
+from app.services.delivery import resolve_zone_by_postal_code
 from app.models.order import (
     Order,
     OrderItem,
@@ -53,10 +53,22 @@ async def create_order(
     request: CreateOrderRequest,
 ) -> Order:
     zone = None
+    verified_neighborhood = request.delivery_neighborhood
+    verified_city = request.delivery_city
     if request.fulfillment_type == "DELIVERY":
         if not request.delivery_address:
             raise OrderError("DELIVERY_ADDRESS_REQUIRED", "Delivery address is required")
-        zone = await resolve_zone(session, request.delivery_neighborhood, request.delivery_city)
+        if not request.delivery_postal_code:
+            raise OrderError("DELIVERY_POSTAL_CODE_REQUIRED", "A postal code is required for delivery")
+        try:
+            zone, verified_neighborhood, verified_city = await resolve_zone_by_postal_code(
+                session, request.delivery_postal_code
+            )
+        except Exception as error:
+            raise OrderError(
+                "DELIVERY_POSTAL_CODE_UNAVAILABLE",
+                "Não foi possível validar o CEP. Tente novamente.",
+            ) from error
         if zone is None:
             raise OrderError("DELIVERY_ZONE_NOT_FOUND", "Delivery address is outside the service area")
     if request.payment_method == "CASH" and request.change_for is not None:
@@ -99,8 +111,9 @@ async def create_order(
         customer_note=request.customer_note,
         delivery_address_snapshot={
             "address": request.delivery_address,
-            "neighborhood": request.delivery_neighborhood,
-            "city": request.delivery_city,
+            "postal_code": request.delivery_postal_code,
+            "neighborhood": verified_neighborhood,
+            "city": verified_city,
             "zone_name": zone.name,
         } if zone else None,
     )

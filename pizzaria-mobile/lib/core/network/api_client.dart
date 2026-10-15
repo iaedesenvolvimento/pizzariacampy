@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:http/http.dart' as http;
 
@@ -12,18 +13,20 @@ class ApiClient {
 
   final AppConfig _config;
   final http.Client _client;
+  static const _requestTimeout = Duration(seconds: 20);
 
   Future<dynamic> get(String path, {Map<String, String>? headers}) async {
-    final response =
-        await _send(() => _client.get(_uri(path), headers: headers));
+    final response = await _send(() =>
+        _client.get(_uri(path), headers: headers).timeout(_requestTimeout));
     return _decode(response);
   }
 
   Future<dynamic> post(String path,
       {Object? body, Map<String, String>? headers}) async {
     final response = await _send(
-      () => _client.post(_uri(path),
-          headers: _jsonHeaders(headers), body: _encode(body)),
+      () => _client
+          .post(_uri(path), headers: _jsonHeaders(headers), body: _encode(body))
+          .timeout(_requestTimeout),
     );
     return _decode(response);
   }
@@ -31,15 +34,19 @@ class ApiClient {
   Future<dynamic> patch(String path,
       {Object? body, Map<String, String>? headers}) async {
     final response = await _send(
-      () => _client.patch(_uri(path),
-          headers: _jsonHeaders(headers), body: _encode(body)),
+      () => _client
+          .patch(_uri(path),
+              headers: _jsonHeaders(headers), body: _encode(body))
+          .timeout(_requestTimeout),
     );
     return _decode(response);
   }
 
   Future<void> delete(String path, {Map<String, String>? headers}) async {
     final response = await _send(
-      () => _client.delete(_uri(path), headers: _jsonHeaders(headers)),
+      () => _client
+          .delete(_uri(path), headers: _jsonHeaders(headers))
+          .timeout(_requestTimeout),
     );
     _decode(response);
   }
@@ -47,13 +54,17 @@ class ApiClient {
   Future<dynamic> put(String path,
       {Object? body, Map<String, String>? headers}) async {
     final response = await _send(
-      () => _client.put(_uri(path),
-          headers: _jsonHeaders(headers), body: _encode(body)),
+      () => _client
+          .put(_uri(path), headers: _jsonHeaders(headers), body: _encode(body))
+          .timeout(_requestTimeout),
     );
     return _decode(response);
   }
 
-  Future<dynamic> uploadFile(String path, {required String filePath, required String fieldName, Map<String, String>? headers}) async {
+  Future<dynamic> uploadFile(String path,
+      {required String filePath,
+      required String fieldName,
+      Map<String, String>? headers}) async {
     final request = http.MultipartRequest('POST', _uri(path));
     request.headers.addAll({'Accept': 'application/json', ...?headers});
     request.files.add(await http.MultipartFile.fromPath(fieldName, filePath));

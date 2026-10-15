@@ -1,4 +1,7 @@
-from sqlalchemy import func, select
+import unicodedata
+
+import httpx
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.delivery import DeliveryZone
@@ -12,10 +15,42 @@ async def list_active_zones(session: AsyncSession) -> list[DeliveryZone]:
 async def resolve_zone(session: AsyncSession, neighborhood: str | None, city: str | None) -> DeliveryZone | None:
     if not neighborhood or not city:
         return None
-    return await session.scalar(
-        select(DeliveryZone).where(
-            DeliveryZone.is_active.is_(True),
-            func.lower(DeliveryZone.neighborhood) == neighborhood.strip().lower(),
-            func.lower(DeliveryZone.city) == city.strip().lower(),
-        )
+    def normalize(value: str) -> str:
+        decomposed = unicodedata.normalize('NFKD', value.strip().lower())
+        return ''.join(char for char in decomposed if not unicodedata.combining(char))
+
+    zones = await session.scalars(
+        select(DeliveryZone).where(DeliveryZone.is_active.is_(True))
     )
+    target_neighborhood = normalize(neighborhood)
+    target_city = normalize(city)
+    return next(
+        (
+            zone
+            for zone in zones
+            if normalize(zone.neighborhood) == target_neighborhood
+            and normalize(zone.city) == target_city
+        ),
+        None,
+    )
+
+
+async def resolve_zone_by_postal_code(
+    session: AsyncSession,
+    postal_code: str | None,
+) -> tuple[DeliveryZone | None, str | None, str | None]:
+    digits = ''.join(character for character in (postal_code or '') if character.isdigit())
+    if len(digits) != 8:
+        return None, None, None
+    async with httpx.AsyncClient(timeout=5.0) as client:
+        response = await client.get(f'https://viacep.com.br/ws/{digits}/json/')
+        response.raise_for_status()
+        payload = response.json()
+    if not isinstance(payload, dict) or payload.get('erro') is True:
+        return None, None, None
+    neighborhood = str(payload.get('bairro') or '').strip()
+    city = str(payload.get('localidade') or '').strip()
+    if not neighborhood or not city:
+        return None, neighborhood or None, city or None
+    zone = await resolve_zone(session, neighborhood, city)
+    return zone, neighborhood, city

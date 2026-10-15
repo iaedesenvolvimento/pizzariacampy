@@ -1,4 +1,5 @@
 import '../network/api_client.dart';
+import '../errors/app_exception.dart';
 import '../storage/app_storage.dart';
 import 'auth_models.dart';
 
@@ -18,16 +19,46 @@ class AuthService {
     if (accessToken == null || refreshToken == null) return null;
 
     try {
-      final response = await _apiClient.get('/auth/me', headers: _authHeaders(accessToken));
+      final response =
+          await _apiClient.get('/auth/me', headers: _authHeaders(accessToken));
       if (response is! Map<String, dynamic>) return null;
-      return AuthSession(accessToken: accessToken, refreshToken: refreshToken, user: AuthUser.fromJson(response));
+      await _storage.saveUser(response);
+      return AuthSession(
+          accessToken: accessToken,
+          refreshToken: refreshToken,
+          user: AuthUser.fromJson(response));
+    } on ApiException catch (error) {
+      if (error.statusCode == 401) {
+        final refreshed = await refreshSession();
+        if (refreshed != null) return refreshed;
+      }
+      return _cachedSession();
+    } on NetworkException {
+      return _cachedSession();
     } catch (_) {
-      await _storage.clearSession();
+      return _cachedSession();
+    }
+  }
+
+  Future<AuthSession?> refreshSession() async {
+    final refreshToken = _storage.refreshToken;
+    if (refreshToken == null) return null;
+    try {
+      final response = await _apiClient.post(
+        '/auth/refresh',
+        body: {'refresh_token': refreshToken},
+      );
+      final session = _saveSession(response);
+      final savedSession = await session;
+      await _storage.saveUser(_userToJson(savedSession.user));
+      return savedSession;
+    } catch (_) {
       return null;
     }
   }
 
-  Future<AuthSession> login({required String email, required String password}) async {
+  Future<AuthSession> login(
+      {required String email, required String password}) async {
     final response = await _apiClient.post(
       '/auth/login',
       body: {'email': email.trim(), 'password': password},
@@ -42,24 +73,33 @@ class AuthService {
   }) async {
     final response = await _apiClient.post(
       '/auth/register',
-      body: {'name': name.trim(), 'email': email.trim(), 'password': password},
+      body: {
+        'name': name.trim(),
+        'email': email.trim(),
+        'password': password,
+        'privacy_consent': true,
+      },
     );
     return _saveSession(response);
   }
 
   Future<void> requestPasswordRecovery(String email) async {
-    await _apiClient.post('/auth/password-recovery', body: {'email': email.trim()});
+    await _apiClient
+        .post('/auth/password-recovery', body: {'email': email.trim()});
   }
 
-  Future<void> resetPassword({required String token, required String password}) async {
-    await _apiClient.post('/auth/password-reset', body: {'token': token.trim(), 'password': password});
+  Future<void> resetPassword(
+      {required String token, required String password}) async {
+    await _apiClient.post('/auth/password-reset',
+        body: {'token': token.trim(), 'password': password});
   }
 
   Future<void> logout() async {
     final refreshToken = _storage.refreshToken;
     if (refreshToken != null) {
       try {
-        await _apiClient.post('/auth/logout', body: {'refresh_token': refreshToken});
+        await _apiClient
+            .post('/auth/logout', body: {'refresh_token': refreshToken});
       } finally {
         await _storage.clearSession();
       }
@@ -77,8 +117,30 @@ class AuthService {
       accessToken: session.accessToken,
       refreshToken: session.refreshToken,
     );
+    await _storage.saveUser(_userToJson(session.user));
     return session;
   }
+
+  AuthSession? _cachedSession() {
+    final cachedUser = _storage.cachedUser;
+    final accessToken = _storage.accessToken;
+    final refreshToken = _storage.refreshToken;
+    if (cachedUser == null || accessToken == null || refreshToken == null) {
+      return null;
+    }
+    return AuthSession(
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      user: AuthUser.fromJson(cachedUser),
+    );
+  }
+
+  Map<String, dynamic> _userToJson(AuthUser user) => {
+        'id': user.id,
+        'name': user.name,
+        'email': user.email,
+        'role': user.role,
+      };
 
   Map<String, String> _authHeaders(String accessToken) {
     return {'Authorization': 'Bearer $accessToken'};

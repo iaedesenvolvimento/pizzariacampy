@@ -1,5 +1,6 @@
 class MenuCategory {
-  const MenuCategory({required this.id, required this.name, required this.slug});
+  const MenuCategory(
+      {required this.id, required this.name, required this.slug});
 
   factory MenuCategory.fromJson(Map<String, dynamic> json) {
     return MenuCategory(
@@ -12,6 +13,8 @@ class MenuCategory {
   final String id;
   final String name;
   final String slug;
+
+  Map<String, dynamic> toJson() => {'id': id, 'name': name, 'slug': slug};
 }
 
 bool isPizzaProductType(String type) => type.trim().toUpperCase() == 'PIZZA';
@@ -46,6 +49,16 @@ class MenuProduct {
   final String type;
   final String? imageUrl;
   final bool isActive;
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'category_id': categoryId,
+        'name': name,
+        'description': description,
+        'product_type': type,
+        'image_url': imageUrl,
+        'is_active': isActive,
+      };
 }
 
 class MenuProductSize {
@@ -78,7 +91,8 @@ class MenuProductSize {
 }
 
 class MenuFlavor {
-  const MenuFlavor({required this.id, required this.name, required this.description});
+  const MenuFlavor(
+      {required this.id, required this.name, required this.description});
 
   factory MenuFlavor.fromJson(Map<String, dynamic> json) {
     return MenuFlavor(
@@ -94,7 +108,8 @@ class MenuFlavor {
 }
 
 class MenuPricedOption {
-  const MenuPricedOption({required this.id, required this.name, required this.price});
+  const MenuPricedOption(
+      {required this.id, required this.name, required this.price});
 
   factory MenuPricedOption.fromJson(Map<String, dynamic> json) {
     return MenuPricedOption(

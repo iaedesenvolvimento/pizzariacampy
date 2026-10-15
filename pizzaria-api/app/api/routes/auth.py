@@ -46,6 +46,11 @@ def auth_error_response(error: AuthError) -> HTTPException:
             detail="Invalid email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    if str(error) == "PRIVACY_CONSENT_REQUIRED":
+        return HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Privacy consent is required",
+        )
     return HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid refresh token",

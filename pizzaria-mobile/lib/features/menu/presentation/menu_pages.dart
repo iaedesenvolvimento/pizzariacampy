@@ -1,13 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/settings/app_settings_controller.dart';
+import '../../../theme/app_theme.dart';
 import '../../admin/admin_dashboard_page.dart';
 import '../../cart/cart_controller.dart';
 import '../../cart/cart_models.dart';
 import '../../cart/cart_pages.dart';
 import '../../addresses/customer_addresses_page.dart';
 import '../../orders/order_history_page.dart';
+import '../../settings/settings_pages.dart';
 import '../business_status.dart';
 import '../data/menu_models.dart';
 import '../data/menu_service.dart';
@@ -15,11 +20,16 @@ import '../menu_controller.dart' as menu_state;
 import 'pizza_builder_page.dart';
 
 class MenuHomePage extends StatefulWidget {
-  const MenuHomePage(
-      {required this.authController, required this.cartController, super.key});
+  const MenuHomePage({
+    required this.authController,
+    required this.cartController,
+    required this.settingsController,
+    super.key,
+  });
 
   final AuthController authController;
   final CartController cartController;
+  final AppSettingsController settingsController;
 
   @override
   State<MenuHomePage> createState() => _MenuHomePageState();
@@ -28,6 +38,7 @@ class MenuHomePage extends StatefulWidget {
 class _MenuHomePageState extends State<MenuHomePage> {
   late final menu_state.MenuController _menuController;
   final _searchController = TextEditingController();
+  Timer? _searchDebounce;
 
   @override
   void initState() {
@@ -38,14 +49,52 @@ class _MenuHomePageState extends State<MenuHomePage> {
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _searchController.dispose();
     _menuController.dispose();
     super.dispose();
   }
 
-  Future<void> _search() async {
-    FocusManager.instance.primaryFocus?.unfocus();
-    await _menuController.search(_searchController.text);
+  void _onSearchChanged(String query) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 350), () {
+      _search(query);
+    });
+  }
+
+  Future<void> _search(String query) async {
+    final normalizedQuery = query.trim();
+    if (normalizedQuery.isEmpty) {
+      if (_menuController.selectedCategoryId == null) {
+        await _menuController.load();
+      } else {
+        await _menuController
+            .selectCategory(_menuController.selectedCategoryId);
+      }
+      return;
+    }
+    await _menuController.search(normalizedQuery);
+  }
+
+  Future<void> _openProduct(MenuProduct product) async {
+    final added = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => ProductDetailsPage(
+          product: product,
+          cartController: widget.cartController,
+          accessToken: widget.authController.accessToken,
+        ),
+      ),
+    );
+    if (added == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Item adicionado ao carrinho.'),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   @override
@@ -55,27 +104,30 @@ class _MenuHomePageState extends State<MenuHomePage> {
       builder: (context, _) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Pizzaria Campy'),
-            actions: [
-              IconButton(
-                tooltip: 'Meus endereços',
-                onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                        builder: (_) => CustomerAddressesPage(
-                            accessToken: widget.authController.accessToken))),
-                icon: const Icon(Icons.location_on_outlined),
-              ),
-              IconButton(
-                tooltip: 'Meus pedidos',
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => OrderHistoryPage(
-                      accessToken: widget.authController.accessToken,
-                    ),
+            titleSpacing: 16,
+            title: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.local_pizza_outlined,
+                      color: Colors.white, size: 22),
+                ),
+                const SizedBox(width: 10),
+                const Flexible(
+                  child: Text(
+                    'Pizzaria Campy',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                icon: const Icon(Icons.receipt_long_outlined),
-              ),
+              ],
+            ),
+            actions: [
               AnimatedBuilder(
                 animation: widget.cartController,
                 builder: (context, _) => IconButton(
@@ -95,27 +147,94 @@ class _MenuHomePageState extends State<MenuHomePage> {
                   ),
                 ),
               ),
-              if ({'ADMIN', 'MANAGER'}
-                  .contains(widget.authController.user?.role))
-                IconButton(
-                  tooltip: 'Painel administrativo',
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                        builder: (_) => const AdminDashboardPage()),
-                  ),
-                  icon: const Icon(Icons.dashboard_outlined),
-                ),
-              IconButton(
-                tooltip: 'Sair',
-                onPressed: () async {
-                  await widget.authController.logout();
+              PopupMenuButton<String>(
+                tooltip: 'Mais opções',
+                onSelected: (value) async {
+                  switch (value) {
+                    case 'addresses':
+                      await Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => CustomerAddressesPage(
+                            accessToken: widget.authController.accessToken,
+                          ),
+                        ),
+                      );
+                    case 'orders':
+                      await Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => OrderHistoryPage(
+                            accessToken: widget.authController.accessToken,
+                          ),
+                        ),
+                      );
+                    case 'admin':
+                      await Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const AdminDashboardPage(),
+                        ),
+                      );
+                    case 'settings':
+                      await Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => SettingsPage(
+                            controller: widget.settingsController,
+                          ),
+                        ),
+                      );
+                    case 'logout':
+                      await widget.authController.logout();
+                  }
                 },
-                icon: const Icon(Icons.logout),
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'addresses',
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(Icons.location_on_outlined),
+                      title: Text('Meus endereços'),
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'orders',
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(Icons.receipt_long_outlined),
+                      title: Text('Meus pedidos'),
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'settings',
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(Icons.settings_outlined),
+                      title: Text('Configurações'),
+                    ),
+                  ),
+                  if ({'ADMIN', 'MANAGER'}
+                      .contains(widget.authController.user?.role))
+                    const PopupMenuItem(
+                      value: 'admin',
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: Icon(Icons.dashboard_outlined),
+                        title: Text('Painel administrativo'),
+                      ),
+                    ),
+                  const PopupMenuItem(
+                    value: 'logout',
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(Icons.logout),
+                      title: Text('Sair'),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
           body: RefreshIndicator(
             onRefresh: _menuController.load,
+            notificationPredicate: (notification) => notification.depth == 0,
             child: _buildBody(context),
           ),
         );
@@ -159,28 +278,28 @@ class _MenuHomePageState extends State<MenuHomePage> {
         TextField(
           controller: _searchController,
           textInputAction: TextInputAction.search,
-          onSubmitted: (_) => _search(),
+          onChanged: _onSearchChanged,
+          onSubmitted: _search,
           decoration: InputDecoration(
             hintText: 'Buscar no cardápio',
             prefixIcon: const Icon(Icons.search),
-            suffixIcon: IconButton(
-                onPressed: _search, icon: const Icon(Icons.arrow_forward)),
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         const BusinessStatusBanner(),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         _CategoryList(controller: _menuController),
         const SizedBox(height: 24),
         Text('Destaques', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 12),
         ..._menuController.products.map(
           (product) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.only(bottom: 14),
             child: ProductCard(
               product: product,
               cartController: widget.cartController,
               accessToken: widget.authController.accessToken,
+              onOpen: () => _openProduct(product),
             ),
           ),
         ),
@@ -194,35 +313,32 @@ class ProductCard extends StatelessWidget {
       {required this.product,
       required this.cartController,
       required this.accessToken,
+      required this.onOpen,
       super.key});
 
   final MenuProduct product;
   final CartController cartController;
   final String? accessToken;
+  final VoidCallback onOpen;
 
   @override
   Widget build(BuildContext context) {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute<void>(
-            builder: (_) => ProductDetailsPage(
-              product: product,
-              cartController: cartController,
-              accessToken: accessToken,
-            ),
-          ),
-        ),
+        onTap: onOpen,
         child: Row(
           children: [
             SizedBox(
-                width: 112,
-                height: 112,
-                child: _ProductImage(url: product.imageUrl)),
+                width: 124,
+                height: 124,
+                child: _ProductImage(
+                  url: product.imageUrl,
+                  semanticLabel: 'Imagem de ${product.name}',
+                )),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.fromLTRB(14, 14, 12, 14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -233,10 +349,19 @@ class ProductCard extends StatelessWidget {
                       Text(product.description!,
                           maxLines: 2, overflow: TextOverflow.ellipsis),
                     ],
-                    const SizedBox(height: 12),
-                    Text('Ver opções',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary)),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Text('Escolher',
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.w700)),
+                        const SizedBox(width: 4),
+                        Icon(Icons.arrow_forward_rounded,
+                            size: 16,
+                            color: Theme.of(context).colorScheme.primary),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -437,6 +562,7 @@ class _ProductOptionsViewState extends State<_ProductOptionsView> {
             url: widget.options.product.imageUrl,
             height: 280,
             fit: BoxFit.cover,
+            semanticLabel: 'Imagem de ${widget.options.product.name}',
             onTap: () =>
                 _openImageZoom(context, widget.options.product.imageUrl!),
           ),
@@ -556,20 +682,44 @@ class _ProductImage extends StatelessWidget {
       {required this.url,
       this.height = 112,
       this.fit = BoxFit.cover,
-      this.onTap});
+      this.onTap,
+      this.semanticLabel});
 
   final String? url;
   final double height;
   final BoxFit fit;
   final VoidCallback? onTap;
+  final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
     if (url == null || url!.isEmpty) {
       return Container(
         height: height,
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        child: const Icon(Icons.local_pizza_outlined, size: 40),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFF7E3DC), Color(0xFFFDEFE8)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Semantics(
+              label: semanticLabel ?? 'Imagem do produto indisponível',
+              image: true,
+              child: const Icon(Icons.local_pizza_outlined,
+                  size: 34, color: AppTheme.primary),
+            ),
+            const SizedBox(height: 4),
+            Text('Pizzaria Campy',
+                style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.primary)),
+          ],
+        ),
       );
     }
     final image = Container(
@@ -582,6 +732,7 @@ class _ProductImage extends StatelessWidget {
         height: height,
         width: double.infinity,
         fit: fit,
+        semanticLabel: semanticLabel,
         errorBuilder: (_, __, ___) => const Icon(Icons.broken_image_outlined),
       ),
     );

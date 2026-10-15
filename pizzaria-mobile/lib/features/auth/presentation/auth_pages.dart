@@ -2,15 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/settings/app_settings_controller.dart';
 import '../../cart/cart_controller.dart';
+import '../../settings/settings_pages.dart';
 import '../../menu/presentation/menu_pages.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate(
-      {required this.controller, required this.cartController, super.key});
+      {required this.controller,
+      required this.cartController,
+      required this.settingsController,
+      super.key});
 
   final AuthController controller;
   final CartController cartController;
+  final AppSettingsController settingsController;
 
   @override
   Widget build(BuildContext context) {
@@ -22,18 +28,23 @@ class AuthGate extends StatelessWidget {
         }
         if (controller.isAuthenticated) {
           return MenuHomePage(
-              authController: controller, cartController: cartController);
+              authController: controller,
+              cartController: cartController,
+              settingsController: settingsController);
         }
-        return LoginPage(controller: controller);
+        return LoginPage(
+            controller: controller, settingsController: settingsController);
       },
     );
   }
 }
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({required this.controller, super.key});
+  const LoginPage(
+      {required this.controller, required this.settingsController, super.key});
 
   final AuthController controller;
+  final AppSettingsController settingsController;
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -106,7 +117,12 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 12),
             OutlinedButton(
               onPressed: () =>
-                  Navigator.of(context).pushNamed(AppRouteNames.register),
+                  Navigator.of(context).push(MaterialPageRoute<void>(
+                builder: (_) => RegisterPage(
+                  controller: widget.controller,
+                  settingsController: widget.settingsController,
+                ),
+              )),
               child: const Text('Criar uma conta'),
             ),
           ],
@@ -117,9 +133,11 @@ class _LoginPageState extends State<LoginPage> {
 }
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({required this.controller, super.key});
+  const RegisterPage(
+      {required this.controller, required this.settingsController, super.key});
 
   final AuthController controller;
+  final AppSettingsController settingsController;
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -131,6 +149,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmationController = TextEditingController();
+  bool _privacyAccepted = false;
 
   @override
   void dispose() {
@@ -199,11 +218,41 @@ class _RegisterPageState extends State<RegisterPage> {
                   : 'As senhas não coincidem.',
             ),
             AuthErrorMessage(controller: widget.controller),
+            CheckboxListTile(
+              contentPadding: EdgeInsets.zero,
+              value: _privacyAccepted,
+              onChanged: (value) =>
+                  setState(() => _privacyAccepted = value ?? false),
+              title: const Text('Aceito o tratamento dos meus dados'),
+              subtitle: TextButton(
+                onPressed: () async {
+                  await Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => PrivacyPage(
+                        controller: widget.settingsController,
+                      ),
+                    ),
+                  );
+                  if (mounted) {
+                    setState(() => _privacyAccepted =
+                        widget.settingsController.privacyConsentAccepted);
+                  }
+                },
+                style: TextButton.styleFrom(
+                    alignment: Alignment.centerLeft, padding: EdgeInsets.zero),
+                child: const Text('Leia a política de privacidade e a LGPD.'),
+              ),
+            ),
             const SizedBox(height: 16),
             AuthSubmitButton(
               label: 'Criar conta',
               isSubmitting: widget.controller.status == AuthStatus.submitting,
-              onPressed: _submit,
+              onPressed: _privacyAccepted
+                  ? () async {
+                      await widget.settingsController.acceptPrivacyConsent();
+                      await _submit();
+                    }
+                  : null,
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -369,7 +418,7 @@ class AuthSubmitButton extends StatelessWidget {
 
   final String label;
   final bool isSubmitting;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {

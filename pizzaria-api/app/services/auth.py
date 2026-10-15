@@ -25,6 +25,8 @@ async def register_user(
     payload: RegisterRequest,
     user_agent: str | None,
 ) -> TokenResponse:
+    if not payload.privacy_consent:
+        raise AuthError("PRIVACY_CONSENT_REQUIRED")
     normalized_email = str(payload.email).strip().lower()
     existing_user = await session.scalar(select(User).where(User.email == normalized_email))
     if existing_user is not None:
@@ -35,6 +37,7 @@ async def register_user(
         email=normalized_email,
         password_hash=hash_password(payload.password),
         role="CUSTOMER",
+        privacy_consent_at=datetime.now(UTC),
     )
     session.add(user)
     await session.flush()

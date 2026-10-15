@@ -7,7 +7,8 @@ import '../cart/cart_controller.dart';
 enum CheckoutStatus { idle, submitting, success, error }
 
 class CheckoutResult {
-  const CheckoutResult({required this.orderId, required this.orderNumber, required this.total});
+  const CheckoutResult(
+      {required this.orderId, required this.orderNumber, required this.total});
 
   final String orderId;
   final String orderNumber;
@@ -30,6 +31,7 @@ class CheckoutController extends ChangeNotifier {
     String? customerNote,
     double? changeFor,
     String? deliveryAddress,
+    String? deliveryPostalCode,
     String? deliveryNeighborhood,
     String? deliveryCity,
     String? couponCode,
@@ -63,10 +65,14 @@ class CheckoutController extends ChangeNotifier {
           'payment_method': paymentMethod,
           'change_for': changeFor,
           'delivery_address': deliveryAddress,
+          'delivery_postal_code': deliveryPostalCode,
           'delivery_neighborhood': deliveryNeighborhood,
           'delivery_city': deliveryCity,
-          'coupon_code': couponCode?.trim().isEmpty == true ? null : couponCode?.trim(),
-          'customer_note': customerNote?.trim().isEmpty == true ? null : customerNote?.trim(),
+          'coupon_code':
+              couponCode?.trim().isEmpty == true ? null : couponCode?.trim(),
+          'customer_note': customerNote?.trim().isEmpty == true
+              ? null
+              : customerNote?.trim(),
         },
       );
       if (response is! Map<String, dynamic>) {

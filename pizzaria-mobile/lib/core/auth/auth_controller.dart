@@ -16,7 +16,8 @@ class AuthController extends ChangeNotifier {
   AuthUser? user;
   String? errorMessage;
 
-  bool get isAuthenticated => status == AuthStatus.authenticated && user != null;
+  bool get isAuthenticated =>
+      status == AuthStatus.authenticated && user != null;
 
   Future<void> initialize() async {
     status = AuthStatus.loading;
@@ -24,10 +25,20 @@ class AuthController extends ChangeNotifier {
     try {
       final session = await _service.restoreSession();
       user = session?.user;
-      status = session == null ? AuthStatus.unauthenticated : AuthStatus.authenticated;
+      status = session == null
+          ? AuthStatus.unauthenticated
+          : AuthStatus.authenticated;
     } catch (_) {
       status = AuthStatus.unauthenticated;
     }
+    notifyListeners();
+  }
+
+  Future<void> refreshSession() async {
+    if (!isAuthenticated) return;
+    final session = await _service.restoreSession();
+    if (session == null) return;
+    user = session.user;
     notifyListeners();
   }
 
@@ -35,8 +46,12 @@ class AuthController extends ChangeNotifier {
     return _submit(() => _service.login(email: email, password: password));
   }
 
-  Future<bool> register({required String name, required String email, required String password}) async {
-    return _submit(() => _service.register(name: name, email: email, password: password));
+  Future<bool> register(
+      {required String name,
+      required String email,
+      required String password}) async {
+    return _submit(
+        () => _service.register(name: name, email: email, password: password));
   }
 
   Future<bool> requestPasswordRecovery(String email) async {
@@ -61,7 +76,8 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future<bool> resetPassword({required String token, required String password}) async {
+  Future<bool> resetPassword(
+      {required String token, required String password}) async {
     status = AuthStatus.submitting;
     errorMessage = null;
     notifyListeners();

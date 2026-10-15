@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/auth/auth_controller.dart';
 import '../features/cart/cart_controller.dart';
+import '../core/settings/app_settings_controller.dart';
 import '../features/auth/presentation/auth_pages.dart';
 import '../features/menu/presentation/menu_pages.dart';
 
@@ -16,21 +17,32 @@ class AppRouter {
     RouteSettings settings,
     AuthController controller,
     CartController cartController,
+    AppSettingsController settingsController,
   ) {
     switch (settings.name) {
       case home:
         return MaterialPageRoute<void>(
-          builder: (_) => MenuHomePage(authController: controller, cartController: cartController),
+          builder: (_) => MenuHomePage(
+            authController: controller,
+            cartController: cartController,
+            settingsController: settingsController,
+          ),
           settings: settings,
         );
       case login:
         return MaterialPageRoute<void>(
-          builder: (_) => LoginPage(controller: controller),
+          builder: (_) => LoginPage(
+            controller: controller,
+            settingsController: settingsController,
+          ),
           settings: settings,
         );
       case register:
         return MaterialPageRoute<void>(
-          builder: (_) => RegisterPage(controller: controller),
+          builder: (_) => RegisterPage(
+            controller: controller,
+            settingsController: settingsController,
+          ),
           settings: settings,
         );
       case recovery:
@@ -40,7 +52,11 @@ class AppRouter {
         );
       default:
         return MaterialPageRoute<void>(
-          builder: (_) => AuthGate(controller: controller, cartController: cartController),
+          builder: (_) => AuthGate(
+            controller: controller,
+            cartController: cartController,
+            settingsController: settingsController,
+          ),
           settings: settings,
         );
     }

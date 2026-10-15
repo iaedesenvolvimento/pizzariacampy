@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../core/errors/app_exception.dart';
+import '../../core/storage/app_storage.dart';
 import 'data/menu_models.dart';
 import 'data/menu_service.dart';
 
@@ -10,14 +11,22 @@ class MenuController extends ChangeNotifier {
   MenuController(this._service);
 
   final MenuService _service;
+  Future<AppStorage>? _storageFuture;
   MenuStatus status = MenuStatus.initial;
   List<MenuCategory> categories = const [];
   List<MenuProduct> products = const [];
+  List<MenuProduct> _loadedProducts = const [];
   String? selectedCategoryId;
   String? errorMessage;
 
   Future<void> load() async {
-    status = MenuStatus.loading;
+    final storage = await (_storageFuture ??= AppStorage.create());
+    if (_loadedProducts.isEmpty) {
+      final cached = storage.readMenuCache();
+      if (cached != null) _applyCache(cached);
+    }
+    final hasVisibleData = _loadedProducts.isNotEmpty;
+    if (!hasVisibleData) status = MenuStatus.loading;
     errorMessage = null;
     notifyListeners();
     try {
@@ -26,7 +35,12 @@ class MenuController extends ChangeNotifier {
         _service.fetchProducts(),
       ]);
       categories = results[0] as List<MenuCategory>;
-      products = results[1] as List<MenuProduct>;
+      _loadedProducts = results[1] as List<MenuProduct>;
+      products = _loadedProducts;
+      await storage.saveMenuCache(
+        categories: categories.map((category) => category.toJson()).toList(),
+        products: _loadedProducts.map((product) => product.toJson()).toList(),
+      );
       status = products.isEmpty ? MenuStatus.empty : MenuStatus.success;
     } on AppException catch (error) {
       status = MenuStatus.error;
@@ -38,13 +52,30 @@ class MenuController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _applyCache(Map<String, dynamic> cache) {
+    final cachedCategories = cache['categories'];
+    final cachedProducts = cache['products'];
+    if (cachedCategories is! List || cachedProducts is! List) return;
+    categories = cachedCategories
+        .whereType<Map<String, dynamic>>()
+        .map(MenuCategory.fromJson)
+        .toList();
+    _loadedProducts = cachedProducts
+        .whereType<Map<String, dynamic>>()
+        .map(MenuProduct.fromJson)
+        .toList();
+    products = _loadedProducts;
+    status = products.isEmpty ? MenuStatus.empty : MenuStatus.success;
+  }
+
   Future<void> selectCategory(String? categoryId) async {
     selectedCategoryId = categoryId;
     status = MenuStatus.loading;
     errorMessage = null;
     notifyListeners();
     try {
-      products = await _service.fetchProducts(categoryId: categoryId);
+      _loadedProducts = await _service.fetchProducts(categoryId: categoryId);
+      products = _loadedProducts;
       status = products.isEmpty ? MenuStatus.empty : MenuStatus.success;
     } catch (_) {
       status = MenuStatus.error;
@@ -54,16 +85,15 @@ class MenuController extends ChangeNotifier {
   }
 
   Future<void> search(String query) async {
-    status = MenuStatus.loading;
-    errorMessage = null;
-    notifyListeners();
-    try {
-      products = await _service.fetchProducts(search: query);
-      status = products.isEmpty ? MenuStatus.empty : MenuStatus.success;
-    } catch (_) {
-      status = MenuStatus.error;
-      errorMessage = 'Não foi possível realizar a busca.';
-    }
+    final normalizedQuery = query.trim().toLowerCase();
+    products = _loadedProducts.where((product) {
+      final searchableText = [
+        product.name,
+        product.description ?? '',
+      ].join(' ').toLowerCase();
+      return searchableText.contains(normalizedQuery);
+    }).toList();
+    status = products.isEmpty ? MenuStatus.empty : MenuStatus.success;
     notifyListeners();
   }
 }
