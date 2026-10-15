@@ -58,6 +58,8 @@ async def create_order(
     if request.fulfillment_type == "DELIVERY":
         if not request.delivery_address:
             raise OrderError("DELIVERY_ADDRESS_REQUIRED", "Delivery address is required")
+        if not request.delivery_number or not request.delivery_number.strip():
+            raise OrderError("DELIVERY_NUMBER_REQUIRED", "O número da residência é obrigatório")
         if not request.delivery_postal_code:
             raise OrderError("DELIVERY_POSTAL_CODE_REQUIRED", "A postal code is required for delivery")
         try:
@@ -111,6 +113,7 @@ async def create_order(
         customer_note=request.customer_note,
         delivery_address_snapshot={
             "address": request.delivery_address,
+            "number": request.delivery_number.strip(),
             "postal_code": request.delivery_postal_code,
             "neighborhood": verified_neighborhood,
             "city": verified_city,

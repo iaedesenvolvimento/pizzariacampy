@@ -22,6 +22,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   final _noteController = TextEditingController();
   final _cepController = TextEditingController();
   final _addressController = TextEditingController();
+  final _numberController = TextEditingController();
   final _changeController = TextEditingController();
   final _neighborhoodController = TextEditingController();
   final _cityController = TextEditingController(text: 'São Paulo');
@@ -50,6 +51,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     _noteController.dispose();
     _cepController.dispose();
     _addressController.dispose();
+    _numberController.dispose();
     _changeController.dispose();
     _neighborhoodController.dispose();
     _cityController.dispose();
@@ -68,6 +70,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     }
     if (_fulfillmentType == 'DELIVERY' &&
         (_addressController.text.trim().isEmpty ||
+            _numberController.text.trim().isEmpty ||
             _neighborhoodController.text.trim().isEmpty ||
             _cityController.text.trim().isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -109,10 +112,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
       paymentMethod: _paymentMethod,
       customerNote: _noteController.text,
       changeFor: parsedChange,
-      deliveryAddress: _complementController.text.trim().isEmpty
-          ? _addressController.text
-          : '${_addressController.text}, ${_complementController.text}',
-      deliveryPostalCode: _cepController.text,
+          deliveryAddress: _complementController.text.trim().isEmpty
+              ? _addressController.text
+              : '${_addressController.text}, ${_complementController.text}',
+          deliveryNumber: _numberController.text.trim(),
+          deliveryPostalCode: _cepController.text,
       deliveryNeighborhood: _neighborhoodController.text,
       deliveryCity: _cityController.text,
       couponCode: _couponController.text,
@@ -211,6 +215,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     setState(() {
       _selectedAddress = address;
       _addressController.text = address['address']?.toString() ?? '';
+      _numberController.text = address['number']?.toString() ?? '';
       _neighborhoodController.text = address['neighborhood']?.toString() ?? '';
       _cityController.text = address['city']?.toString() ?? '';
       _selectedZone = matchingZone;
@@ -329,6 +334,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 maxLines: 2,
                 decoration:
                     const InputDecoration(labelText: 'Endereço de entrega'),
+              ),
+              TextField(
+                controller: _numberController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Número'),
               ),
               if (_loadingDeliveryZones)
                 const Padding(

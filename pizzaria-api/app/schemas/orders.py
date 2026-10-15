@@ -13,6 +13,7 @@ class CreateOrderRequest(BaseModel):
     payment_method: str = Field(pattern=r"^(PIX|CASH|CARD_ON_DELIVERY)$")
     change_for: Decimal | None = Field(default=None, gt=0)
     delivery_address: str | None = Field(default=None, max_length=500)
+    delivery_number: str | None = Field(default=None, max_length=20)
     delivery_postal_code: str | None = Field(default=None, max_length=9)
     delivery_neighborhood: str | None = Field(default=None, max_length=120)
     delivery_city: str | None = Field(default=None, max_length=120)
