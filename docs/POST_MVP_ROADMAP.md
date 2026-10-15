@@ -1,6 +1,6 @@
 # Roadmap Pós-MVP
 
-Status: Fase 32 — planejamento pós-MVP
+Status: Fase 32 — notificações em tempo real em implementação
 
 Este documento organiza evoluções somente depois que o MVP estiver publicado, monitorado e estável.
 
@@ -17,7 +17,10 @@ Este documento organiza evoluções somente depois que o MVP estiver publicado, 
 
 ### 1. Retenção e comunicação
 
-- Push notifications para mudança de status e confirmação.
+- WebSocket implementado para alertas em tempo real enquanto o app está aberto.
+- Cliente recebe mudanças de status do próprio pedido.
+- Admin recebe novos pedidos e alterações de status no painel.
+- Push notifications via Firebase para mudança de status e confirmação quando o app estiver fechado (pendente).
 - Repetir pedido a partir do histórico, sempre revalidando preço, disponibilidade e horário.
 - Favoritos para produtos e combinações frequentes.
 
@@ -56,7 +59,7 @@ Dependências: política de dados, custos de mapas, geolocalização e impacto n
 
 ## Fora desta fase
 
-Nenhum recurso de push, fidelidade, avaliação, WhatsApp, impressão, analytics, mapas ou rastreamento é implementado nesta etapa.
+Fidelidade, avaliação, WhatsApp, impressão, analytics, mapas e rastreamento continuam fora desta etapa. O push em segundo plano depende da configuração do Firebase.
 
 ## Próxima fase
 

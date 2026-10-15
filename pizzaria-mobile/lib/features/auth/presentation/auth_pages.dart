@@ -54,6 +54,22 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
+  bool _rememberPassword = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedCredentials();
+  }
+
+  Future<void> _loadSavedCredentials() async {
+    final credentials = await widget.controller.readSavedCredentials();
+    if (!mounted || credentials == null) return;
+    _emailController.text = credentials['email'] ?? '';
+    _passwordController.text = credentials['password'] ?? '';
+    setState(() => _rememberPassword = true);
+  }
 
   @override
   void dispose() {
@@ -64,10 +80,14 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    await widget.controller.login(
+    final success = await widget.controller.login(
       email: _emailController.text,
       password: _passwordController.text,
+      rememberPassword: _rememberPassword,
     );
+    if (success && mounted) {
+      TextInput.finishAutofillContext(shouldSave: true);
+    }
   }
 
   @override
@@ -75,57 +95,86 @@ class _LoginPageState extends State<LoginPage> {
     return AuthScaffold(
       title: 'Entrar',
       subtitle: 'Peça sua pizza favorita com praticidade.',
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextFormField(
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              autocorrect: false,
-              textCapitalization: TextCapitalization.none,
-              inputFormatters: [
-                FilteringTextInputFormatter.deny(RegExp(r'\s'))
-              ],
-              decoration: const InputDecoration(labelText: 'E-mail'),
-              validator: _requiredEmail,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Senha'),
-              validator: (value) =>
-                  value == null || value.isEmpty ? 'Informe sua senha.' : null,
-            ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: () =>
-                    Navigator.of(context).pushNamed(AppRouteNames.recovery),
-                child: const Text('Esqueci minha senha'),
+      child: AutofillGroup(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextFormField(
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                autofillHints: const [
+                  AutofillHints.username,
+                  AutofillHints.email
+                ],
+                autocorrect: false,
+                textCapitalization: TextCapitalization.none,
+                inputFormatters: [
+                  FilteringTextInputFormatter.deny(RegExp(r'\s'))
+                ],
+                decoration: const InputDecoration(labelText: 'E-mail'),
+                validator: _requiredEmail,
               ),
-            ),
-            AuthErrorMessage(controller: widget.controller),
-            const SizedBox(height: 8),
-            AuthSubmitButton(
-              label: 'Entrar',
-              isSubmitting: widget.controller.status == AuthStatus.submitting,
-              onPressed: _submit,
-            ),
-            const SizedBox(height: 12),
-            OutlinedButton(
-              onPressed: () =>
-                  Navigator.of(context).push(MaterialPageRoute<void>(
-                builder: (_) => RegisterPage(
-                  controller: widget.controller,
-                  settingsController: widget.settingsController,
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _passwordController,
+                obscureText: _obscurePassword,
+                autofillHints: const [AutofillHints.password],
+                decoration: InputDecoration(
+                  labelText: 'Senha',
+                  helperText:
+                      'Mínimo de 8 caracteres, com maiúscula, minúscula e número.',
+                  suffixIcon: IconButton(
+                    tooltip:
+                        _obscurePassword ? 'Mostrar senha' : 'Ocultar senha',
+                    icon: Icon(_obscurePassword
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined),
+                    onPressed: () =>
+                        setState(() => _obscurePassword = !_obscurePassword),
+                  ),
                 ),
-              )),
-              child: const Text('Criar uma conta'),
-            ),
-          ],
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Informe sua senha.'
+                    : null,
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () =>
+                      Navigator.of(context).pushNamed(AppRouteNames.recovery),
+                  child: const Text('Esqueci minha senha'),
+                ),
+              ),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                value: _rememberPassword,
+                onChanged: (value) =>
+                    setState(() => _rememberPassword = value ?? false),
+                title: const Text('Salvar senha neste dispositivo'),
+                subtitle: const Text('Armazenada com segurança no Android.'),
+              ),
+              AuthErrorMessage(controller: widget.controller),
+              const SizedBox(height: 8),
+              AuthSubmitButton(
+                label: 'Entrar',
+                isSubmitting: widget.controller.status == AuthStatus.submitting,
+                onPressed: _submit,
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton(
+                onPressed: () =>
+                    Navigator.of(context).push(MaterialPageRoute<void>(
+                  builder: (_) => RegisterPage(
+                    controller: widget.controller,
+                    settingsController: widget.settingsController,
+                  ),
+                )),
+                child: const Text('Criar uma conta'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -150,6 +199,9 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passwordController = TextEditingController();
   final _confirmationController = TextEditingController();
   bool _privacyAccepted = false;
+  bool _rememberPassword = true;
+  bool _obscurePassword = true;
+  bool _obscureConfirmation = true;
 
   @override
   void dispose() {
@@ -162,11 +214,16 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    await widget.controller.register(
+    final success = await widget.controller.register(
       name: _nameController.text,
       email: _emailController.text,
       password: _passwordController.text,
+      rememberPassword: _rememberPassword,
     );
+    if (success && mounted) {
+      TextInput.finishAutofillContext(shouldSave: true);
+      Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -174,91 +231,129 @@ class _RegisterPageState extends State<RegisterPage> {
     return AuthScaffold(
       title: 'Criar conta',
       subtitle: 'Salve seus dados para finalizar o pedido.',
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextFormField(
-              controller: _nameController,
-              textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(labelText: 'Nome'),
-              validator: (value) => value == null || value.trim().length < 2
-                  ? 'Informe seu nome.'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              autocorrect: false,
-              textCapitalization: TextCapitalization.none,
-              inputFormatters: [
-                FilteringTextInputFormatter.deny(RegExp(r'\s'))
-              ],
-              decoration: const InputDecoration(labelText: 'E-mail'),
-              validator: _requiredEmail,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Senha'),
-              validator: (value) => value != null && value.length >= 8
-                  ? null
-                  : 'Use pelo menos 8 caracteres.',
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _confirmationController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Confirmar senha'),
-              validator: (value) => value == _passwordController.text
-                  ? null
-                  : 'As senhas não coincidem.',
-            ),
-            AuthErrorMessage(controller: widget.controller),
-            CheckboxListTile(
-              contentPadding: EdgeInsets.zero,
-              value: _privacyAccepted,
-              onChanged: (value) =>
-                  setState(() => _privacyAccepted = value ?? false),
-              title: const Text('Aceito o tratamento dos meus dados'),
-              subtitle: TextButton(
-                onPressed: () async {
-                  await Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => PrivacyPage(
-                        controller: widget.settingsController,
-                      ),
-                    ),
-                  );
-                  if (mounted) {
-                    setState(() => _privacyAccepted =
-                        widget.settingsController.privacyConsentAccepted);
-                  }
-                },
-                style: TextButton.styleFrom(
-                    alignment: Alignment.centerLeft, padding: EdgeInsets.zero),
-                child: const Text('Leia a política de privacidade e a LGPD.'),
+      child: AutofillGroup(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextFormField(
+                controller: _nameController,
+                textCapitalization: TextCapitalization.words,
+                decoration: const InputDecoration(labelText: 'Nome'),
+                validator: (value) => value == null || value.trim().length < 2
+                    ? 'Informe seu nome.'
+                    : null,
               ),
-            ),
-            const SizedBox(height: 16),
-            AuthSubmitButton(
-              label: 'Criar conta',
-              isSubmitting: widget.controller.status == AuthStatus.submitting,
-              onPressed: _privacyAccepted
-                  ? () async {
-                      await widget.settingsController.acceptPrivacyConsent();
-                      await _submit();
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                autofillHints: const [
+                  AutofillHints.username,
+                  AutofillHints.email
+                ],
+                autocorrect: false,
+                textCapitalization: TextCapitalization.none,
+                inputFormatters: [
+                  FilteringTextInputFormatter.deny(RegExp(r'\s'))
+                ],
+                decoration: const InputDecoration(labelText: 'E-mail'),
+                validator: _requiredEmail,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _passwordController,
+                obscureText: _obscurePassword,
+                autofillHints: const [AutofillHints.newPassword],
+                decoration: InputDecoration(
+                  labelText: 'Senha',
+                  suffixIcon: IconButton(
+                    tooltip:
+                        _obscurePassword ? 'Mostrar senha' : 'Ocultar senha',
+                    icon: Icon(_obscurePassword
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined),
+                    onPressed: () =>
+                        setState(() => _obscurePassword = !_obscurePassword),
+                  ),
+                ),
+                validator: _passwordValidator,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _confirmationController,
+                obscureText: _obscureConfirmation,
+                autofillHints: const [AutofillHints.newPassword],
+                decoration: InputDecoration(
+                  labelText: 'Confirmar senha',
+                  suffixIcon: IconButton(
+                    tooltip: _obscureConfirmation
+                        ? 'Mostrar senha'
+                        : 'Ocultar senha',
+                    icon: Icon(_obscureConfirmation
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined),
+                    onPressed: () => setState(
+                        () => _obscureConfirmation = !_obscureConfirmation),
+                  ),
+                ),
+                validator: (value) => value == _passwordController.text
+                    ? null
+                    : 'As senhas não coincidem.',
+              ),
+              AuthErrorMessage(controller: widget.controller),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                value: _rememberPassword,
+                onChanged: (value) =>
+                    setState(() => _rememberPassword = value ?? false),
+                title: const Text('Salvar senha neste dispositivo'),
+                subtitle: const Text('Armazenada com segurança no Android.'),
+              ),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                value: _privacyAccepted,
+                onChanged: (value) =>
+                    setState(() => _privacyAccepted = value ?? false),
+                title: const Text('Aceito o tratamento dos meus dados'),
+                subtitle: TextButton(
+                  onPressed: () async {
+                    await Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => PrivacyPage(
+                          controller: widget.settingsController,
+                        ),
+                      ),
+                    );
+                    if (mounted) {
+                      setState(() => _privacyAccepted =
+                          widget.settingsController.privacyConsentAccepted);
                     }
-                  : null,
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Já tenho uma conta'),
-            ),
-          ],
+                  },
+                  style: TextButton.styleFrom(
+                      alignment: Alignment.centerLeft,
+                      padding: EdgeInsets.zero),
+                  child: const Text('Leia a política de privacidade e a LGPD.'),
+                ),
+              ),
+              const SizedBox(height: 16),
+              AuthSubmitButton(
+                label: 'Criar conta',
+                isSubmitting: widget.controller.status == AuthStatus.submitting,
+                onPressed: _privacyAccepted
+                    ? () async {
+                        await widget.settingsController.acceptPrivacyConsent();
+                        await _submit();
+                      }
+                    : null,
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Já tenho uma conta'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -476,6 +571,21 @@ String? _requiredEmail(String? value) {
   final email = value?.trim() ?? '';
   final validEmail = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email);
   if (!validEmail) return 'Informe um e-mail válido, como nome@dominio.com.';
+  return null;
+}
+
+String? _passwordValidator(String? value) {
+  final password = value ?? '';
+  if (password.length < 8) return 'Use pelo menos 8 caracteres.';
+  if (!RegExp(r'[A-Z]').hasMatch(password)) {
+    return 'Inclua pelo menos uma letra maiúscula.';
+  }
+  if (!RegExp(r'[a-z]').hasMatch(password)) {
+    return 'Inclua pelo menos uma letra minúscula.';
+  }
+  if (!RegExp(r'\d').hasMatch(password)) {
+    return 'Inclua pelo menos um número.';
+  }
   return null;
 }
 

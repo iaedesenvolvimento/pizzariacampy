@@ -6,6 +6,7 @@ import 'core/config/app_config.dart';
 import 'core/network/api_client.dart';
 import 'core/storage/app_storage.dart';
 import 'core/settings/app_settings_controller.dart';
+import 'core/notifications/realtime_notification_service.dart';
 import 'features/cart/cart_controller.dart';
 import 'features/auth/presentation/auth_pages.dart';
 import 'routes/app_router.dart';
@@ -22,6 +23,7 @@ class _PizzariaAppState extends State<PizzariaApp> with WidgetsBindingObserver {
   AuthController? _authController;
   CartController? _cartController;
   AppSettingsController? _settingsController;
+  final _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
   @override
   void initState() {
@@ -45,9 +47,51 @@ class _PizzariaAppState extends State<PizzariaApp> with WidgetsBindingObserver {
       AuthService(
           apiClient: ApiClient(config: AppConfig.fromEnvironment()),
           storage: storage),
-    )..initialize();
+    )..addListener(_syncRealtime);
+    realtimeNotificationService.events.listen(_showRealtimeNotification);
+    await _authController!.initialize();
+    _syncRealtime();
     if (mounted) setState(() {});
   }
+
+  void _syncRealtime() {
+    final auth = _authController;
+    final service = realtimeNotificationService;
+    if (auth == null) return;
+    if (auth.isAuthenticated && auth.accessToken != null) {
+      service.connect(auth.accessToken!);
+    } else {
+      service.disconnect();
+    }
+  }
+
+  void _showRealtimeNotification(RealtimeNotification notification) {
+    final number = notification.orderNumber;
+    final message = switch (notification.type) {
+      'order.created' => 'Novo pedido recebido${number.isEmpty ? '' : ': $number'}',
+      'order.status_changed' =>
+        'Pedido ${number.isEmpty ? '' : '$number: '} ${_statusLabel(notification.status)}',
+      _ => null,
+    };
+    if (message == null) return;
+    _scaffoldMessengerKey.currentState
+      ?..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+      ));
+  }
+
+  String _statusLabel(String status) => switch (status) {
+        'PENDING' => 'pedido recebido',
+        'CONFIRMED' => 'pedido confirmado',
+        'PREPARING' => 'pedido em preparo',
+        'READY' => 'pedido pronto',
+        'OUT_FOR_DELIVERY' => 'pedido saiu para entrega',
+        'DELIVERED' => 'pedido entregue',
+        'CANCELLED' => 'pedido cancelado',
+        _ => 'status atualizado',
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +106,7 @@ class _PizzariaAppState extends State<PizzariaApp> with WidgetsBindingObserver {
       builder: (context, _) => MaterialApp(
         title: 'Pizzaria Campy',
         debugShowCheckedModeBanner: false,
+        scaffoldMessengerKey: _scaffoldMessengerKey,
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
         themeMode: settingsController.themeMode,
@@ -90,6 +135,7 @@ class _PizzariaAppState extends State<PizzariaApp> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _authController?.dispose();
+    realtimeNotificationService.disconnect();
     _cartController?.dispose();
     _settingsController?.dispose();
     super.dispose();

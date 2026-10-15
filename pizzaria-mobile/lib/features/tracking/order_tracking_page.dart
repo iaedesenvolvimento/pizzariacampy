@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'dart:async';
 
 import '../../core/config/app_config.dart';
 import '../../core/network/api_client.dart';
 import '../../core/storage/app_storage.dart';
 import 'order_tracking_controller.dart';
+import '../../core/notifications/realtime_notification_service.dart';
 
 class OrderTrackingPage extends StatefulWidget {
   const OrderTrackingPage({required this.orderId, super.key});
@@ -17,11 +19,23 @@ class OrderTrackingPage extends StatefulWidget {
 
 class _OrderTrackingPageState extends State<OrderTrackingPage> {
   OrderTrackingController? _controller;
+  StreamSubscription<RealtimeNotification>? _notificationSubscription;
 
   @override
   void initState() {
     super.initState();
+    _notificationSubscription = realtimeNotificationService.events.listen((event) {
+      if (event.orderNumber.isNotEmpty && mounted) {
+        _controller?.load(widget.orderId);
+      }
+    });
     _load();
+  }
+
+  @override
+  void dispose() {
+    _notificationSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -62,32 +76,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                   controller.order!.paymentStatus != 'CONFIRMED'
               ? () => _submitProof(controller)
               : null,
-          onCancel: controller.order!.status == 'PENDING' ||
-                  controller.order!.status == 'CONFIRMED'
-              ? () => _cancelOrder(controller)
-              : null,
         );
       },
     );
-  }
-
-  Future<void> _cancelOrder(OrderTrackingController controller) async {
-    final shouldCancel = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Cancelar pedido?'),
-        content: const Text('Essa ação não poderá ser desfeita.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Voltar')),
-          FilledButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Cancelar pedido')),
-        ],
-      ),
-    );
-    if (shouldCancel == true) await controller.cancel(widget.orderId);
   }
 
   Future<void> _submitProof(OrderTrackingController controller) async {
@@ -145,12 +136,10 @@ class _TrackingContent extends StatelessWidget {
   const _TrackingContent(
       {required this.order,
       required this.onRefresh,
-      required this.onCancel,
       required this.onSubmitProof});
 
   final OrderTracking order;
   final Future<void> Function() onRefresh;
-  final Future<void> Function()? onCancel;
   final Future<void> Function()? onSubmitProof;
 
   static const _steps = <String, String>{
@@ -242,15 +231,6 @@ class _TrackingContent extends StatelessWidget {
                         onPressed: onSubmitProof,
                         child: Text(
                             order.proofUrl == null ? 'Anexar' : 'Atualizar')),
-                  ),
-                ),
-              if (onCancel != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: OutlinedButton.icon(
-                    onPressed: onCancel,
-                    icon: const Icon(Icons.cancel_outlined),
-                    label: const Text('Cancelar pedido'),
                   ),
                 ),
             ],

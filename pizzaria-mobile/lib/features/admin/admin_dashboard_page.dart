@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 
 import '../../core/config/app_config.dart';
 import '../../core/network/api_client.dart';
@@ -12,6 +13,7 @@ import 'admin_coupons_page.dart';
 import 'admin_orders_page.dart';
 import 'admin_customers_page.dart';
 import 'admin_settings_page.dart';
+import '../../core/notifications/realtime_notification_service.dart';
 
 class AdminDashboardPage extends StatefulWidget {
   const AdminDashboardPage({super.key});
@@ -22,11 +24,23 @@ class AdminDashboardPage extends StatefulWidget {
 
 class _AdminDashboardPageState extends State<AdminDashboardPage> {
   AdminDashboardController? _controller;
+  StreamSubscription<RealtimeNotification>? _notificationSubscription;
 
   @override
   void initState() {
     super.initState();
+    _notificationSubscription = realtimeNotificationService.events.listen((event) {
+      if (event.type == 'order.created' && mounted) {
+        _controller?.load();
+      }
+    });
     _load();
+  }
+
+  @override
+  void dispose() {
+    _notificationSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> _load() async {

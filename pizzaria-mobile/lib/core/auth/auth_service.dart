@@ -13,6 +13,9 @@ class AuthService {
 
   String? get accessToken => _storage.accessToken;
 
+  Future<Map<String, String>?> readSavedCredentials() =>
+      _storage.readSavedCredentials();
+
   Future<AuthSession?> restoreSession() async {
     final accessToken = _storage.accessToken;
     final refreshToken = _storage.refreshToken;
@@ -58,18 +61,27 @@ class AuthService {
   }
 
   Future<AuthSession> login(
-      {required String email, required String password}) async {
+      {required String email,
+      required String password,
+      bool rememberPassword = false}) async {
     final response = await _apiClient.post(
       '/auth/login',
       body: {'email': email.trim(), 'password': password},
     );
-    return _saveSession(response);
+    final session = await _saveSession(response);
+    if (rememberPassword) {
+      await _storage.saveCredentials(email: email, password: password);
+    } else {
+      await _storage.clearSavedCredentials();
+    }
+    return session;
   }
 
   Future<AuthSession> register({
     required String name,
     required String email,
     required String password,
+    bool rememberPassword = true,
   }) async {
     final response = await _apiClient.post(
       '/auth/register',
@@ -80,7 +92,11 @@ class AuthService {
         'privacy_consent': true,
       },
     );
-    return _saveSession(response);
+    final session = await _saveSession(response);
+    if (rememberPassword) {
+      await _storage.saveCredentials(email: email, password: password);
+    }
+    return session;
   }
 
   Future<void> requestPasswordRecovery(String email) async {

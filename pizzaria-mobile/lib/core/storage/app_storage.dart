@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AppStorage {
   AppStorage(this._preferences);
@@ -18,6 +19,27 @@ class AppStorage {
   static const _privacyConsentKey = 'privacy.consent_accepted';
 
   final SharedPreferences _preferences;
+  static const _secureStorage = FlutterSecureStorage();
+  static const _savedEmailKey = 'auth.saved_email';
+  static const _savedPasswordKey = 'auth.saved_password';
+
+  Future<Map<String, String>?> readSavedCredentials() async {
+    final email = await _secureStorage.read(key: _savedEmailKey);
+    final password = await _secureStorage.read(key: _savedPasswordKey);
+    if (email == null || password == null) return null;
+    return {'email': email, 'password': password};
+  }
+
+  Future<void> saveCredentials(
+      {required String email, required String password}) async {
+    await _secureStorage.write(key: _savedEmailKey, value: email.trim());
+    await _secureStorage.write(key: _savedPasswordKey, value: password);
+  }
+
+  Future<void> clearSavedCredentials() async {
+    await _secureStorage.delete(key: _savedEmailKey);
+    await _secureStorage.delete(key: _savedPasswordKey);
+  }
 
   String? get accessToken => _preferences.getString(_accessTokenKey);
   String? get refreshToken => _preferences.getString(_refreshTokenKey);

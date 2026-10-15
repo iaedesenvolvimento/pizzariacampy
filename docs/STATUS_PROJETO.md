@@ -194,4 +194,4 @@ Validada no emulador Android em 2026-10-10:
 
 ## Pós-MVP
 
-Cupons avançados, favoritos, fidelidade, notificações push, mapas, rastreamento, gateway de pagamento e múltiplas unidades permanecem fora do MVP conforme `POST_MVP_ROADMAP.md`.
+WebSocket para notificações em tempo real está implementado: clientes recebem mudanças de status do próprio pedido e administradores recebem novos pedidos e atualizações enquanto o app está aberto. Push em segundo plano via Firebase, favoritos, fidelidade, mapas, rastreamento, gateway de pagamento e múltiplas unidades permanecem pendentes conforme `POST_MVP_ROADMAP.md`.

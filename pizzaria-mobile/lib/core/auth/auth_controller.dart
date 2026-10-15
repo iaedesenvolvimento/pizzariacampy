@@ -42,16 +42,27 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> login({required String email, required String password}) async {
-    return _submit(() => _service.login(email: email, password: password));
+  Future<bool> login(
+      {required String email,
+      required String password,
+      bool rememberPassword = false}) async {
+    return _submit(() => _service.login(
+        email: email, password: password, rememberPassword: rememberPassword));
   }
+
+  Future<Map<String, String>?> readSavedCredentials() =>
+      _service.readSavedCredentials();
 
   Future<bool> register(
       {required String name,
       required String email,
-      required String password}) async {
-    return _submit(
-        () => _service.register(name: name, email: email, password: password));
+      required String password,
+      bool rememberPassword = true}) async {
+    return _submit(() => _service.register(
+        name: name,
+        email: email,
+        password: password,
+        rememberPassword: rememberPassword));
   }
 
   Future<bool> requestPasswordRecovery(String email) async {

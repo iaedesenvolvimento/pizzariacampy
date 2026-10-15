@@ -2,20 +2,20 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.database import get_session
 from app.dependencies.auth import get_admin_user, get_current_user
 from app.models.order import Order
 from app.models.user import User
+from app.schemas.admin import AdminOrderSummary
 from app.schemas.orders import (
     CancelOrderRequest,
     CreateOrderRequest,
     OrderResponse,
     UpdateOrderStatusRequest,
 )
-from app.schemas.admin import AdminOrderSummary
 from app.services.orders import (
     OrderError,
     cancel_order,
@@ -24,7 +24,10 @@ from app.services.orders import (
     list_orders,
     transition_order,
 )
-
+from app.services.realtime import (
+    notify_order_created,
+    notify_order_status_changed,
+)
 
 router = APIRouter(prefix="/orders")
 admin_router = APIRouter(prefix="/admin/orders")
@@ -45,7 +48,9 @@ async def create_customer_order(
     current_user: User = Depends(get_current_user),
 ) -> Order:
     try:
-        return await create_order(session, current_user.id, payload)
+        order = await create_order(session, current_user.id, payload)
+        await notify_order_created(order)
+        return order
     except OrderError as error:
         await session.rollback()
         raise order_error_response(error) from error
@@ -97,9 +102,12 @@ async def update_order_status(
 ) -> Order:
     try:
         order = await get_order(session, order_id)
+        previous_status = order.status
         await transition_order(session, order, payload.status, current_user.id, payload.reason)
         await session.commit()
-        return await get_order(session, order.id)
+        updated_order = await get_order(session, order.id)
+        await notify_order_status_changed(updated_order, previous_status)
+        return updated_order
     except OrderError as error:
         await session.rollback()
         raise order_error_response(error) from error

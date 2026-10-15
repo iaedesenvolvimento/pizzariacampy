@@ -1,7 +1,20 @@
 from fastapi import APIRouter
 
-from app.api.routes import addresses, admin, auth, business_hours, catalog, coupons, delivery, health, observability, orders, payments, pricing
-
+from app.api.routes import (
+    addresses,
+    admin,
+    auth,
+    business_hours,
+    catalog,
+    coupons,
+    delivery,
+    health,
+    observability,
+    orders,
+    payments,
+    pricing,
+    realtime,
+)
 
 api_router = APIRouter()
 api_router.include_router(health.router, tags=["health"])
@@ -22,3 +35,4 @@ api_router.include_router(delivery.admin_router, tags=["admin-delivery"])
 api_router.include_router(delivery.locations_admin_router, tags=["admin-coverage-locations"])
 api_router.include_router(coupons.router, tags=["admin-coupons"])
 api_router.include_router(observability.router, tags=["observability"])
+api_router.include_router(realtime.router, tags=["realtime"])
