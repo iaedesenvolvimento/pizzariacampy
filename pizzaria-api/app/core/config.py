@@ -42,6 +42,9 @@ class Settings(BaseSettings):
     smtp_password: str | None = None
     smtp_from_email: str | None = None
     smtp_use_tls: bool = True
+    brevo_api_key: str | None = None
+    brevo_from_email: str | None = None
+    brevo_from_name: str = "Pizzaria Campy"
     public_app_url: str = "http://localhost:8000"
     cloudinary_cloud_name: str | None = None
     cloudinary_api_key: str | None = None

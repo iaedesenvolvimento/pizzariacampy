@@ -14,7 +14,7 @@
 2. DNS `APP_DOMAIN` apontando para o servidor.
 3. Docker Compose instalado.
 4. Arquivo `.env` preenchido por secret manager ou mecanismo equivalente.
-5. SMTP de produção configurado para recuperação de senha.
+5. Provedor de e-mail transacional configurado para recuperação de senha (Brevo via API HTTPS recomendado; SMTP fica para desenvolvimento).
 6. Backup restaurável confirmado antes de migrations.
 
 ## Execução

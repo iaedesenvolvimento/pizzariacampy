@@ -5,6 +5,8 @@ import smtplib
 from datetime import UTC, datetime, timedelta
 from email.message import EmailMessage
 
+import httpx
+
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -53,6 +55,9 @@ async def reset_password(session: AsyncSession, payload: PasswordResetRequest) -
 
 
 async def _send_reset_email(recipient: str, reset_url: str) -> None:
+    if settings.brevo_api_key and settings.brevo_from_email:
+        await _send_brevo_email(recipient, reset_url)
+        return
     if not settings.smtp_host or not settings.smtp_from_email:
         logger.warning("Password reset email not configured; reset URL generated for %s", recipient)
         return
@@ -75,3 +80,32 @@ async def _send_reset_email(recipient: str, reset_url: str) -> None:
             server.send_message(message)
 
     await asyncio.to_thread(send)
+
+
+async def _send_brevo_email(recipient: str, reset_url: str) -> None:
+    text_content = (
+        "Solicitamos a redefinição da sua senha. Acesse o link abaixo em até "
+        f"{settings.password_reset_expire_minutes} minutos:\n\n{reset_url}\n"
+    )
+    html_content = (
+        "<p>Solicitamos a redefinição da sua senha.</p>"
+        f"<p>Acesse o link abaixo em até {settings.password_reset_expire_minutes} minutos:</p>"
+        f'<p><a href="{reset_url}">Redefinir minha senha</a></p>'
+    )
+    payload = {
+        "sender": {
+            "email": settings.brevo_from_email,
+            "name": settings.brevo_from_name,
+        },
+        "to": [{"email": recipient}],
+        "subject": "Redefinição de senha — Pizzaria Campy",
+        "textContent": text_content,
+        "htmlContent": html_content,
+    }
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        response = await client.post(
+            "https://api.brevo.com/v3/smtp/email",
+            headers={"accept": "application/json", "api-key": settings.brevo_api_key},
+            json=payload,
+        )
+        response.raise_for_status()
