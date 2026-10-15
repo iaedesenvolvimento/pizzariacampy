@@ -278,6 +278,7 @@ class _RecoveryPageState extends State<RecoveryPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   bool _sent = false;
+  bool _submitting = false;
 
   @override
   void dispose() {
@@ -287,9 +288,15 @@ class _RecoveryPageState extends State<RecoveryPage> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    final success =
-        await widget.controller.requestPasswordRecovery(_emailController.text);
-    if (success && mounted) setState(() => _sent = true);
+    setState(() => _submitting = true);
+    try {
+      final success = await widget.controller
+          .requestPasswordRecovery(_emailController.text);
+      if (!mounted) return;
+      setState(() => _sent = success);
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
   }
 
   @override
@@ -342,8 +349,7 @@ class _RecoveryPageState extends State<RecoveryPage> {
                   const SizedBox(height: 16),
                   AuthSubmitButton(
                     label: 'Enviar instruções',
-                    isSubmitting:
-                        widget.controller.status == AuthStatus.submitting,
+                    isSubmitting: _submitting,
                     onPressed: _submit,
                   ),
                 ],

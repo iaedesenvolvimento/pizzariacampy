@@ -65,7 +65,9 @@ class AuthController extends ChangeNotifier {
       return true;
     } on AppException catch (error) {
       status = AuthStatus.error;
-      errorMessage = error.message;
+      errorMessage = error is ApiException && error.statusCode >= 500
+          ? 'Não foi possível enviar as instruções agora. Tente novamente mais tarde.'
+          : error.message;
       notifyListeners();
       return false;
     } catch (_) {
