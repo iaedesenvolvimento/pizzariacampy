@@ -83,6 +83,10 @@ class _MenuHomePageState extends State<MenuHomePage> {
           product: product,
           cartController: widget.cartController,
           accessToken: widget.authController.accessToken,
+          refreshAccessToken: () async {
+            await widget.authController.refreshSession();
+            return widget.authController.accessToken;
+          },
         ),
       ),
     );
@@ -378,11 +382,13 @@ class ProductDetailsPage extends StatefulWidget {
       {required this.product,
       required this.cartController,
       required this.accessToken,
+      required this.refreshAccessToken,
       super.key});
 
   final MenuProduct product;
   final CartController cartController;
   final String? accessToken;
+  final Future<String?> Function() refreshAccessToken;
 
   @override
   State<ProductDetailsPage> createState() => _ProductDetailsPageState();
@@ -419,6 +425,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             options: snapshot.data!,
             cartController: widget.cartController,
             accessToken: widget.accessToken,
+            refreshAccessToken: widget.refreshAccessToken,
           );
         },
       ),
@@ -430,11 +437,13 @@ class _ProductOptionsView extends StatefulWidget {
   const _ProductOptionsView(
       {required this.options,
       required this.cartController,
-      required this.accessToken});
+      required this.accessToken,
+      required this.refreshAccessToken});
 
   final MenuProductOptions options;
   final CartController cartController;
   final String? accessToken;
+  final Future<String?> Function() refreshAccessToken;
 
   @override
   State<_ProductOptionsView> createState() => _ProductOptionsViewState();
@@ -450,6 +459,7 @@ class _ProductOptionsViewState extends State<_ProductOptionsView> {
           options: widget.options,
           cartController: widget.cartController,
           accessToken: widget.accessToken,
+          refreshAccessToken: widget.refreshAccessToken,
         ),
       ),
     );

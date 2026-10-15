@@ -11,11 +11,13 @@ class PizzaBuilderPage extends StatefulWidget {
       {required this.options,
       required this.cartController,
       required this.accessToken,
+      required this.refreshAccessToken,
       super.key});
 
   final MenuProductOptions options;
   final CartController cartController;
   final String? accessToken;
+  final Future<String?> Function() refreshAccessToken;
 
   @override
   State<PizzaBuilderPage> createState() => _PizzaBuilderPageState();
@@ -29,7 +31,12 @@ class _PizzaBuilderPageState extends State<PizzaBuilderPage> {
   void initState() {
     super.initState();
     _controller =
-        PizzaBuilderController(ApiClient(), widget.options, widget.accessToken);
+        PizzaBuilderController(
+          ApiClient(),
+          widget.options,
+          widget.accessToken,
+          refreshAccessToken: widget.refreshAccessToken,
+        );
     _controller.addListener(_onControllerChanged);
     _controller.initialize();
   }

@@ -5,11 +5,17 @@ import '../../core/network/api_client.dart';
 import 'data/menu_models.dart';
 
 class PizzaBuilderController extends ChangeNotifier {
-  PizzaBuilderController(this._apiClient, this.options, this.accessToken);
+  PizzaBuilderController(
+    this._apiClient,
+    this.options,
+    this.accessToken, {
+    this.refreshAccessToken,
+  });
 
   final ApiClient _apiClient;
   final MenuProductOptions options;
   final String? accessToken;
+  final Future<String?> Function()? refreshAccessToken;
   String? selectedSizeId;
   String? selectedEdgeId;
   final Set<String> selectedFlavorIds = {};
@@ -89,32 +95,42 @@ class PizzaBuilderController extends ChangeNotifier {
     final requestVersion = ++_quoteVersion;
     isQuoting = true;
     notifyListeners();
+    var token = accessToken;
     try {
-      final response = await _apiClient.post(
-        '/pricing/quote',
-        headers: accessToken == null
-            ? null
-            : {'Authorization': 'Bearer $accessToken'},
-        body: {
-          'items': [
-            {
-              'product_id': options.product.id,
-              'product_size_id': selectedSizeId,
-              'flavor_ids': selectedFlavorIds.toList(),
-              'edge_id': selectedEdgeId,
-              'extras': selectedExtras.entries
-                  .map((entry) =>
-                      {'extra_id': entry.key, 'quantity': entry.value})
-                  .toList(),
-              'quantity': quantity,
+      for (var attempt = 0; attempt < 2; attempt++) {
+        try {
+          final response = await _apiClient.post(
+            '/pricing/quote',
+            headers: token == null ? null : {'Authorization': 'Bearer $token'},
+            body: {
+              'items': [
+                {
+                  'product_id': options.product.id,
+                  'product_size_id': selectedSizeId,
+                  'flavor_ids': selectedFlavorIds.toList(),
+                  'edge_id': selectedEdgeId,
+                  'extras': selectedExtras.entries
+                      .map((entry) =>
+                          {'extra_id': entry.key, 'quantity': entry.value})
+                      .toList(),
+                  'quantity': quantity,
+                },
+              ],
+              'fulfillment_type': 'PICKUP',
             },
-          ],
-          'fulfillment_type': 'PICKUP',
-        },
-      );
-      if (requestVersion == _quoteVersion && response is Map<String, dynamic>) {
-        quoteTotal = double.tryParse(response['total_amount'].toString());
-        errorMessage = null;
+          );
+          if (requestVersion == _quoteVersion && response is Map<String, dynamic>) {
+            quoteTotal = double.tryParse(response['total_amount'].toString());
+            errorMessage = null;
+          }
+          break;
+        } on ApiException catch (error) {
+          if (error.statusCode != 401 || attempt > 0 || refreshAccessToken == null) {
+            rethrow;
+          }
+          token = await refreshAccessToken!();
+          if (token == null) rethrow;
+        }
       }
     } on AppException catch (error) {
       if (requestVersion == _quoteVersion) {
