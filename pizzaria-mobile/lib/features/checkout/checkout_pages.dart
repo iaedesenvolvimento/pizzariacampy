@@ -221,10 +221,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Map<String, dynamic>? _findMatchingZone(String neighborhood, String city) {
-    final normalizedNeighborhood = _normalizeLocation(neighborhood);
+    final normalizedNeighborhood = _canonicalNeighborhood(neighborhood);
     final normalizedCity = _normalizeLocation(city);
     for (final zone in _deliveryZones) {
-      if (_normalizeLocation(zone['neighborhood']?.toString() ?? '') ==
+      if (_canonicalNeighborhood(zone['neighborhood']?.toString() ?? '') ==
               normalizedNeighborhood &&
           _normalizeLocation(zone['city']?.toString() ?? '') ==
               normalizedCity) {
@@ -255,6 +255,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
     replacements
         .forEach((from, to) => normalized = normalized.replaceAll(from, to));
     return normalized;
+  }
+
+  String _canonicalNeighborhood(String value) {
+    final normalized = _normalizeLocation(value);
+    const aliases = {
+      'cidade ariston estela azevedo': 'ariston',
+      'parque roseira': 'roseira parque',
+    };
+    return aliases[normalized] ?? normalized;
   }
 
   @override
