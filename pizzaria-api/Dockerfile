@@ -14,6 +14,8 @@ COPY migrations ./migrations
 COPY scripts ./scripts
 COPY catalogo-real.json ./catalogo-real.json
 COPY catalog.real.example.json ./catalog.real.example.json
+COPY catalog-images-manifest.json ./catalog-images-manifest.json
+COPY assets/catalog-images ./assets/catalog-images
 COPY alembic.ini ./
 COPY docker-entrypoint.sh ./
 

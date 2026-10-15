@@ -149,19 +149,22 @@ async def import_catalog(path: Path) -> None:
             category = category_by_slug.get(product_data["category_slug"])
             if category is None:
                 raise ValueError(f"Categoria não encontrada: {product_data['category_slug']}")
+            product_values = {
+                "category_id": category.id,
+                "name": product_data["name"],
+                "description": product_data.get("description"),
+                "product_type": product_data["product_type"],
+                "sort_order": product_data.get("sort_order", 0),
+                "is_active": product_data.get("is_active", True),
+            }
+            image_url = product_data.get("image_url")
+            if image_url:
+                product_values["image_url"] = image_url
             product = await first_or_create(
                 session,
                 Product,
                 {"slug": product_data["slug"]},
-                {
-                    "category_id": category.id,
-                    "name": product_data["name"],
-                    "description": product_data.get("description"),
-                    "product_type": product_data["product_type"],
-                    "image_url": product_data.get("image_url"),
-                    "sort_order": product_data.get("sort_order", 0),
-                    "is_active": product_data.get("is_active", True),
-                },
+                product_values,
             )
             for size_data in product_data.get("sizes", []):
                 size = await first_or_create(

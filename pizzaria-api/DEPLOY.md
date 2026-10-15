@@ -40,6 +40,18 @@ python scripts/import_catalog.py catalogo-real.json
 
 O primeiro comando valida o arquivo sem gravar dados. O segundo cadastra ou atualiza o catálogo oficial no PostgreSQL configurado em `DATABASE_URL`. Depois, confirme `GET /api/v1/categories` e `GET /api/v1/products`.
 
+## Importação das imagens no Render
+
+A configuração do Cloudinary não preenche automaticamente o campo `image_url` dos produtos. Para importar as imagens sem usar o Shell:
+
+1. Faça o deploy da imagem que contém `catalog-images-manifest.json` e `assets/catalog-images`.
+2. No Render, mantenha as variáveis `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` e `CLOUDINARY_API_SECRET` configuradas.
+3. Adicione `IMPORT_PRODUCT_IMAGES_ON_STARTUP=true` e faça um deploy manual.
+4. Aguarde o log `Produtos atualizados: ...` e confirme `GET /api/v1/products`.
+5. Altere `IMPORT_PRODUCT_IMAGES_ON_STARTUP` para `false` e faça novo deploy, para não reenviar as imagens a cada reinício.
+
+O processo é idempotente: ele sobrescreve os mesmos arquivos no Cloudinary e atualiza os produtos pelo `slug`.
+
 ## Rollback
 
 - Preserve a imagem anterior e o backup antes do deploy.
