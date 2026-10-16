@@ -121,65 +121,6 @@ class _AdminProductSizesPageState extends State<AdminProductSizesPage> {
     }
   }
 
-  Future<void> _linkActiveFlavors() async {
-    if (_adminApi == null || _sizes.isEmpty) return;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Preparar sabores da pizza?'),
-        content: const Text(
-            'Os sabores ativos serão vinculados aos tamanhos sem preço de sabor. Os preços já configurados não serão alterados.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('Cancelar')),
-          FilledButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
-              child: const Text('Preparar')),
-        ],
-      ),
-    );
-    if (confirmed != true || !mounted) return;
-    try {
-      final flavors = await _adminApi!.get('/admin/catalog/flavors');
-      if (flavors is! List<dynamic>) {
-        throw const FormatException('Sabores inválidos.');
-      }
-      var linked = 0;
-      for (final flavor in flavors.whereType<Map<String, dynamic>>()) {
-        if (flavor['is_active'] != true) continue;
-        final prices = await _adminApi!
-            .get('/admin/catalog/flavor-prices?flavor_id=${flavor['id']}');
-        final configuredSizeIds = prices is List<dynamic>
-            ? prices
-                .whereType<Map<String, dynamic>>()
-                .map((price) => price['product_size_id']?.toString())
-                .toSet()
-            : <String?>{};
-        for (final size in _sizes) {
-          final sizeId = size['id']?.toString();
-          if (sizeId == null || configuredSizeIds.contains(sizeId)) continue;
-          await _adminApi!.post('/admin/catalog/flavor-prices', body: {
-            'flavor_id': flavor['id'],
-            'product_size_id': sizeId,
-            'price': size['price'],
-          });
-          linked++;
-        }
-      }
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(linked == 0
-              ? 'Todos os sabores já estavam configurados.'
-              : '$linked vínculo(s) de sabor criado(s) com sucesso.')));
-    } catch (error) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(error.toString())));
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final isPizza = widget.productType == 'PIZZA';
@@ -209,16 +150,6 @@ class _AdminProductSizesPageState extends State<AdminProductSizesPage> {
                               : 'Exemplo: 1 litro, lata ou unidade, sempre com preço.'),
                         ),
                       ),
-                      if (isPizza && _sizes.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 12),
-                          child: OutlinedButton.icon(
-                            onPressed: _linkActiveFlavors,
-                            icon: const Icon(Icons.auto_fix_high_outlined),
-                            label:
-                                const Text('Vincular sabores automaticamente'),
-                          ),
-                        ),
                       if (_sizes.isEmpty)
                         const Padding(
                             padding: EdgeInsets.all(24),
