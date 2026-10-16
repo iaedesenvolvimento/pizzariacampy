@@ -82,18 +82,15 @@ class _MenuHomePageState extends State<MenuHomePage> {
   }
 
   Future<void> _openProduct(MenuProduct product) async {
-    if (!_businessStatusController.isOpen) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('A pizzaria está fechada no momento.'),
-      ));
-      return;
-    }
     final added = await Navigator.of(context).push<bool>(
       MaterialPageRoute<bool>(
         builder: (_) => ProductDetailsPage(
           product: product,
           cartController: widget.cartController,
           accessToken: widget.authController.accessToken,
+          isStoreOpen: _businessStatusController.isOpen &&
+              !_businessStatusController.isLoading,
+          storeStatusMessage: _businessStatusController.message,
           refreshAccessToken: () async {
             await widget.authController.refreshSession();
             return widget.authController.accessToken;
@@ -371,12 +368,7 @@ class ProductCard extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: isOpen
-            ? onOpen
-            : () => ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('A pizzaria está fechada no momento.')),
-                ),
+        onTap: onOpen,
         child: Row(
           children: [
             SizedBox(
@@ -428,12 +420,16 @@ class ProductDetailsPage extends StatefulWidget {
       {required this.product,
       required this.cartController,
       required this.accessToken,
+      required this.isStoreOpen,
+      required this.storeStatusMessage,
       required this.refreshAccessToken,
       super.key});
 
   final MenuProduct product;
   final CartController cartController;
   final String? accessToken;
+  final bool isStoreOpen;
+  final String? storeStatusMessage;
   final Future<String?> Function() refreshAccessToken;
 
   @override
@@ -471,6 +467,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             options: snapshot.data!,
             cartController: widget.cartController,
             accessToken: widget.accessToken,
+            isStoreOpen: widget.isStoreOpen,
+            storeStatusMessage: widget.storeStatusMessage,
             refreshAccessToken: widget.refreshAccessToken,
           );
         },
@@ -484,11 +482,15 @@ class _ProductOptionsView extends StatefulWidget {
       {required this.options,
       required this.cartController,
       required this.accessToken,
+      required this.isStoreOpen,
+      required this.storeStatusMessage,
       required this.refreshAccessToken});
 
   final MenuProductOptions options;
   final CartController cartController;
   final String? accessToken;
+  final bool isStoreOpen;
+  final String? storeStatusMessage;
   final Future<String?> Function() refreshAccessToken;
 
   @override
@@ -613,6 +615,33 @@ class _ProductOptionsViewState extends State<_ProductOptionsView> {
       padding: EdgeInsets.fromLTRB(
           16, 16, 16, MediaQuery.viewPaddingOf(context).bottom + 64),
       children: [
+        if (!widget.isStoreOpen)
+          Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.errorContainer,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.store_mall_directory_outlined,
+                    color: Theme.of(context).colorScheme.onErrorContainer),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    widget.storeStatusMessage == null ||
+                            widget.storeStatusMessage!.isEmpty
+                        ? 'Estamos fechados no momento. Consulte o produto e volte durante o próximo horário de funcionamento para fazer seu pedido.'
+                        : '${widget.storeStatusMessage}. Os pedidos estarão disponíveis durante o horário de funcionamento.',
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onErrorContainer),
+                  ),
+                ),
+              ],
+            ),
+          ),
         if (widget.options.product.imageUrl != null)
           _ProductImage(
             url: widget.options.product.imageUrl,
@@ -682,7 +711,7 @@ class _ProductOptionsViewState extends State<_ProductOptionsView> {
           ),
         const SizedBox(height: 16),
         ElevatedButton(
-          onPressed: _adding || !hasSizes
+          onPressed: _adding || !hasSizes || !widget.isStoreOpen
               ? null
               : widget.options.product.type == 'PIZZA'
                   ? _openPizzaBuilder
@@ -691,9 +720,11 @@ class _ProductOptionsViewState extends State<_ProductOptionsView> {
               ? const CircularProgressIndicator()
               : Text(!hasSizes
                   ? 'Produto indisponível'
-                  : widget.options.product.type == 'PIZZA'
-                      ? 'Avançar'
-                      : 'Adicionar ao carrinho'),
+                  : !widget.isStoreOpen
+                      ? 'Loja fechada'
+                      : widget.options.product.type == 'PIZZA'
+                          ? 'Avançar'
+                          : 'Adicionar ao carrinho'),
         ),
       ],
     );
