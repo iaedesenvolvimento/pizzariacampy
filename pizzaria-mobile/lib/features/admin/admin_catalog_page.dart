@@ -7,6 +7,20 @@ import '../../core/storage/app_storage.dart';
 import 'admin_api_client.dart';
 import 'admin_product_sizes_page.dart';
 
+String _productTypeLabel(String? type) {
+  switch (type?.toString().toUpperCase()) {
+    case 'BEVERAGE':
+    case 'DRINK':
+      return 'Bebida';
+    case 'DESSERT':
+      return 'Sobremesa';
+    case 'COMBO':
+      return 'Combo';
+    default:
+      return 'Pizza';
+  }
+}
+
 String _normalizeSlug(String value) {
   const replacements = {
     'á': 'a',
@@ -178,8 +192,30 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
       }
       final productId = created['id']?.toString();
       if (productId == null || productId.isEmpty) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Produto criado. Cadastre agora um tamanho e preço.')));
+      final productType = created['product_type']?.toString() ?? 'PIZZA';
+      if (productType != 'PIZZA') {
+        final price = result['initial_price'];
+        if (price != null && price.isNotEmpty) {
+          await _adminApi!.post(
+            '/admin/catalog/products/$productId/sizes',
+            body: {
+              'name': 'Padrão',
+              'slug': 'padrao',
+              'price': price,
+              'slices': 1,
+              'max_flavors': 1,
+            },
+          );
+        }
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(price == null || price.isEmpty
+                ? '${_productTypeLabel(productType)} criado. Falta cadastrar o preço.'
+                : '${_productTypeLabel(productType)} criado com preço.')));
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Pizza criada. Agora cadastre os tamanhos e preços.')));
       await Navigator.of(context).push(MaterialPageRoute<void>(
           builder: (_) => AdminProductSizesPage(
                 productId: productId,
@@ -197,12 +233,26 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
 
   Future<void> _edit(Map<String, dynamic> item) async {
     if (_token == null) return;
+    final initial = Map<String, dynamic>.from(item);
+    final productType = item['product_type']?.toString().toUpperCase();
+    if (!_isCategories && productType != null && productType != 'PIZZA') {
+      try {
+        final sizes =
+            await _adminApi!.get('/admin/catalog/products/${item['id']}/sizes');
+        if (sizes is List && sizes.isNotEmpty && sizes.first is Map) {
+          final size = Map<String, dynamic>.from(sizes.first as Map);
+          initial['initial_price'] = size['price']?.toString() ?? '';
+          initial['initial_size_id'] = size['id']?.toString();
+        }
+      } catch (_) {}
+    }
+    if (!mounted) return;
     final result = await showDialog<Map<String, String>>(
       context: context,
       builder: (_) => _CatalogForm(
         isCategory: _isCategories,
         categories: _categories,
-        initial: item,
+        initial: initial,
         onUploadImage: _uploadImage,
       ),
     );
@@ -228,6 +278,24 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
           };
     try {
       await _adminApi!.patch(path, body: body);
+      if (!_isCategories && result['product_type'] != 'PIZZA') {
+        final price = result['initial_price'];
+        final sizeId = initial['initial_size_id']?.toString();
+        if (price != null && price.isNotEmpty) {
+          if (sizeId != null && sizeId.isNotEmpty) {
+            await _adminApi!
+                .patch('/admin/catalog/sizes/$sizeId', body: {'price': price});
+          } else {
+            await _adminApi!.post('/admin/catalog/products/$id/sizes', body: {
+              'name': 'Padrão',
+              'slug': 'padrao',
+              'price': price,
+              'slices': 1,
+              'max_flavors': 1,
+            });
+          }
+        }
+      }
       await _load();
     } catch (error) {
       if (mounted) {
@@ -387,46 +455,74 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
                             title: Text(item['name']?.toString() ?? ''),
                             subtitle: Text(_isCategories
                                 ? 'Slug: ${item['slug'] ?? ''}'
-                                : '${_categories.firstWhere(
+                                : '${_productTypeLabel(item['product_type'])} · ${_categories.firstWhere(
                                       (category) =>
                                           category['id']?.toString() ==
                                           item['category_id']?.toString(),
                                       orElse: () => const {},
-                                    )['name'] ?? 'Sem categoria'} · ${item['product_type'] ?? ''}'),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  tooltip: 'Tamanhos',
-                                  icon: const Icon(Icons.straighten_outlined),
-                                  onPressed: _isCategories
-                                      ? null
-                                      : () => Navigator.of(context)
-                                              .push(MaterialPageRoute<void>(
-                                            builder: (_) =>
-                                                AdminProductSizesPage(
-                                              productId: item['id'].toString(),
-                                              productName:
-                                                  item['name'].toString(),
-                                              productType: item['product_type']
-                                                      ?.toString() ??
-                                                  'PIZZA',
-                                            ),
-                                          )),
+                                    )['name'] ?? 'Sem categoria'}'),
+                            trailing: PopupMenuButton<String>(
+                              tooltip: 'Ações do produto',
+                              onSelected: (action) {
+                                switch (action) {
+                                  case 'prices':
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute<void>(
+                                        builder: (_) => AdminProductSizesPage(
+                                          productId: item['id'].toString(),
+                                          productName: item['name'].toString(),
+                                          productType: item['product_type']
+                                                  ?.toString() ??
+                                              'PIZZA',
+                                        ),
+                                      ),
+                                    );
+                                  case 'edit':
+                                    _edit(item);
+                                  case 'toggle':
+                                    _toggle(item);
+                                  case 'delete':
+                                    _delete(item);
+                                }
+                              },
+                              itemBuilder: (_) => [
+                                if (!_isCategories)
+                                  const PopupMenuItem(
+                                    value: 'prices',
+                                    child: ListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      leading:
+                                          Icon(Icons.price_change_outlined),
+                                      title: Text('Preços e variações'),
+                                    ),
+                                  ),
+                                const PopupMenuItem(
+                                  value: 'edit',
+                                  child: ListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    leading: Icon(Icons.edit_outlined),
+                                    title: Text('Editar dados'),
+                                  ),
                                 ),
-                                IconButton(
-                                  tooltip: 'Editar',
-                                  icon: const Icon(Icons.edit_outlined),
-                                  onPressed: () => _edit(item),
+                                PopupMenuItem(
+                                  value: 'toggle',
+                                  child: ListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    leading: Icon(item['is_active'] == true
+                                        ? Icons.visibility_off_outlined
+                                        : Icons.visibility_outlined),
+                                    title: Text(item['is_active'] == true
+                                        ? 'Desativar'
+                                        : 'Ativar'),
+                                  ),
                                 ),
-                                IconButton(
-                                  tooltip: 'Excluir',
-                                  icon: const Icon(Icons.delete_outline),
-                                  onPressed: () => _delete(item),
-                                ),
-                                Switch(
-                                  value: item['is_active'] == true,
-                                  onChanged: (_) => _toggle(item),
+                                const PopupMenuItem(
+                                  value: 'delete',
+                                  child: ListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    leading: Icon(Icons.delete_outline),
+                                    title: Text('Excluir'),
+                                  ),
                                 ),
                               ],
                             ),
@@ -466,6 +562,7 @@ class _CatalogFormState extends State<_CatalogForm> {
   late final TextEditingController _slug;
   late final TextEditingController _description;
   late final TextEditingController _imageUrl;
+  late final TextEditingController _price;
   String? _categoryId;
   String _type = 'PIZZA';
   String? _validationError;
@@ -482,9 +579,20 @@ class _CatalogFormState extends State<_CatalogForm> {
         TextEditingController(text: initial?['description']?.toString() ?? '');
     _imageUrl =
         TextEditingController(text: initial?['image_url']?.toString() ?? '');
+    _price = TextEditingController(
+        text: initial?['initial_price']?.toString().replaceAll(',', '.') ?? '');
     _categoryId = initial?['category_id']?.toString();
-    final initialType = initial?['product_type']?.toString();
-    _type = initialType == 'DRINK' ? 'BEVERAGE' : initialType ?? 'PIZZA';
+    final initialType = initial?['product_type']?.toString().toUpperCase();
+    _type = initialType == 'DRINK'
+        ? 'BEVERAGE'
+        : <String>{
+            'PIZZA',
+            'BEVERAGE',
+            'DESSERT',
+            'COMBO',
+          }.contains(initialType)
+            ? initialType!
+            : 'PIZZA';
     _slugManuallyEdited = initial != null && _slug.text.isNotEmpty;
   }
 
@@ -494,6 +602,7 @@ class _CatalogFormState extends State<_CatalogForm> {
     _slug.dispose();
     _description.dispose();
     _imageUrl.dispose();
+    _price.dispose();
     super.dispose();
   }
 
@@ -551,13 +660,6 @@ class _CatalogFormState extends State<_CatalogForm> {
             },
           ),
           TextField(
-              controller: _slug,
-              decoration: const InputDecoration(
-                  labelText: 'Slug *',
-                  helperText:
-                      'Preenchido automaticamente. Use letras, números e hífen.'),
-              onChanged: (_) => _slugManuallyEdited = true),
-          TextField(
               controller: _description,
               decoration: const InputDecoration(labelText: 'Descrição')),
           if (!widget.isCategory) ...[
@@ -573,7 +675,10 @@ class _CatalogFormState extends State<_CatalogForm> {
             ),
             DropdownButtonFormField<String>(
               value: _type,
-              decoration: const InputDecoration(labelText: 'Tipo'),
+              decoration: const InputDecoration(
+                  labelText: 'Tipo do produto *',
+                  helperText:
+                      'O tipo define como o cliente escolherá o produto.'),
               items: const [
                 DropdownMenuItem(value: 'PIZZA', child: Text('Pizza')),
                 DropdownMenuItem(value: 'BEVERAGE', child: Text('Bebida')),
@@ -582,6 +687,38 @@ class _CatalogFormState extends State<_CatalogForm> {
               ],
               onChanged: (value) => setState(() => _type = value ?? 'PIZZA'),
             ),
+            Card(
+              margin: const EdgeInsets.only(top: 8),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.info_outline),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(_type == 'PIZZA'
+                          ? 'Pizza: depois de salvar, cadastre cada tamanho e preço. O cliente escolherá sabores, borda e adicionais.'
+                          : '${_productTypeLabel(_type)}: depois de salvar, cadastre uma ou mais variações com seus preços. Não haverá escolha de sabores de pizza.'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            if (_type != 'PIZZA') ...[
+              const SizedBox(height: 12),
+              TextField(
+                controller: _price,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(
+                  labelText: 'Preço de venda *',
+                  prefixText: 'R\$ ',
+                  helperText:
+                      'Será criada automaticamente a variação “Padrão”.',
+                ),
+              ),
+            ],
             TextField(
                 controller: _imageUrl,
                 keyboardType: TextInputType.url,
@@ -608,23 +745,33 @@ class _CatalogFormState extends State<_CatalogForm> {
         ElevatedButton(
           onPressed: () {
             if (_name.text.trim().isEmpty ||
-                _slug.text.trim().isEmpty ||
                 (!widget.isCategory && _categoryId == null)) {
               setState(
                   () => _validationError = 'Preencha os campos obrigatórios.');
               return;
             }
+            if (!widget.isCategory &&
+                _type != 'PIZZA' &&
+                _price.text.trim().isEmpty) {
+              setState(() => _validationError =
+                  'Informe o preço de venda para este produto.');
+              return;
+            }
             final slug = _normalizeSlug(_slug.text);
-            if (slug.isEmpty) {
+            final generatedSlug =
+                slug.isEmpty ? _normalizeSlug(_name.text) : slug;
+            if (generatedSlug.isEmpty) {
               setState(() => _validationError = 'Informe um slug válido.');
               return;
             }
             Navigator.of(context).pop(<String, String>{
               'name': _name.text.trim(),
-              'slug': slug,
+              'slug': generatedSlug,
               'description': _description.text.trim(),
               if (_categoryId != null) 'category_id': _categoryId!,
               'product_type': _type,
+              if (!widget.isCategory && _type != 'PIZZA')
+                'initial_price': _price.text.trim().replaceAll(',', '.'),
               if (!widget.isCategory) 'image_url': _imageUrl.text.trim(),
             });
           },

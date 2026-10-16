@@ -5,6 +5,12 @@ import '../../core/network/api_client.dart';
 import '../../core/storage/app_storage.dart';
 import 'admin_api_client.dart';
 
+String _normalizeVariationSlug(String value) => value
+    .trim()
+    .toLowerCase()
+    .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+    .replaceAll(RegExp(r'^-+|-+$'), '');
+
 class AdminProductSizesPage extends StatefulWidget {
   const AdminProductSizesPage(
       {required this.productId,
@@ -130,36 +136,48 @@ class _AdminProductSizesPageState extends State<AdminProductSizesPage> {
                   onRefresh: _load,
                   child: ListView(
                     padding: const EdgeInsets.all(16),
-                    children: _sizes.isEmpty
-                        ? [
-                            const Padding(
-                                padding: EdgeInsets.all(24),
-                                child: Center(
-                                    child: Text('Nenhum tamanho cadastrado.')))
-                          ]
-                        : _sizes
-                            .map((size) => Card(
-                                  child: ListTile(
-                                    title: Text(size['name']?.toString() ?? ''),
-                                    subtitle: Text(isPizza
-                                        ? "R\$ ${size['price']} · ${size['slices']} fatias · até ${size['max_flavors']} sabor(es)"
-                                        : "R\$ ${size['price']}"),
-                                    trailing: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        IconButton(
-                                          tooltip: 'Editar preço e variação',
-                                          icon: const Icon(Icons.edit_outlined),
-                                          onPressed: () => _edit(size),
-                                        ),
-                                        Switch(
-                                            value: size['is_active'] == true,
-                                            onChanged: (_) => _toggle(size)),
-                                      ],
+                    children: [
+                      Card(
+                        child: ListTile(
+                          leading: Icon(isPizza
+                              ? Icons.local_pizza_outlined
+                              : Icons.sell_outlined),
+                          title: Text(isPizza
+                              ? 'Cadastre os tamanhos da pizza'
+                              : 'Cadastre as variações do produto'),
+                          subtitle: Text(isPizza
+                              ? 'Cada tamanho precisa ter seu próprio preço.'
+                              : 'Exemplo: 1 litro, lata ou unidade, sempre com preço.'),
+                        ),
+                      ),
+                      if (_sizes.isEmpty)
+                        const Padding(
+                            padding: EdgeInsets.all(24),
+                            child: Center(
+                                child: Text('Nenhuma variação cadastrada.')))
+                      else
+                        ..._sizes.map((size) => Card(
+                              child: ListTile(
+                                title: Text(size['name']?.toString() ?? ''),
+                                subtitle: Text(isPizza
+                                    ? "R\$ ${size['price']} · ${size['slices']} fatias · até ${size['max_flavors']} sabor(es)"
+                                    : "R\$ ${size['price']}"),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      tooltip: 'Editar preço e variação',
+                                      icon: const Icon(Icons.edit_outlined),
+                                      onPressed: () => _edit(size),
                                     ),
-                                  ),
-                                ))
-                            .toList(),
+                                    Switch(
+                                        value: size['is_active'] == true,
+                                        onChanged: (_) => _toggle(size)),
+                                  ],
+                                ),
+                              ),
+                            )),
+                    ],
                   ),
                 ),
       floatingActionButton: FloatingActionButton.extended(
@@ -182,7 +200,6 @@ class _SizeForm extends StatefulWidget {
 
 class _SizeFormState extends State<_SizeForm> {
   final _name = TextEditingController();
-  final _slug = TextEditingController();
   final _price = TextEditingController();
   final _slices = TextEditingController(text: '8');
   final _maxFlavors = TextEditingController(text: '1');
@@ -194,7 +211,6 @@ class _SizeFormState extends State<_SizeForm> {
     final initial = widget.initial;
     if (initial == null) return;
     _name.text = initial['name']?.toString() ?? '';
-    _slug.text = initial['slug']?.toString() ?? '';
     _price.text = initial['price']?.toString() ?? '';
     _slices.text = initial['slices']?.toString() ?? '8';
     _maxFlavors.text = initial['max_flavors']?.toString() ?? '1';
@@ -203,7 +219,6 @@ class _SizeFormState extends State<_SizeForm> {
   @override
   void dispose() {
     _name.dispose();
-    _slug.dispose();
     _price.dispose();
     _slices.dispose();
     _maxFlavors.dispose();
@@ -220,9 +235,6 @@ class _SizeFormState extends State<_SizeForm> {
             TextField(
                 controller: _name,
                 decoration: const InputDecoration(labelText: 'Nome')),
-            TextField(
-                controller: _slug,
-                decoration: const InputDecoration(labelText: 'Slug')),
             TextField(
                 controller: _price,
                 keyboardType:
@@ -259,14 +271,17 @@ class _SizeFormState extends State<_SizeForm> {
                 setState(() => _priceError = 'Informe um preço válido.');
                 return;
               }
-              if (_name.text.trim().isEmpty ||
-                  _slug.text.trim().isEmpty ||
-                  _price.text.trim().isEmpty) {
+              if (_name.text.trim().isEmpty || _price.text.trim().isEmpty) {
                 return;
               }
+              final slug =
+                  widget.initial?['slug']?.toString().trim().isNotEmpty == true
+                      ? widget.initial!['slug'].toString().trim()
+                      : _normalizeVariationSlug(_name.text);
+              if (slug.isEmpty) return;
               Navigator.pop(context, {
                 'name': _name.text.trim(),
-                'slug': _slug.text.trim().toLowerCase(),
+                'slug': slug,
                 'price': parsedPrice.toStringAsFixed(2),
                 'slices': _slices.text.trim(),
                 'max_flavors': _maxFlavors.text.trim(),
