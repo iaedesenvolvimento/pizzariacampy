@@ -9,6 +9,7 @@ from app.api.routes import (
     coupons,
     delivery,
     health,
+    notifications,
     observability,
     orders,
     payments,
@@ -36,3 +37,4 @@ api_router.include_router(delivery.locations_admin_router, tags=["admin-coverage
 api_router.include_router(coupons.router, tags=["admin-coupons"])
 api_router.include_router(observability.router, tags=["observability"])
 api_router.include_router(realtime.router, tags=["realtime"])
+api_router.include_router(notifications.router, tags=["notifications"])

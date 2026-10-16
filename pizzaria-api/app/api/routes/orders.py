@@ -16,6 +16,12 @@ from app.schemas.orders import (
     OrderResponse,
     UpdateOrderStatusRequest,
 )
+from app.services.firebase import (
+    order_data,
+    send_push,
+    tokens_for_admins,
+    tokens_for_user,
+)
 from app.services.orders import (
     OrderError,
     cancel_order,
@@ -50,6 +56,12 @@ async def create_customer_order(
     try:
         order = await create_order(session, current_user.id, payload)
         await notify_order_created(order)
+        await send_push(
+            await tokens_for_admins(session),
+            "Novo pedido recebido",
+            f"Pedido {order.order_number} aguardando confirmação.",
+            order_data(order.id, order.order_number, order.status),
+        )
         return order
     except OrderError as error:
         await session.rollback()
@@ -107,6 +119,19 @@ async def update_order_status(
         await session.commit()
         updated_order = await get_order(session, order.id)
         await notify_order_status_changed(updated_order, previous_status)
+        data = order_data(updated_order.id, updated_order.order_number, updated_order.status)
+        await send_push(
+            await tokens_for_user(session, updated_order.user_id),
+            "Atualização do pedido",
+            f"Pedido {updated_order.order_number}: {updated_order.status}.",
+            data,
+        )
+        await send_push(
+            await tokens_for_admins(session),
+            "Pedido atualizado",
+            f"Pedido {updated_order.order_number}: {updated_order.status}.",
+            data,
+        )
         return updated_order
     except OrderError as error:
         await session.rollback()

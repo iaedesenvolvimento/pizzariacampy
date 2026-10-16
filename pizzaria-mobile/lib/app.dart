@@ -6,6 +6,7 @@ import 'core/config/app_config.dart';
 import 'core/network/api_client.dart';
 import 'core/storage/app_storage.dart';
 import 'core/settings/app_settings_controller.dart';
+import 'core/notifications/firebase_notification_service.dart';
 import 'core/notifications/realtime_notification_service.dart';
 import 'features/cart/cart_controller.dart';
 import 'features/auth/presentation/auth_pages.dart';
@@ -23,6 +24,8 @@ class _PizzariaAppState extends State<PizzariaApp> with WidgetsBindingObserver {
   AuthController? _authController;
   CartController? _cartController;
   AppSettingsController? _settingsController;
+  final _firebaseNotifications = FirebaseNotificationService();
+  String? _registeredFirebaseToken;
   final _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
   @override
@@ -43,6 +46,17 @@ class _PizzariaAppState extends State<PizzariaApp> with WidgetsBindingObserver {
     final storage = await AppStorage.create();
     _cartController = CartController(storage)..initialize();
     _settingsController = AppSettingsController(storage)..initialize();
+    try {
+      await _firebaseNotifications.initialize(
+        onMessage: _showRealtimeNotification,
+        onTokenRefresh: (token) {
+          final accessToken = _authController?.accessToken;
+          if (accessToken != null) _registerFirebaseTokenValue(token, accessToken);
+        },
+      );
+    } catch (_) {
+      // Realtime WebSocket remains available if Firebase is unavailable.
+    }
     _authController = AuthController(
       AuthService(
           apiClient: ApiClient(config: AppConfig.fromEnvironment()),
@@ -60,8 +74,32 @@ class _PizzariaAppState extends State<PizzariaApp> with WidgetsBindingObserver {
     if (auth == null) return;
     if (auth.isAuthenticated && auth.accessToken != null) {
       service.connect(auth.accessToken!);
+      _registerFirebaseToken(auth.accessToken!);
     } else {
       service.disconnect();
+    }
+  }
+
+  Future<void> _registerFirebaseToken(String accessToken) async {
+    try {
+      final token = await _firebaseNotifications.getToken();
+      if (token == null || token == _registeredFirebaseToken) return;
+      await _registerFirebaseTokenValue(token, accessToken);
+    } catch (_) {
+      // Registration retries on the next authentication state change.
+    }
+  }
+
+  Future<void> _registerFirebaseTokenValue(String token, String accessToken) async {
+    try {
+      await ApiClient(config: AppConfig.fromEnvironment()).post(
+        '/notifications/devices',
+        headers: {'Authorization': 'Bearer $accessToken'},
+        body: {'token': token, 'platform': 'android'},
+      );
+      _registeredFirebaseToken = token;
+    } catch (_) {
+      // Registration retries when the token changes or the session is restored.
     }
   }
 
@@ -71,6 +109,7 @@ class _PizzariaAppState extends State<PizzariaApp> with WidgetsBindingObserver {
       'order.created' => 'Novo pedido recebido${number.isEmpty ? '' : ': $number'}',
       'order.status_changed' =>
         'Pedido ${number.isEmpty ? '' : '$number: '} ${_statusLabel(notification.status)}',
+      'push.notification' => notification.data['body']?.toString(),
       _ => null,
     };
     if (message == null) return;
@@ -135,6 +174,7 @@ class _PizzariaAppState extends State<PizzariaApp> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _authController?.dispose();
+    _firebaseNotifications.dispose();
     realtimeNotificationService.disconnect();
     _cartController?.dispose();
     _settingsController?.dispose();

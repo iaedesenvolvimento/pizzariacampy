@@ -50,6 +50,7 @@ class Settings(BaseSettings):
     cloudinary_api_key: str | None = None
     cloudinary_api_secret: str | None = None
     cloudinary_upload_folder: str = "pizzaria-campy/products"
+    firebase_service_account_base64: str | None = None
 
     model_config = SettingsConfigDict(
         env_file=".env",

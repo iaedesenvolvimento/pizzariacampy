@@ -6,6 +6,7 @@
 **/key.properties
 **/*.jks
 **/*.keystore
+**/google-services.json
 
 # Build and tool output
 **/build/

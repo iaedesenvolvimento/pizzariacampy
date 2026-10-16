@@ -10,6 +10,7 @@ from app.models.catalog import (
 from app.models.business_hours import BusinessHours
 from app.models.address import CustomerAddress
 from app.models.delivery import DeliveryZone
+from app.models.device_token import DeviceToken
 from app.models.coverage_location import CoverageLocation
 from app.models.coupon import Coupon, CouponRedemption
 from app.models.password_reset import PasswordResetToken
@@ -44,6 +45,7 @@ __all__ = [
     "BusinessHours",
     "CustomerAddress",
     "DeliveryZone",
+    "DeviceToken",
     "CoverageLocation",
     "Coupon",
     "CouponRedemption",
