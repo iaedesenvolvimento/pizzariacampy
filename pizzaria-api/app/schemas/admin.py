@@ -46,6 +46,12 @@ class StoreSettingsResponse(BaseModel):
     pickup_instructions: str
 
 
+class PublicStoreSettingsResponse(BaseModel):
+    store_name: str
+    pix_key: str
+    pickup_instructions: str
+
+
 class StoreSettingsUpdate(BaseModel):
     store_name: str
     phone: str = ""

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../core/network/cep_service.dart';
 import '../../core/network/api_client.dart';
@@ -38,11 +39,30 @@ class _CheckoutPageState extends State<CheckoutPage> {
   bool _loadingCep = false;
   String? _cepError;
   String? _coverageMessage;
+  String _pixKey = '';
+  String _pickupInstructions = '';
+  bool _loadingPixSettings = true;
 
   @override
   void initState() {
     super.initState();
     _controller = CheckoutController(ApiClient(), widget.accessToken);
+    _loadPixSettings();
+  }
+
+  Future<void> _loadPixSettings() async {
+    try {
+      final response = await ApiClient().get('/store-settings');
+      if (!mounted || response is! Map<String, dynamic>) return;
+      setState(() {
+        _pixKey = response['pix_key']?.toString().trim() ?? '';
+        _pickupInstructions =
+            response['pickup_instructions']?.toString().trim() ?? '';
+        _loadingPixSettings = false;
+      });
+    } catch (_) {
+      if (mounted) setState(() => _loadingPixSettings = false);
+    }
   }
 
   @override
@@ -437,18 +457,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 decoration:
                     const InputDecoration(labelText: 'Troco para quanto?'),
               ),
-            if (_paymentMethod == 'PIX')
-              Container(
-                margin: const EdgeInsets.only(top: 8),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondaryContainer,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Text(
-                  'A chave PIX e o envio do comprovante serão exibidos conforme a configuração da pizzaria. O pagamento será conferido manualmente.',
-                ),
-              ),
+            if (_paymentMethod == 'PIX') _pixInstructions(context),
             _sectionTitle(context, 'Observações'),
             TextField(
               controller: _noteController,
@@ -537,6 +546,60 @@ class _CheckoutPageState extends State<CheckoutPage> {
       secondary: Icon(icon),
       title: Text(title),
       subtitle: Text(subtitle),
+    );
+  }
+
+  Widget _pixInstructions(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colors.secondaryContainer,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: _loadingPixSettings
+          ? const Row(children: [
+              SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2)),
+              SizedBox(width: 12),
+              Text('Carregando dados do PIX...'),
+            ])
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                    'Pague pelo PIX e envie o comprovante após finalizar o pedido.'),
+                if (_pixKey.isEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text('A chave PIX ainda não foi configurada pela pizzaria.',
+                      style: TextStyle(color: colors.error)),
+                ] else ...[
+                  const SizedBox(height: 12),
+                  const Text('Chave PIX',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
+                  SelectableText(_pixKey),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      onPressed: () async {
+                        await Clipboard.setData(ClipboardData(text: _pixKey));
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Chave PIX copiada.')));
+                      },
+                      icon: const Icon(Icons.copy_outlined),
+                      label: const Text('Copiar chave'),
+                    ),
+                  ),
+                ],
+                if (_pickupInstructions.isNotEmpty) Text(_pickupInstructions),
+              ],
+            ),
     );
   }
 

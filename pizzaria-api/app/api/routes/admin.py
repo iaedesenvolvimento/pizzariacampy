@@ -11,11 +11,25 @@ from app.models.catalog import Category, Edge, Extra, Flavor, Product, ProductSi
 from app.models.order import Order
 from app.models.user import User
 from app.models.store_settings import StoreSettings
-from app.schemas.admin import AdminCustomerResponse, AdminDashboardResponse, AdminImageUploadResponse, AdminOrderSummary, StoreSettingsResponse, StoreSettingsUpdate
+from app.schemas.admin import AdminCustomerResponse, AdminDashboardResponse, AdminImageUploadResponse, AdminOrderSummary, PublicStoreSettingsResponse, StoreSettingsResponse, StoreSettingsUpdate
 from app.core.config import settings
 
 
 router = APIRouter(prefix="/admin")
+public_router = APIRouter()
+
+
+@public_router.get("/store-settings", response_model=PublicStoreSettingsResponse)
+async def get_public_store_settings(
+    session: AsyncSession = Depends(get_session),
+) -> StoreSettings:
+    settings = await session.scalar(select(StoreSettings).order_by(StoreSettings.created_at).limit(1))
+    if settings is None:
+        settings = StoreSettings(store_name="Pizzaria Campy")
+        session.add(settings)
+        await session.commit()
+        await session.refresh(settings)
+    return settings
 
 
 @router.post("/images/upload", response_model=AdminImageUploadResponse)
