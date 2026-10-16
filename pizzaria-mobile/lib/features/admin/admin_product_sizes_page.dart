@@ -7,10 +7,14 @@ import 'admin_api_client.dart';
 
 class AdminProductSizesPage extends StatefulWidget {
   const AdminProductSizesPage(
-      {required this.productId, required this.productName, super.key});
+      {required this.productId,
+      required this.productName,
+      required this.productType,
+      super.key});
 
   final String productId;
   final String productName;
+  final String productType;
 
   @override
   State<AdminProductSizesPage> createState() => _AdminProductSizesPageState();
@@ -59,13 +63,34 @@ class _AdminProductSizesPageState extends State<AdminProductSizesPage> {
     if (_token == null) return;
     final result = await showDialog<Map<String, String>>(
       context: context,
-      builder: (_) => const _SizeForm(),
+      builder: (_) => _SizeForm(productType: widget.productType),
     );
     if (result == null) return;
     try {
-      await _adminApi!.post(
-          '/admin/catalog/products/${widget.productId}/sizes',
+      await _adminApi!.post('/admin/catalog/products/${widget.productId}/sizes',
           body: result);
+      await _load();
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(error.toString())));
+      }
+    }
+  }
+
+  Future<void> _edit(Map<String, dynamic> size) async {
+    final id = size['id']?.toString();
+    if (_token == null || id == null) return;
+    final result = await showDialog<Map<String, String>>(
+      context: context,
+      builder: (_) => _SizeForm(
+        productType: widget.productType,
+        initial: size,
+      ),
+    );
+    if (result == null) return;
+    try {
+      await _adminApi!.patch('/admin/catalog/sizes/$id', body: result);
       await _load();
     } catch (error) {
       if (mounted) {
@@ -92,8 +117,11 @@ class _AdminProductSizesPageState extends State<AdminProductSizesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isPizza = widget.productType == 'PIZZA';
     return Scaffold(
-      appBar: AppBar(title: Text('Tamanhos · ${widget.productName}')),
+      appBar: AppBar(
+          title: Text('${isPizza ? 'Tamanhos' : 'Variações e preços'} · '
+              '${widget.productName}')),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -113,11 +141,22 @@ class _AdminProductSizesPageState extends State<AdminProductSizesPage> {
                             .map((size) => Card(
                                   child: ListTile(
                                     title: Text(size['name']?.toString() ?? ''),
-                                    subtitle: Text(
-                                        "R\$ ${size['price']} · ${size['slices']} fatias · até ${size['max_flavors']} sabor(es)"),
-                                    trailing: Switch(
-                                        value: size['is_active'] == true,
-                                        onChanged: (_) => _toggle(size)),
+                                    subtitle: Text(isPizza
+                                        ? "R\$ ${size['price']} · ${size['slices']} fatias · até ${size['max_flavors']} sabor(es)"
+                                        : "R\$ ${size['price']}"),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          tooltip: 'Editar preço e variação',
+                                          icon: const Icon(Icons.edit_outlined),
+                                          onPressed: () => _edit(size),
+                                        ),
+                                        Switch(
+                                            value: size['is_active'] == true,
+                                            onChanged: (_) => _toggle(size)),
+                                      ],
+                                    ),
                                   ),
                                 ))
                             .toList(),
@@ -126,13 +165,16 @@ class _AdminProductSizesPageState extends State<AdminProductSizesPage> {
       floatingActionButton: FloatingActionButton.extended(
           onPressed: _create,
           icon: const Icon(Icons.add),
-          label: const Text('Tamanho')),
+          label: Text(widget.productType == 'PIZZA' ? 'Tamanho' : 'Variação')),
     );
   }
 }
 
 class _SizeForm extends StatefulWidget {
-  const _SizeForm();
+  const _SizeForm({required this.productType, this.initial});
+
+  final String productType;
+  final Map<String, dynamic>? initial;
 
   @override
   State<_SizeForm> createState() => _SizeFormState();
@@ -146,6 +188,18 @@ class _SizeFormState extends State<_SizeForm> {
   final _maxFlavors = TextEditingController(text: '1');
 
   @override
+  void initState() {
+    super.initState();
+    final initial = widget.initial;
+    if (initial == null) return;
+    _name.text = initial['name']?.toString() ?? '';
+    _slug.text = initial['slug']?.toString() ?? '';
+    _price.text = initial['price']?.toString() ?? '';
+    _slices.text = initial['slices']?.toString() ?? '8';
+    _maxFlavors.text = initial['max_flavors']?.toString() ?? '1';
+  }
+
+  @override
   void dispose() {
     _name.dispose();
     _slug.dispose();
@@ -157,7 +211,9 @@ class _SizeFormState extends State<_SizeForm> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        title: const Text('Novo tamanho'),
+        title: Text(widget.initial == null
+            ? (widget.productType == 'PIZZA' ? 'Novo tamanho' : 'Nova variação')
+            : 'Editar preço e variação'),
         content: SingleChildScrollView(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             TextField(
@@ -174,10 +230,12 @@ class _SizeFormState extends State<_SizeForm> {
             TextField(
                 controller: _slices,
                 keyboardType: TextInputType.number,
+                enabled: widget.productType == 'PIZZA',
                 decoration: const InputDecoration(labelText: 'Fatias')),
             TextField(
                 controller: _maxFlavors,
                 keyboardType: TextInputType.number,
+                enabled: widget.productType == 'PIZZA',
                 decoration:
                     const InputDecoration(labelText: 'Máximo de sabores')),
           ]),

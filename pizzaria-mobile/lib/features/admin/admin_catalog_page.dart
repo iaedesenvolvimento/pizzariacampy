@@ -184,6 +184,7 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
           builder: (_) => AdminProductSizesPage(
                 productId: productId,
                 productName: created['name']?.toString() ?? 'Produto',
+                productType: created['product_type']?.toString() ?? 'PIZZA',
               )));
       if (mounted) await _load();
     } catch (error) {
@@ -407,6 +408,9 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
                                               productId: item['id'].toString(),
                                               productName:
                                                   item['name'].toString(),
+                                              productType: item['product_type']
+                                                      ?.toString() ??
+                                                  'PIZZA',
                                             ),
                                           )),
                                 ),
