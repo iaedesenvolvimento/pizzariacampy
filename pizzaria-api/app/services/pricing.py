@@ -82,7 +82,9 @@ async def calculate_item(
 
     base_price = size.price
     if item.flavor_ids:
-        flavor_prices = await get_flavor_prices(session, size.id, item.flavor_ids)
+        flavor_prices = await get_flavor_prices(
+            session, size.id, item.flavor_ids, fallback_price=size.price
+        )
         base_price = max(flavor_prices.values())
 
     edge_price = ZERO
@@ -132,6 +134,7 @@ async def get_flavor_prices(
     session: AsyncSession,
     product_size_id: UUID,
     flavor_ids: list[UUID],
+    fallback_price: Decimal | None = None,
 ) -> dict[UUID, Decimal]:
     result = await session.execute(
         select(FlavorSizePrice.flavor_id, FlavorSizePrice.price)
@@ -143,6 +146,8 @@ async def get_flavor_prices(
         )
     )
     prices = {flavor_id: price for flavor_id, price in result.all()}
+    if not prices and fallback_price is not None:
+        return {flavor_id: fallback_price for flavor_id in set(flavor_ids)}
     if len(prices) != len(set(flavor_ids)):
         raise PricingError("FLAVOR_UNAVAILABLE", "One or more flavors are unavailable")
     return prices

@@ -1,3 +1,4 @@
+import asyncio
 import os
 from uuid import uuid4
 
@@ -11,7 +12,7 @@ import logging
 
 from app.core.security import create_access_token, decode_access_token, hash_password, verify_password
 from app.services.coupons import CouponError, compute_discount
-from app.services.orders import ORDER_TRANSITIONS, OrderError
+from app.services.orders import ORDER_TRANSITIONS, OrderError, cancel_order
 from app.core.observability import JsonFormatter
 from app.core.rate_limit import InMemoryRateLimiter
 
@@ -54,6 +55,18 @@ def test_order_state_machine_does_not_allow_regression() -> None:
 
 def test_invalid_order_transition_has_domain_error() -> None:
     assert OrderError("INVALID_ORDER_TRANSITION", "invalid").code == "INVALID_ORDER_TRANSITION"
+
+
+def test_customer_cannot_cancel_order_with_confirmed_payment() -> None:
+    class OrderStub:
+        user_id = uuid4()
+        payment_status = "CONFIRMED"
+        status = "PENDING"
+
+    with pytest.raises(OrderError, match="confirmed payment") as error:
+        asyncio.run(cancel_order(None, OrderStub(), OrderStub.user_id, "customer request"))
+
+    assert error.value.code == "ORDER_PAYMENT_REQUIRES_ADMIN_REVIEW"
 
 
 def test_rate_limiter_blocks_after_limit() -> None:

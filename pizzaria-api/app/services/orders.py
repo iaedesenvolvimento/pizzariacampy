@@ -157,7 +157,13 @@ async def create_order(
         session.add(order_item)
         await session.flush()
 
-        flavor_prices = await get_flavor_prices(session, size.id, item_input.flavor_ids) if item_input.flavor_ids else {}
+        flavor_prices = (
+            await get_flavor_prices(
+                session, size.id, item_input.flavor_ids, fallback_price=size.price
+            )
+            if item_input.flavor_ids
+            else {}
+        )
         flavors = list(
             await session.scalars(select(Flavor).where(Flavor.id.in_(item_input.flavor_ids)))
         ) if item_input.flavor_ids else []
@@ -253,6 +259,11 @@ async def cancel_order(
 ) -> Order:
     if order.user_id != user_id:
         raise OrderError("ORDER_NOT_FOUND", "Order not found")
+    if order.payment_status == "CONFIRMED":
+        raise OrderError(
+            "ORDER_PAYMENT_REQUIRES_ADMIN_REVIEW",
+            "Orders with confirmed payment require administrative cancellation review",
+        )
     if "CANCELLED" not in ORDER_TRANSITIONS.get(order.status, set()):
         raise OrderError("ORDER_CANNOT_BE_CANCELLED", "Order can no longer be cancelled by the customer")
     await transition_order(session, order, "CANCELLED", None, reason or "Cancelled by customer")

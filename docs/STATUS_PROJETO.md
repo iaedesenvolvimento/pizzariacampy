@@ -283,3 +283,88 @@ Status: **IMPLEMENTADO COM RESSALVAS DE QA MANUAL**.
 - Cancelamentos usam `/admin/finance/cancellations` e destacam `CANCELLED + CONFIRMED` como pagamento confirmado com reembolso/estorno ainda não registrado.
 - Não foram adicionados status inexistentes, ações de reembolso, estorno ou operações de cozinha na área Financeiro.
 - Nenhuma alteração de banco, migration ou contrato backend foi feita nesta fase.
+
+## Fase L.4 — auditoria e QA do Financeiro Operacional
+
+Status: **AUDITADO COM RESSALVAS DE AMBIENTE**.
+
+### Resultado da auditoria
+
+- `gross_sales` permanece definido no backend como vendas operacionais: pedido não cancelado e pagamento diferente de `FAILED`; pode incluir `PENDING`, `UNDER_REVIEW` e `CONFIRMED`. Não representa dinheiro recebido.
+- Períodos usam `America/Sao_Paulo`, banco em UTC e intervalo semiaberto `[start, end)`. Hoje é o dia comercial local; 7 e 30 dias não possuem sobreposição.
+- Agregações financeiras permanecem server-side com `Decimal`, `Numeric(12,2)` e `ROUND_HALF_UP`; período vazio retorna zeros, sem `NaN`, `Infinity` ou divisão por zero.
+- Vendas, PIX e cancelamentos usam filtros/paginação no banco. Não foi identificado N+1 novo nos endpoints financeiros.
+- Métodos e status possuem apresentação controlada; não foram criados `PAID`, `REFUNDED` ou `CHARGEBACK`.
+- `proof_url` não é retornado no Summary, não é registrado em logs e só aparece para `UNDER_REVIEW`; não há download automático.
+- O fluxo de revisão continua no endpoint existente, atualizando `Payment` e `Order.payment_status` na mesma transação. A idempotência permanece limitada: `reviewed_at` e `notes` podem ser sobrescritos.
+- `CANCELLED + CONFIRMED` é identificado e exibido como pagamento confirmado sem reembolso/estorno registrado. Não existe botão que simule essa operação.
+- A autorização dos endpoints usa `get_admin_user`, permitindo `ADMIN` e `MANAGER` e bloqueando `CUSTOMER`/anônimo antes da consulta financeira.
+
+### Achados classificados
+
+- **P0:** nenhum encontrado.
+- **P1:** política de estorno/reembolso para cancelamento com pagamento confirmado ainda não existe; é dívida pré-produção e não foi simulada no sistema.
+- **P2:** não há constraint de banco que impeça múltiplos `Payment` por `Order`; a criação atual gera um pagamento por pedido e o fluxo operacional consulta o mais recente. Recomenda-se decisão explícita antes de gateway ou múltiplas tentativas.
+- **P3:** QA autenticado, PostgreSQL real e comparação com dados reais permanecem bloqueados por ambiente; não são falhas comprovadas do código.
+
+### Testes da Fase L.4
+
+- Backend completo: 27 aprovados; financeiros: 5 aprovados.
+- Flutter: `flutter analyze` aprovado; `flutter test` aprovado com 29 testes; build debug `android-x64` e `android-arm64` aprovados.
+- Coberturas financeiras incluem timezone, intervalo semiaberto, datas inválidas, precisão Decimal, zeros, semântica de vendas, pendências PIX e `CANCELLED + CONFIRMED`.
+- QA manual autenticado e integração com PostgreSQL real: **BLOQUEADOS POR AMBIENTE**.
+
+### Dívidas
+
+- Pré-produção: definir política operacional de reembolso/estorno e validar o Financeiro com PostgreSQL/credenciais de teste seguros.
+- Pós-MVP: idempotência formal de revisão e decisão sobre múltiplos pagamentos por pedido.
+
+Gate: **GATE FIN-B — Aprovado com ressalvas antes de produção**. O código e os testes automatizados estão aprovados, mas o Financeiro não deve ser declarado validado em produção sem QA autenticado, PostgreSQL real e política de reembolso definida.
+
+## Fase M.0 — hardening pré-produção e política de cancelamento pago
+
+Status: **IMPLEMENTADO PARCIALMENTE — VALIDAÇÕES DE AMBIENTE PENDENTES**.
+
+### Política operacional definida
+
+- `CASH` e `CARD_ON_DELIVERY` permanecem pagamentos presenciais; o sistema não simula estorno nem cria operação financeira inexistente.
+- `PIX` confirmado representa valor recebido manualmente pela pizzaria. Cancelamento pelo cliente não é permitido nesse estado; a decisão fica para o Admin, com tratamento externo/manual do eventual reembolso.
+- Nenhum pagamento `CONFIRMED` é convertido automaticamente para `FAILED`, `REFUNDED` ou outro status inexistente.
+- O cancelamento administrativo continua usando a transição existente e `OrderStatusHistory`, registrando responsável, horário e motivo.
+
+### Hardening aplicado
+
+- `cancel_order` agora bloqueia cancelamento iniciado pelo cliente quando `Order.payment_status == CONFIRMED`, retornando `ORDER_PAYMENT_REQUIRES_ADMIN_REVIEW`.
+- O bloqueio ocorre antes da transição, sem alterar `Payment`, sem criar reembolso e sem alterar o fluxo administrativo.
+- A relação atual continua sendo 1 pedido → 1 pagamento criado no serviço de criação; não foi adicionada `UNIQUE` silenciosamente porque não há consulta PostgreSQL de dados existentes disponível.
+- Não foi criada migration, tabela de reembolso ou endpoint novo.
+
+### Checklist de produção
+
+- [ ] PostgreSQL real validado
+- [ ] ADMIN validado
+- [ ] MANAGER validado
+- [ ] CUSTOMER bloqueado nos endpoints financeiros
+- [ ] Token refresh validado em sessão administrativa
+- [ ] Finance Summary validado com dados de teste
+- [ ] Sales validado com paginação e filtros
+- [ ] PIX validado com dados de teste
+- [ ] Cancelamentos validados com dados de teste
+- [x] Política de cancelamento pago definida
+- [ ] Múltiplos pagamentos tratados com validação de dados/constraint
+- [ ] Responsividade validada manualmente
+
+### Pendências de ambiente
+
+- PostgreSQL local/teste indisponível nesta execução; não foi usado banco de produção.
+- QA manual autenticado de Admin, Manager e Customer permanece bloqueado por ausência de ambiente/credenciais seguras.
+- A política de reembolso manual ainda precisa ser operacionalizada fora do sistema antes da produção.
+
+Gate M.0 provisório: **PROD-B — implementação aprovada, mas ainda bloqueada por validações de ambiente**.
+
+## Correção — sabores em novas pizzas do catálogo
+
+- Tamanhos de pizza criados pelo Admin passam a receber automaticamente os sabores ativos com o preço base do tamanho.
+- Produtos pizza já existentes sem `FlavorSizePrice` também exibem os sabores ativos e usam o preço base durante a cotação.
+- Configurações parciais continuam sendo validadas: se houver preço configurado para apenas parte dos sabores solicitados, a cotação retorna indisponibilidade em vez de aceitar preço inconsistente.
+- Preços individuais continuam editáveis pela área de preços dos sabores.

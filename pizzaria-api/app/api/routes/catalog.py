@@ -159,6 +159,14 @@ async def get_product_options(
                 .order_by(Flavor.name)
             )
         )
+        if not flavors:
+            flavors = list(
+                await session.scalars(
+                    select(Flavor)
+                    .where(Flavor.is_active.is_(True))
+                    .order_by(Flavor.name)
+                )
+            )
     flavor_prices = list(
         await session.scalars(
             select(FlavorSizePrice)
@@ -325,6 +333,19 @@ async def create_product_size(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
     size = ProductSize(product_id=product_id, **payload.model_dump())
     session.add(size)
+    await session.flush()
+    if product.product_type == "PIZZA":
+        active_flavors = await session.scalars(select(Flavor).where(Flavor.is_active.is_(True)))
+        session.add_all(
+            [
+                FlavorSizePrice(
+                    flavor_id=flavor.id,
+                    product_size_id=size.id,
+                    price=size.price,
+                )
+                for flavor in active_flavors
+            ]
+        )
     await session.commit()
     await session.refresh(size)
     return size
