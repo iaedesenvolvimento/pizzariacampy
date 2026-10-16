@@ -6,6 +6,7 @@ import '../../core/config/app_config.dart';
 import '../../core/network/api_client.dart';
 import '../../core/notifications/realtime_notification_service.dart';
 import '../../core/storage/app_storage.dart';
+import 'admin_api_client.dart';
 import 'admin_dashboard_controller.dart';
 import 'admin_design_system.dart';
 
@@ -41,8 +42,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   Future<void> _load() async {
     final storage = await AppStorage.create();
     final controller = AdminDashboardController(
-      ApiClient(config: AppConfig.fromEnvironment()),
-      storage,
+      AdminApiClient(ApiClient(config: AppConfig.fromEnvironment()), storage),
     );
     if (!mounted) return;
     setState(() => _controller = controller);

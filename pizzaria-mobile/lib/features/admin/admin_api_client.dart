@@ -7,6 +7,7 @@ class AdminApiClient {
 
   final ApiClient _api;
   final AppStorage _storage;
+  Future<String?>? _refreshing;
 
   Future<dynamic> get(String path) => _run(
       (token) => _api.get(path, headers: {'Authorization': 'Bearer $token'}));
@@ -44,6 +45,18 @@ class AdminApiClient {
   }
 
   Future<String?> _refresh() async {
+    final currentRefresh = _refreshing;
+    if (currentRefresh != null) return currentRefresh;
+    final refreshOperation = _performRefresh();
+    _refreshing = refreshOperation;
+    try {
+      return await refreshOperation;
+    } finally {
+      if (identical(_refreshing, refreshOperation)) _refreshing = null;
+    }
+  }
+
+  Future<String?> _performRefresh() async {
     final refreshToken = _storage.refreshToken;
     if (refreshToken == null) return null;
     try {

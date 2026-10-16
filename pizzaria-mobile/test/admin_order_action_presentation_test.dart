@@ -64,4 +64,13 @@ void main() {
       isNull,
     );
   });
+
+  test('expõe exatamente o próximo status operacional', () {
+    expect(AdminOrderActions.forOrder(status: 'PENDING', fulfillmentType: 'DELIVERY')?.targetStatus, 'CONFIRMED');
+    expect(AdminOrderActions.forOrder(status: 'CONFIRMED', fulfillmentType: 'DELIVERY')?.targetStatus, 'PREPARING');
+    expect(AdminOrderActions.forOrder(status: 'PREPARING', fulfillmentType: 'DELIVERY')?.targetStatus, 'READY');
+    expect(AdminOrderActions.forOrder(status: 'READY', fulfillmentType: 'DELIVERY')?.targetStatus, 'OUT_FOR_DELIVERY');
+    expect(AdminOrderActions.forOrder(status: 'READY', fulfillmentType: 'PICKUP')?.targetStatus, 'DELIVERED');
+    expect(AdminOrderActions.forOrder(status: 'OUT_FOR_DELIVERY', fulfillmentType: 'DELIVERY')?.targetStatus, 'DELIVERED');
+  });
 }

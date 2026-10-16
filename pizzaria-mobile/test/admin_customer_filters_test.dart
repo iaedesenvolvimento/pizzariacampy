@@ -45,4 +45,23 @@ void main() {
       hasLength(1),
     );
   });
+
+  test('combina busca e filtro de status', () {
+    expect(
+      AdminCustomerFilters.visible(
+        customers: customers,
+        query: 'ana',
+        activeFilter: true,
+      ),
+      hasLength(1),
+    );
+    expect(
+      AdminCustomerFilters.visible(
+        customers: customers,
+        query: 'ana',
+        activeFilter: false,
+      ),
+      isEmpty,
+    );
+  });
 }

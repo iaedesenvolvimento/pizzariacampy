@@ -1,4 +1,5 @@
 export 'components/admin_action_menu.dart';
+export 'components/admin_business_hour_card.dart';
 export 'components/admin_confirmation_dialog.dart';
 export 'components/admin_coupon_card.dart';
 export 'components/admin_customer_card.dart';
@@ -14,6 +15,7 @@ export 'components/admin_search_field.dart';
 export 'components/admin_section_card.dart';
 export 'components/admin_states.dart';
 export 'core/admin_breakpoints.dart';
+export 'core/admin_business_hour_presentation.dart';
 export 'core/admin_colors.dart';
 export 'core/admin_coupon_presentation.dart';
 export 'core/admin_customer_filters.dart';

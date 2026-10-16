@@ -55,6 +55,11 @@ abstract final class AdminStatuses {
           foreground: AdminColors.danger,
           background: AdminColors.dangerSurface,
           icon: Icons.cancel_outlined),
+      'CLOSED' => const AdminStatusVisual(
+          label: 'Fechado',
+          foreground: AdminColors.neutral,
+          background: AdminColors.neutralSurface,
+          icon: Icons.store_outlined),
       _ => const AdminStatusVisual(
           label: 'Status não informado',
           foreground: AdminColors.neutral,

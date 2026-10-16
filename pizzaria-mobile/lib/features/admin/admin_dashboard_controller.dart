@@ -1,8 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../core/errors/app_exception.dart';
-import '../../core/network/api_client.dart';
-import '../../core/storage/app_storage.dart';
+import 'admin_api_client.dart';
 
 enum AdminDashboardStatus { idle, loading, loaded, error }
 
@@ -75,10 +74,9 @@ class AdminDashboardData {
 }
 
 class AdminDashboardController extends ChangeNotifier {
-  AdminDashboardController(this._apiClient, this._storage);
+  AdminDashboardController(this._adminApi);
 
-  final ApiClient _apiClient;
-  final AppStorage _storage;
+  final AdminApiClient _adminApi;
   AdminDashboardStatus status = AdminDashboardStatus.idle;
   AdminDashboardData? data;
   String? errorMessage;
@@ -87,33 +85,12 @@ class AdminDashboardController extends ChangeNotifier {
     status = AdminDashboardStatus.loading;
     notifyListeners();
     try {
-      final token = _storage.accessToken;
-      if (token == null) throw const FormatException('Sessão expirada.');
-      final response = await _getDashboard(token);
+      final response = await _adminApi.get('/admin/dashboard');
       if (response is! Map<String, dynamic>) {
         throw const FormatException('Dashboard inválido.');
       }
       data = AdminDashboardData.fromJson(response);
       status = AdminDashboardStatus.loaded;
-    } on ApiException catch (error) {
-      if (error.statusCode == 401) {
-        final refreshedToken = await _refreshAccessToken();
-        if (refreshedToken != null) {
-          try {
-            final response = await _getDashboard(refreshedToken);
-            if (response is Map<String, dynamic>) {
-              data = AdminDashboardData.fromJson(response);
-              status = AdminDashboardStatus.loaded;
-              notifyListeners();
-              return;
-            }
-          } catch (_) {
-            // Fall through to the authentication error below.
-          }
-        }
-      }
-      status = AdminDashboardStatus.error;
-      errorMessage = error.message;
     } on AppException catch (error) {
       status = AdminDashboardStatus.error;
       errorMessage = error.message;
@@ -124,36 +101,10 @@ class AdminDashboardController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<dynamic> _getDashboard(String token) {
-    return _apiClient
-        .get('/admin/dashboard', headers: {'Authorization': 'Bearer $token'});
-  }
-
-  Future<String?> _refreshAccessToken() async {
-    final refreshToken = _storage.refreshToken;
-    if (refreshToken == null) return null;
-    try {
-      final response = await _apiClient
-          .post('/auth/refresh', body: {'refresh_token': refreshToken});
-      if (response is! Map<String, dynamic>) return null;
-      final accessToken = response['access_token']?.toString();
-      final nextRefreshToken = response['refresh_token']?.toString();
-      if (accessToken == null || nextRefreshToken == null) return null;
-      await _storage.saveTokens(
-          accessToken: accessToken, refreshToken: nextRefreshToken);
-      return accessToken;
-    } catch (_) {
-      return null;
-    }
-  }
-
   Future<bool> changeStatus(String orderId, String nextStatus) async {
     try {
-      final token = _storage.accessToken;
-      if (token == null) throw const FormatException('Sessão expirada.');
-      await _apiClient.patch(
+      await _adminApi.patch(
         '/admin/orders/$orderId/status',
-        headers: {'Authorization': 'Bearer $token'},
         body: {'status': nextStatus},
       );
       await load();
@@ -170,11 +121,8 @@ class AdminDashboardController extends ChangeNotifier {
   Future<bool> reviewPayment(String paymentId, String nextStatus,
       {String? notes}) async {
     try {
-      final token = _storage.accessToken;
-      if (token == null) throw const FormatException('Sessão expirada.');
-      await _apiClient.patch(
+      await _adminApi.patch(
         '/admin/payments/$paymentId/review',
-        headers: {'Authorization': 'Bearer $token'},
         body: {'status': nextStatus, 'notes': notes},
       );
       await load();

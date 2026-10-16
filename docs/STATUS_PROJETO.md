@@ -195,3 +195,27 @@ Validada no emulador Android em 2026-10-10:
 ## Pós-MVP
 
 WebSocket para notificações em tempo real está implementado: clientes recebem mudanças de status do próprio pedido e administradores recebem novos pedidos e atualizações enquanto o app está aberto. Push em segundo plano via Firebase, favoritos, fidelidade, mapas, rastreamento, gateway de pagamento e múltiplas unidades permanecem pendentes conforme `POST_MVP_ROADMAP.md`.
+
+## Fase J — horários e configurações administrativas
+
+- Tela de horários padronizada com os sete dias, status textual, edição por TimePicker, validação de intervalo e salvamento individual.
+- Tela de configurações organizada em dados da loja, pagamentos e retirada, com formulário, validação básica, detecção de alterações e feedback amigável.
+- Backend permanece como autoridade sobre disponibilidade; endpoints, schemas, banco e regras PIX não foram alterados.
+
+## Fase K — auditoria integrada e hardening administrativo
+
+- Inventário integrado concluído para autenticação, navegação, Design System, API administrativa, realtime e módulos do Admin.
+- Refresh de token do Dashboard consolidado no `AdminApiClient`, com proteção contra refresh concorrente.
+- Autorização permanece no backend para `ADMIN` e `MANAGER`; rotas administrativas do Flutter também bloqueiam perfis sem permissão.
+- `flutter analyze`, testes Flutter e build debug foram executados; validações manuais com sessão real permanecem pendentes quando não há evidência reproduzível.
+- Dívidas mantidas: detalhes completos em pedidos, histórico administrativo avançado, N+1 de preços de sabores, composição avançada de combos, cupons segmentados, roteirização e QA manual ponta a ponta.
+
+## Fase K.1 — QA final e gate de estabilidade
+
+- Cobertura crítica ampliada para transições de pedidos, busca combinada de clientes, shell administrativo e refresh concorrente.
+- Suíte Flutter: 18 testes aprovados; `flutter analyze` sem issues; build debug x86_64 aprovado.
+- O `AdminApiClient` foi validado contra duas respostas 401 simultâneas: um único refresh compartilhado atualiza os tokens e repete as requisições.
+- QA manual autenticado permanece `BLOQUEADO POR AMBIENTE`: o emulador está disponível, mas não há credenciais apropriadas fornecidas para testar produção sem risco.
+- N+1 de preços de sabores permanece como dívida de severidade ALTA: aproximadamente uma requisição de tamanhos por produto pizza, além das consultas de produtos e preços.
+- Base existente para futuro Financeiro: pedidos com totais, taxas e descontos; pagamentos com método, status, valor, comprovante PIX, revisão e notas. Nenhum módulo financeiro foi implementado.
+- Gate: `GATE A — APROVADO`, com ressalva exclusiva do QA manual autenticado bloqueado por ambiente. Próximo passo recomendado: planejar a Fase L — Financeiro Admin.

@@ -96,8 +96,9 @@ class _AdminFlavorPricesPageState extends State<AdminFlavorPricesPage> {
       ),
     );
     controller.dispose();
-    if (!mounted || value == null || value.trim().isEmpty || _adminApi == null)
+    if (!mounted || value == null || value.trim().isEmpty || _adminApi == null) {
       return;
+    }
     final body = {'price': value.trim().replaceAll(',', '.')};
     try {
       final existing = _prices[size['id']?.toString()];
@@ -114,7 +115,9 @@ class _AdminFlavorPricesPageState extends State<AdminFlavorPricesPage> {
               ...body
             });
       }
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       final updatedPrice = savedPrice is Map<String, dynamic>
           ? savedPrice
           : <String, dynamic>{
@@ -126,9 +129,10 @@ class _AdminFlavorPricesPageState extends State<AdminFlavorPricesPage> {
         _prices = {..._prices, size['id'].toString(): updatedPrice};
       });
     } catch (error) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('Não foi possível salvar o preço do sabor.')));
+      }
     }
   }
 
