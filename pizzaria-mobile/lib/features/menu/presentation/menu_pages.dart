@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/errors/app_exception.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/settings/app_settings_controller.dart';
 import '../../../theme/app_theme.dart';
@@ -518,7 +519,9 @@ class _ProductOptionsViewState extends State<_ProductOptionsView> {
 
   Future<void> _addSimpleProduct() async {
     final size = widget.options.sizes.firstOrNull;
-    final token = widget.accessToken;
+    var token = widget.accessToken;
+    token ??= await widget.refreshAccessToken();
+    if (!mounted) return;
     if (size == null || token == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -528,23 +531,33 @@ class _ProductOptionsViewState extends State<_ProductOptionsView> {
     }
     setState(() => _adding = true);
     try {
-      final response = await ApiClient().post(
-        '/pricing/quote',
-        headers: {'Authorization': 'Bearer $token'},
-        body: {
-          'items': [
-            {
-              'product_id': widget.options.product.id,
-              'product_size_id': size.id,
-              'flavor_ids': const <String>[],
-              'edge_id': null,
-              'extras': const <Map<String, dynamic>>[],
-              'quantity': 1,
+      Future<dynamic> quote(String accessToken) => ApiClient().post(
+            '/pricing/quote',
+            headers: {'Authorization': 'Bearer $accessToken'},
+            body: {
+              'items': [
+                {
+                  'product_id': widget.options.product.id,
+                  'product_size_id': size.id,
+                  'flavor_ids': const <String>[],
+                  'edge_id': null,
+                  'extras': const <Map<String, dynamic>>[],
+                  'quantity': 1,
+                },
+              ],
+              'fulfillment_type': 'PICKUP',
             },
-          ],
-          'fulfillment_type': 'PICKUP',
-        },
-      );
+          );
+
+      dynamic response;
+      try {
+        response = await quote(token);
+      } on ApiException catch (error) {
+        if (error.statusCode != 401) rethrow;
+        token = await widget.refreshAccessToken();
+        if (token == null) rethrow;
+        response = await quote(token);
+      }
       final total = double.tryParse(
           (response as Map<String, dynamic>)['total_amount'].toString());
       if (total == null) throw const FormatException('Cotação inválida.');
@@ -565,12 +578,16 @@ class _ProductOptionsViewState extends State<_ProductOptionsView> {
         ),
       );
       if (mounted) Navigator.of(context).pop(true);
-    } catch (_) {
+    } on ApiException catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Não foi possível adicionar o produto.')),
+          SnackBar(content: Text(error.message)),
         );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Não foi possível adicionar o produto.')));
       }
     } finally {
       if (mounted) setState(() => _adding = false);
@@ -664,8 +681,10 @@ class _ProductOptionsViewState extends State<_ProductOptionsView> {
             (size) => ListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(size.name),
-              subtitle: Text(
-                  '${size.slices} fatias · até ${size.maxFlavors} sabores'),
+              subtitle: isPizza
+                  ? Text(
+                      '${size.slices} fatias · até ${size.maxFlavors} sabores')
+                  : null,
               trailing: Text(_formatPrice(size.price)),
             ),
           ),
@@ -713,7 +732,7 @@ class _ProductOptionsViewState extends State<_ProductOptionsView> {
         ElevatedButton(
           onPressed: _adding || !hasSizes || !widget.isStoreOpen
               ? null
-              : widget.options.product.type == 'PIZZA'
+              : isPizza
                   ? _openPizzaBuilder
                   : _addSimpleProduct,
           child: _adding
@@ -722,7 +741,7 @@ class _ProductOptionsViewState extends State<_ProductOptionsView> {
                   ? 'Produto indisponível'
                   : !widget.isStoreOpen
                       ? 'Loja fechada'
-                      : widget.options.product.type == 'PIZZA'
+                      : isPizza
                           ? 'Avançar'
                           : 'Adicionar ao carrinho'),
         ),
