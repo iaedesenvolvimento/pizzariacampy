@@ -219,3 +219,67 @@ WebSocket para notificações em tempo real está implementado: clientes recebem
 - N+1 de preços de sabores permanece como dívida de severidade ALTA: aproximadamente uma requisição de tamanhos por produto pizza, além das consultas de produtos e preços.
 - Base existente para futuro Financeiro: pedidos com totais, taxas e descontos; pagamentos com método, status, valor, comprovante PIX, revisão e notas. Nenhum módulo financeiro foi implementado.
 - Gate: `GATE A — APROVADO`, com ressalva exclusiva do QA manual autenticado bloqueado por ambiente. Próximo passo recomendado: planejar a Fase L — Financeiro Admin.
+
+## Fase L.0 — auditoria e planejamento do Financeiro Admin
+
+Status: **EM ANÁLISE**. Nenhuma tela, rota, tabela, migration, regra de pagamento ou checkout foi alterada.
+
+### Base financeira encontrada
+
+- `orders` guarda subtotal, taxa de entrega, desconto, total, método, status de pagamento, cupom, troco, timestamps e endereço de entrega snapshot.
+- `order_items` guarda nomes, tamanho, preço unitário, quantidade, adicionais e total da linha; sabores e adicionais possuem snapshots próprios.
+- `payments` é uma entidade própria vinculada a `orders`, com método, status, valor, comprovante, revisor, data de revisão e notas.
+- Cupons possuem configuração, uso acumulado e `coupon_redemptions`; o desconto é calculado no backend com `Decimal` e persistido no pedido.
+- Não existem fluxo de caixa, despesas, contas a pagar/receber, custos, CMV, lucro, DRE, estorno ou conciliação.
+
+### Limitações para o futuro Financeiro
+
+- Não há endpoints agregados por período; listas administrativas têm limite e não servem sozinhas para métricas históricas.
+- Não há audit trail próprio de alterações financeiras, além da revisão de pagamentos e histórico de status do pedido.
+- Cancelamento não possui estorno automático: o status do pedido e o status do pagamento são tratados separadamente.
+- A tela futura não deve exibir lucro; vendas, recebimentos e totais precisam ser semanticamente diferenciados.
+- O N+1 de preços de sabores permanece restrito ao Admin de catálogo e não deve ser reutilizado para agregações financeiras.
+
+### Recomendação
+
+**B — o backend precisa de pequenas extensões antes do frontend.** A base atual permite planejar o Financeiro Operacional, mas exige agregações server-side, filtros temporais, definição de auditoria e política explícita para cancelamento/estorno antes da implementação visual.
+
+## Fase L.1 — backend financeiro operacional
+
+Status: **IMPLEMENTADO**. O frontend Financeiro permanece não implementado.
+
+- Criado o router protegido `/api/v1/admin/finance` para summary, vendas, métodos de pagamento, PIX pendente e cancelamentos.
+- Períodos usam `start_date`/`end_date` inclusivos por data comercial, convertidos de `America/Sao_Paulo` para UTC e consultados com intervalo semiaberto `[start, end)`.
+- Venda operacional significa pedido não cancelado cujo pagamento não esteja `FAILED`; isso representa faturamento operacional, não recebimento confirmado.
+- Agregações usam `Decimal`/`Numeric`, sem lucro, despesas, CMV, DRE, caixa ou estorno.
+- Vendas são paginadas e filtráveis por método, status de pagamento e status do pedido.
+- PIX diferencia `PENDING` (aguardando comprovante) de `UNDER_REVIEW` (aguardando revisão); a revisão continua no endpoint existente.
+- Cancelamentos identificam explicitamente pedidos `CANCELLED` com pagamento `CONFIRMED`, sem alterar o pagamento ou simular reembolso.
+- Adicionada dependência `tzdata` para garantir `America/Sao_Paulo` em ambientes sem base tzdata do sistema.
+- Backend: 27 testes aprovados; Flutter: analyze e 18 testes aprovados; nenhum endpoint existente foi removido ou alterado.
+- Próxima etapa possível: Fase L.2 — Dashboard Financeiro Admin.
+
+## Fase L.2 — Dashboard Financeiro Admin
+
+Status: **IMPLEMENTADO**. O dashboard apresenta apenas os indicadores financeiros operacionais fornecidos pelo backend L.1.
+
+- Adicionada a rota protegida `/admin/finance` e o destino Financeiro no shell administrativo.
+- A tela usa exclusivamente os endpoints `/admin/finance/summary` e `/admin/finance/sales`, sem cálculos financeiros no Flutter.
+- Períodos disponíveis: Hoje, 7 dias, 30 dias e Personalizado, enviados ao backend por `start_date`/`end_date`.
+- Cards exibem `gross_sales` como **Vendas operacionais**, pedidos, ticket médio e PIX pendente; não exibem lucro, saldo ou recebido.
+- Incluídos descontos, taxas de entrega, pedidos cancelados, valor de pedidos cancelados, métodos de pagamento, pendências PIX e vendas recentes.
+- Estados de carregamento, erro, vazio, atualização manual, acessibilidade e layout responsivo foram integrados ao Design System Admin existente.
+- Não foram alterados contratos, endpoints, banco, migrations ou fluxo de revisão PIX.
+- Testes Flutter adicionados para moeda, períodos, rótulos de pagamento, semântica de vendas e estados do controller.
+
+## Fase L.3 — Vendas e Pagamentos Admin
+
+Status: **IMPLEMENTADO COM RESSALVAS DE QA MANUAL**.
+
+- O módulo Financeiro agora possui navegação interna entre Resumo, Vendas, PIX pendentes e Cancelamentos, sem criar novos itens principais no shell.
+- Vendas usam `/admin/finance/sales`, apresentam os campos do contrato L.1, filtros server-side por método/status e paginação por `limit`/`offset`.
+- PIX usa `/admin/finance/pix-pending`, diferenciando `PENDING` como aguardando comprovante de `UNDER_REVIEW` como aguardando análise.
+- A revisão continua no fluxo existente de Pedidos via `/admin/payments/{payment_id}/review`; o contrato financeiro atual não retorna `payment_id`, portanto nenhum campo foi inventado nem endpoint foi alterado.
+- Cancelamentos usam `/admin/finance/cancellations` e destacam `CANCELLED + CONFIRMED` como pagamento confirmado com reembolso/estorno ainda não registrado.
+- Não foram adicionados status inexistentes, ações de reembolso, estorno ou operações de cozinha na área Financeiro.
+- Nenhuma alteração de banco, migration ou contrato backend foi feita nesta fase.

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 enum AdminDestinationId {
   dashboard,
+  finance,
   orders,
   menu,
   products,
@@ -45,6 +46,12 @@ abstract final class AdminDestinations {
     label: 'Pedidos',
     icon: Icons.receipt_long_outlined,
     route: '/admin/orders',
+  );
+  static const finance = AdminDestination(
+    id: AdminDestinationId.finance,
+    label: 'Financeiro',
+    icon: Icons.account_balance_wallet_outlined,
+    route: '/admin/finance',
   );
   static const menu = AdminDestination(
     id: AdminDestinationId.menu,
@@ -123,6 +130,7 @@ abstract final class AdminDestinations {
 
   static const main = [
     dashboard,
+    finance,
     orders,
     menu,
     customers,

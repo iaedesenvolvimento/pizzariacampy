@@ -20,6 +20,7 @@ export 'core/admin_colors.dart';
 export 'core/admin_coupon_presentation.dart';
 export 'core/admin_customer_filters.dart';
 export 'core/admin_delivery_zone_presentation.dart';
+export 'core/admin_finance_presentation.dart';
 export 'core/admin_navigation.dart';
 export 'core/admin_order_action_presentation.dart';
 export 'core/admin_radius.dart';

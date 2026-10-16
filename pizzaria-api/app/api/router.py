@@ -8,6 +8,7 @@ from app.api.routes import (
     catalog,
     coupons,
     delivery,
+    finance,
     health,
     notifications,
     observability,
@@ -36,6 +37,7 @@ api_router.include_router(delivery.router, tags=["delivery"])
 api_router.include_router(delivery.admin_router, tags=["admin-delivery"])
 api_router.include_router(delivery.locations_admin_router, tags=["admin-coverage-locations"])
 api_router.include_router(coupons.router, tags=["admin-coupons"])
+api_router.include_router(finance.router, tags=["admin-finance"])
 api_router.include_router(observability.router, tags=["observability"])
 api_router.include_router(realtime.router, tags=["realtime"])
 api_router.include_router(notifications.router, tags=["notifications"])

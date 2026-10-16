@@ -11,6 +11,7 @@ import '../features/admin/admin_customers_page.dart';
 import '../features/admin/admin_dashboard_page.dart';
 import '../features/admin/admin_delivery_zones_page.dart';
 import '../features/admin/admin_hours_page.dart';
+import '../features/admin/admin_finance_page.dart';
 import '../features/admin/admin_options_page.dart';
 import '../features/admin/admin_orders_page.dart';
 import '../features/admin/admin_settings_page.dart';
@@ -82,6 +83,11 @@ class AppRouter {
       case '/admin/orders':
         return MaterialPageRoute<void>(
           builder: (_) => const AdminOrdersPage(),
+          settings: settings,
+        );
+      case '/admin/finance':
+        return MaterialPageRoute<void>(
+          builder: (_) => const AdminFinancePage(),
           settings: settings,
         );
       case '/admin/catalog/products':
