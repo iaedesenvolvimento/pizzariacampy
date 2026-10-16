@@ -4,6 +4,7 @@ import '../../core/config/app_config.dart';
 import '../../core/network/api_client.dart';
 import '../../core/storage/app_storage.dart';
 import 'admin_api_client.dart';
+import 'admin_design_system.dart';
 
 class AdminDeliveryZonesPage extends StatefulWidget {
   const AdminDeliveryZonesPage({super.key});
@@ -14,44 +15,64 @@ class AdminDeliveryZonesPage extends StatefulWidget {
 
 class _AdminDeliveryZonesPageState extends State<AdminDeliveryZonesPage> {
   final _api = ApiClient(config: AppConfig.fromEnvironment());
+  final _searchController = TextEditingController();
   AdminApiClient? _adminApi;
   List<Map<String, dynamic>> _zones = const [];
+  bool? _activeFilter;
   bool _loading = true;
   String? _error;
 
   @override
   void initState() {
     super.initState();
+    _searchController.addListener(_onSearchChanged);
     _load();
   }
 
+  @override
+  void dispose() {
+    _searchController
+      ..removeListener(_onSearchChanged)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() => setState(() {});
+
   Future<void> _load() async {
-    final storage = await AppStorage.create();
-    if (!mounted) return;
-    _adminApi = AdminApiClient(_api, storage);
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
+    if (mounted) setState(() => _loading = true);
     try {
+      final storage = await AppStorage.create();
+      _adminApi = AdminApiClient(_api, storage);
       final response = await _adminApi!.get('/admin/delivery-zones');
-      if (response is! List<dynamic>) throw const FormatException('Zonas inválidas.');
+      if (response is! List<dynamic>) throw const FormatException();
       if (!mounted) return;
       setState(() {
         _zones = response.whereType<Map<String, dynamic>>().toList();
+        _error = null;
         _loading = false;
       });
-    } catch (error) {
+    } catch (_) {
       if (!mounted) return;
       setState(() {
-        _error = error.toString();
+        _error = 'Não foi possível carregar as zonas de entrega.';
         _loading = false;
       });
     }
   }
 
-  Future<void> _edit([Map<String, dynamic>? zone]) async {
-    final result = await showDialog<Map<String, String>>(
+  List<Map<String, dynamic>> get _visibleZones => filterDeliveryZones(
+        zones: _zones,
+        query: _searchController.text,
+        activeFilter: _activeFilter,
+      );
+
+  int _count(bool? status) => status == null
+      ? _zones.length
+      : _zones.where((zone) => zone['is_active'] == status).length;
+
+  Future<void> _openForm([Map<String, dynamic>? zone]) async {
+    final result = await showDialog<Map<String, dynamic>>(
       context: context,
       builder: (_) => _ZoneForm(initial: zone),
     );
@@ -63,70 +84,94 @@ class _AdminDeliveryZonesPageState extends State<AdminDeliveryZonesPage> {
       } else {
         await _adminApi!.patch('/admin/delivery-zones/$id', body: result);
       }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(id == null ? 'Zona criada.' : 'Zona atualizada.')),
+        );
+      }
       await _load();
-    } catch (error) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Não foi possível salvar a zona.')),
+        );
+      }
     }
   }
 
   Future<void> _toggle(Map<String, dynamic> zone) async {
-    final id = zone['id']?.toString();
-    if (id == null || _adminApi == null) return;
-    final body = {
-      'name': zone['name'],
-      'city': zone['city'],
-      'neighborhood': zone['neighborhood'],
-      'delivery_fee': zone['delivery_fee'],
-      'minimum_order_amount': zone['minimum_order_amount'],
-      'estimated_minutes': zone['estimated_minutes'],
-      'is_active': zone['is_active'] != true,
-    };
+    final isActive = zone['is_active'] == true;
+    if (isActive) {
+      final confirmed = await AdminConfirmationDialog.show(
+        context: context,
+        title: 'Pausar zona?',
+        message:
+            '${zone['name'] ?? zone['neighborhood']} ficará indisponível para novas entregas.',
+        confirmLabel: 'Pausar zona',
+        destructive: true,
+      );
+      if (!confirmed) return;
+    }
     try {
-      await _adminApi!.patch('/admin/delivery-zones/$id', body: body);
+      await _adminApi!.patch(
+        '/admin/delivery-zones/${zone['id']}',
+        body: _payload(zone, isActive: !isActive),
+      );
       await _load();
-    } catch (error) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Não foi possível alterar a zona.')),
+        );
+      }
     }
   }
 
+  Map<String, dynamic> _payload(Map<String, dynamic> zone, {bool? isActive}) =>
+      {
+        'name': zone['name'],
+        'city': zone['city'],
+        'neighborhood': zone['neighborhood'],
+        'delivery_fee': zone['delivery_fee'],
+        'minimum_order_amount': zone['minimum_order_amount'] ?? 0,
+        'estimated_minutes': zone['estimated_minutes'] ?? 45,
+        'is_active': isActive ?? zone['is_active'] == true,
+      };
+
   Future<void> _delete(Map<String, dynamic> zone) async {
-    final id = zone['id']?.toString();
-    if (id == null || _adminApi == null) return;
-    final confirmed = await showDialog<bool>(
+    final confirmed = await AdminConfirmationDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Excluir zona?'),
-        content: Text('Excluir ${zone['neighborhood']}?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Excluir')),
-        ],
-      ),
+      title: 'Excluir zona?',
+      message: 'A zona ${zone['name'] ?? zone['neighborhood']} será removida.',
+      confirmLabel: 'Excluir zona',
+      destructive: true,
     );
-    if (confirmed != true) return;
+    if (!confirmed) return;
     try {
-      await _adminApi!.delete('/admin/delivery-zones/$id');
+      await _adminApi!.delete('/admin/delivery-zones/${zone['id']}');
       await _load();
-    } catch (error) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Não foi possível excluir a zona.')),
+        );
+      }
     }
   }
 
   Future<void> _setAllZonesStatus(bool isActive) async {
-    if (_adminApi == null) return;
-    final action = isActive ? 'habilitar' : 'desabilitar';
-    final confirmed = await showDialog<bool>(
+    final action = isActive ? 'Ativar' : 'Pausar';
+    final confirmed = await AdminConfirmationDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('${isActive ? 'Habilitar' : 'Desabilitar'} todas as zonas?'),
-        content: Text('Esta ação vai $action todas as zonas, sem alterar taxas, mínimos ou prazos.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(isActive ? 'Habilitar' : 'Desabilitar')),
-        ],
-      ),
+      title: '$action todas as zonas?',
+      message: isActive
+          ? 'Todas as regiões configuradas voltarão a aceitar entregas.'
+          : 'Pausar todas as zonas impedirá novas entregas nas regiões configuradas.',
+      confirmLabel: '$action todas',
+      destructive: !isActive,
     );
-    if (confirmed != true) return;
+    if (!confirmed) return;
     try {
       final response = await _adminApi!.post(
         '/admin/delivery-zones/bulk-status',
@@ -134,104 +179,307 @@ class _AdminDeliveryZonesPageState extends State<AdminDeliveryZonesPage> {
       );
       await _load();
       if (!mounted) return;
-      final count = response is Map<String, dynamic> ? response['updated_count'] : null;
+      final count = response is Map<String, dynamic>
+          ? response['updated_count']?.toString()
+          : null;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${count ?? 'Todas as'} zonas foram ${isActive ? 'habilitadas' : 'desabilitadas'}.')),
+        SnackBar(
+            content: Text(
+                '${count ?? 'Todas as'} zonas foram ${isActive ? 'ativadas' : 'pausadas'}.')),
       );
-    } catch (error) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Não foi possível atualizar todas as zonas.')),
+        );
+      }
     }
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Zonas de entrega')),
-        body: _loading
-            ? const Center(child: CircularProgressIndicator())
-            : _error != null
-                ? Center(child: Text(_error!))
-                : RefreshIndicator(
-                    onRefresh: _load,
-                    child: ListView(
-                      padding: const EdgeInsets.all(16),
-                      children: [
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            OutlinedButton.icon(
-                              onPressed: () => _setAllZonesStatus(true),
-                              icon: const Icon(Icons.public),
-                              label: const Text('Habilitar todas'),
-                            ),
-                            OutlinedButton.icon(
-                              onPressed: () => _setAllZonesStatus(false),
-                              icon: const Icon(Icons.public_off),
-                              label: const Text('Desabilitar todas'),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        if (_zones.isEmpty)
-                          const Padding(padding: EdgeInsets.all(24), child: Center(child: Text('Nenhuma zona cadastrada.')))
-                        else
-                          ..._zones.map((zone) => Card(
-                                child: ListTile(
-                                  title: Text('${zone['neighborhood']} · ${zone['city']}'),
-                                  subtitle: Text('Taxa R\$ ${zone['delivery_fee']} · mínimo R\$ ${zone['minimum_order_amount']} · ${zone['estimated_minutes']} min'),
-                                  leading: IconButton(icon: const Icon(Icons.edit_outlined), onPressed: () => _edit(zone)),
-                                  trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                                    Switch(value: zone['is_active'] == true, onChanged: (_) => _toggle(zone)),
-                                    IconButton(icon: const Icon(Icons.delete_outline), onPressed: () => _delete(zone)),
-                                  ]),
-                                ),
-                              )),
-                      ],
-                    ),
+  Widget build(BuildContext context) {
+    return AdminScaffold(
+      title: 'Entregas',
+      activeDestination: AdminDestinationId.delivery,
+      body: _loading && _zones.isEmpty
+          ? const AdminLoadingState(label: 'Carregando zonas de entrega')
+          : _error != null && _zones.isEmpty
+              ? AdminErrorState(message: _error!, onRetry: _load)
+              : _buildContent(context),
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
+    final zones = _visibleZones;
+    final allPaused = _zones.isNotEmpty && _count(true) == 0;
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final cardWidth = constraints.maxWidth > AdminBreakpoints.compactMax
+              ? (constraints.maxWidth - AdminSpacing.md) / 2
+              : constraints.maxWidth;
+          return ListView(
+            padding: const EdgeInsets.all(AdminSpacing.lg),
+            children: [
+              AdminPageHeader(
+                title: 'Entregas',
+                subtitle:
+                    'Gerencie as regiões atendidas, taxas e condições de entrega.',
+                actions: [
+                  FilledButton.icon(
+                    onPressed: () => _openForm(),
+                    icon: const Icon(Icons.add),
+                    label: const Text('Nova zona de entrega'),
                   ),
-        floatingActionButton: FloatingActionButton.extended(onPressed: _edit, icon: const Icon(Icons.add), label: const Text('Zona')),
-      );
+                  IconButton(
+                    tooltip: 'Atualizar zonas',
+                    onPressed: _load,
+                    icon: const Icon(Icons.refresh),
+                  ),
+                ],
+              ),
+              Wrap(
+                spacing: AdminSpacing.md,
+                runSpacing: AdminSpacing.sm,
+                children: [
+                  Chip(label: Text('Total: ${_count(null)}')),
+                  Chip(label: Text('Ativas: ${_count(true)}')),
+                  Chip(label: Text('Pausadas: ${_count(false)}')),
+                ],
+              ),
+              if (allPaused) ...[
+                const SizedBox(height: AdminSpacing.md),
+                const AdminSectionCard(
+                  title: 'Atenção operacional',
+                  child: Text('Todas as zonas de entrega estão pausadas.'),
+                ),
+              ],
+              const SizedBox(height: AdminSpacing.lg),
+              AdminSearchField(
+                controller: _searchController,
+                hintText: 'Buscar por nome, cidade ou bairro',
+              ),
+              const SizedBox(height: AdminSpacing.md),
+              AdminFilterBar(
+                children: [
+                  ChoiceChip(
+                    label: Text('Todas ${_count(null)}'),
+                    selected: _activeFilter == null,
+                    onSelected: (_) => setState(() => _activeFilter = null),
+                  ),
+                  ChoiceChip(
+                    label: Text('Ativas ${_count(true)}'),
+                    selected: _activeFilter == true,
+                    onSelected: (_) => setState(() => _activeFilter = true),
+                  ),
+                  ChoiceChip(
+                    label: Text('Pausadas ${_count(false)}'),
+                    selected: _activeFilter == false,
+                    onSelected: (_) => setState(() => _activeFilter = false),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AdminSpacing.md),
+              Wrap(
+                spacing: AdminSpacing.sm,
+                runSpacing: AdminSpacing.sm,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: () => _setAllZonesStatus(true),
+                    icon: const Icon(Icons.public),
+                    label: const Text('Ativar todas'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: () => _setAllZonesStatus(false),
+                    icon: const Icon(Icons.public_off),
+                    label: const Text('Pausar todas'),
+                  ),
+                ],
+              ),
+              if (_error != null) ...[
+                const SizedBox(height: AdminSpacing.md),
+                Text(_error!, style: TextStyle(color: AdminColors.danger)),
+              ],
+              const SizedBox(height: AdminSpacing.xl),
+              if (zones.isEmpty)
+                SizedBox(
+                  height: 220,
+                  child: AdminEmptyState(
+                    message: _searchController.text.trim().isNotEmpty ||
+                            _activeFilter != null
+                        ? 'Nenhuma zona encontrada.'
+                        : 'Nenhuma zona de entrega cadastrada.',
+                    icon: Icons.location_on_outlined,
+                  ),
+                )
+              else
+                Wrap(
+                  spacing: AdminSpacing.md,
+                  runSpacing: AdminSpacing.md,
+                  children: [
+                    for (final zone in zones)
+                      SizedBox(
+                        width: cardWidth,
+                        child: AdminDeliveryZoneCard(
+                          zone: zone,
+                          onEdit: () => _openForm(zone),
+                          onToggle: () => _toggle(zone),
+                          onDelete: () => _delete(zone),
+                        ),
+                      ),
+                  ],
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
 }
 
 class _ZoneForm extends StatefulWidget {
   const _ZoneForm({this.initial});
+
   final Map<String, dynamic>? initial;
+
   @override
   State<_ZoneForm> createState() => _ZoneFormState();
 }
 
 class _ZoneFormState extends State<_ZoneForm> {
-  late final _name = TextEditingController(text: widget.initial?['name']?.toString() ?? '');
-  late final _city = TextEditingController(text: widget.initial?['city']?.toString() ?? 'Carapicuíba');
-  late final _neighborhood = TextEditingController(text: widget.initial?['neighborhood']?.toString() ?? '');
-  late final _fee = TextEditingController(text: widget.initial?['delivery_fee']?.toString() ?? '0');
-  late final _minimum = TextEditingController(text: widget.initial?['minimum_order_amount']?.toString() ?? '0');
-  late final _minutes = TextEditingController(text: widget.initial?['estimated_minutes']?.toString() ?? '45');
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _name;
+  late final TextEditingController _city;
+  late final TextEditingController _neighborhood;
+  late final TextEditingController _fee;
+  late final TextEditingController _minimum;
+  late final TextEditingController _minutes;
+  late bool _isActive;
 
   @override
-  void dispose() { for (final c in [_name, _city, _neighborhood, _fee, _minimum, _minutes]) { c.dispose(); } super.dispose(); }
+  void initState() {
+    super.initState();
+    final initial = widget.initial;
+    _name = TextEditingController(text: initial?['name']?.toString() ?? '');
+    _city = TextEditingController(
+        text: initial?['city']?.toString() ?? 'Carapicuíba');
+    _neighborhood =
+        TextEditingController(text: initial?['neighborhood']?.toString() ?? '');
+    _fee = TextEditingController(
+        text: initial?['delivery_fee']?.toString() ?? '0');
+    _minimum = TextEditingController(
+        text: initial?['minimum_order_amount']?.toString() ?? '0');
+    _minutes = TextEditingController(
+        text: initial?['estimated_minutes']?.toString() ?? '45');
+    _isActive = initial?['is_active'] != false;
+  }
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
-        title: Text(widget.initial == null ? 'Nova zona' : 'Editar zona'),
-        content: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextField(controller: _name, decoration: const InputDecoration(labelText: 'Nome')),
-          TextField(controller: _city, decoration: const InputDecoration(labelText: 'Cidade')),
-          TextField(controller: _neighborhood, decoration: const InputDecoration(labelText: 'Bairro')),
-          TextField(controller: _fee, decoration: const InputDecoration(labelText: 'Taxa de entrega')),
-          TextField(controller: _minimum, decoration: const InputDecoration(labelText: 'Pedido mínimo')),
-          TextField(controller: _minutes, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Prazo em minutos')),
-        ])),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
-          FilledButton(onPressed: () {
-            if (_name.text.trim().isEmpty || _city.text.trim().isEmpty || _neighborhood.text.trim().isEmpty) return;
-            Navigator.pop(context, {
-              'name': _name.text.trim(), 'city': _city.text.trim(), 'neighborhood': _neighborhood.text.trim(),
-              'delivery_fee': _fee.text.trim().replaceAll(',', '.'), 'minimum_order_amount': _minimum.text.trim().replaceAll(',', '.'),
-              'estimated_minutes': _minutes.text.trim(), 'is_active': 'true',
-            });
-          }, child: const Text('Salvar')),
-        ],
-      );
+  void dispose() {
+    for (final controller in [
+      _name,
+      _city,
+      _neighborhood,
+      _fee,
+      _minimum,
+      _minutes,
+    ]) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.initial == null
+          ? 'Nova zona de entrega'
+          : 'Editar zona de entrega'),
+      content: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AdminTextField(
+                controller: _name,
+                label: 'Nome *',
+                validator: _required,
+              ),
+              AdminTextField(
+                controller: _city,
+                label: 'Cidade *',
+                validator: _required,
+              ),
+              AdminTextField(
+                controller: _neighborhood,
+                label: 'Bairro/região *',
+                validator: _required,
+              ),
+              AdminCurrencyField(
+                controller: _fee,
+                label: 'Taxa de entrega *',
+                validator: (value) => _nonNegative(value, 'taxa'),
+              ),
+              AdminCurrencyField(
+                controller: _minimum,
+                label: 'Pedido mínimo',
+                validator: (value) => _nonNegative(value, 'pedido mínimo'),
+              ),
+              AdminTextField(
+                controller: _minutes,
+                label: 'Tempo estimado (minutos) *',
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  final minutes = int.tryParse(value?.trim() ?? '');
+                  return minutes == null || minutes < 1
+                      ? 'Informe um prazo válido.'
+                      : null;
+                },
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(_isActive ? 'Zona ativa' : 'Zona pausada'),
+                value: _isActive,
+                onChanged: (value) => setState(() => _isActive = value),
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancelar'),
+        ),
+        FilledButton(
+          onPressed: _submit,
+          child: const Text('Salvar'),
+        ),
+      ],
+    );
+  }
+
+  String? _required(String? value) =>
+      value == null || value.trim().isEmpty ? 'Campo obrigatório.' : null;
+
+  String? _nonNegative(String? value, String label) {
+    final number = double.tryParse(value?.trim().replaceAll(',', '.') ?? '');
+    return number == null || number < 0 ? 'Informe uma $label válida.' : null;
+  }
+
+  void _submit() {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    Navigator.pop(context, {
+      'name': _name.text.trim(),
+      'city': _city.text.trim(),
+      'neighborhood': _neighborhood.text.trim(),
+      'delivery_fee': _fee.text.trim().replaceAll(',', '.'),
+      'minimum_order_amount': _minimum.text.trim().replaceAll(',', '.'),
+      'estimated_minutes': int.parse(_minutes.text.trim()),
+      'is_active': _isActive,
+    });
+  }
 }

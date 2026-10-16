@@ -4,6 +4,7 @@ import '../../core/config/app_config.dart';
 import '../../core/network/api_client.dart';
 import '../../core/storage/app_storage.dart';
 import 'admin_api_client.dart';
+import 'admin_design_system.dart';
 
 class AdminSettingsPage extends StatefulWidget {
   const AdminSettingsPage({super.key});
@@ -88,8 +89,9 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Configurações')),
+  Widget build(BuildContext context) => AdminScaffold(
+        title: 'Configurações',
+        activeDestination: AdminDestinationId.settings,
         body: _loading
             ? const Center(child: CircularProgressIndicator())
             : _error != null

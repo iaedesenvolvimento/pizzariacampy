@@ -5,6 +5,7 @@ import '../../core/network/api_client.dart';
 import '../../core/storage/app_storage.dart';
 import 'admin_api_client.dart';
 import 'admin_flavor_prices_page.dart';
+import 'admin_design_system.dart';
 
 enum AdminOptionMode { flavors, edges, extras }
 
@@ -61,7 +62,7 @@ class _AdminOptionsPageState extends State<AdminOptionsPage> {
     } catch (error) {
       if (!mounted) return;
       setState(() {
-        _error = error.toString();
+        _error = 'Não foi possível carregar as opções do cardápio.';
         _loading = false;
       });
     }
@@ -82,8 +83,8 @@ class _AdminOptionsPageState extends State<AdminOptionsPage> {
       await _load();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(error.toString())));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Não foi possível salvar a opção.')));
       }
     }
   }
@@ -97,19 +98,24 @@ class _AdminOptionsPageState extends State<AdminOptionsPage> {
       await _load();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(error.toString())));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Não foi possível alterar a disponibilidade.')));
       }
     }
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text(_title)),
+  Widget build(BuildContext context) => AdminScaffold(
+        title: _title,
+        activeDestination: switch (widget.mode) {
+          AdminOptionMode.flavors => AdminDestinationId.flavors,
+          AdminOptionMode.edges => AdminDestinationId.edges,
+          AdminOptionMode.extras => AdminDestinationId.extras,
+        },
         body: _loading
-            ? const Center(child: CircularProgressIndicator())
+            ? AdminLoadingState(label: 'Carregando $_title')
             : _error != null
-                ? Center(child: Text(_error!))
+                ? AdminErrorState(message: _error!, onRetry: _load)
                 : RefreshIndicator(
                     onRefresh: _load,
                     child: ListView(
@@ -132,16 +138,36 @@ class _AdminOptionsPageState extends State<AdminOptionsPage> {
                                           ? Text(
                                               item['description']?.toString() ??
                                                   '')
-                                          : Text('R\$ ${item['price']}'),
-                                      trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                                        if (widget.mode == AdminOptionMode.flavors)
-                                          IconButton(
-                                            tooltip: 'Preços por tamanho',
-                                            icon: const Icon(Icons.price_change_outlined),
-                                            onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => AdminFlavorPricesPage(flavorId: item['id'].toString(), flavorName: item['name'].toString()))),
-                                          ),
-                                        Switch(value: item['is_active'] == true, onChanged: (_) => _toggle(item)),
-                                      ]),
+                                          : Text(
+                                              'R\$ ${item['price']?.toString().replaceAll('.', ',')}'),
+                                      trailing: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            if (widget.mode ==
+                                                AdminOptionMode.flavors)
+                                              IconButton(
+                                                tooltip: 'Preços por tamanho',
+                                                icon: const Icon(Icons
+                                                    .price_change_outlined),
+                                                onPressed: () => Navigator
+                                                        .of(context)
+                                                    .push(MaterialPageRoute<
+                                                            void>(
+                                                        builder: (_) =>
+                                                            AdminFlavorPricesPage(
+                                                                flavorId: item[
+                                                                        'id']
+                                                                    .toString(),
+                                                                flavorName: item[
+                                                                        'name']
+                                                                    .toString()))),
+                                              ),
+                                            Switch(
+                                                value:
+                                                    item['is_active'] == true,
+                                                onChanged: (_) =>
+                                                    _toggle(item)),
+                                          ]),
                                     ),
                                   ))
                               .toList(),

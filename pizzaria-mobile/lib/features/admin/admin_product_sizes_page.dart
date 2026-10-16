@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/config/app_config.dart';
 import '../../core/network/api_client.dart';
 import '../../core/storage/app_storage.dart';
+import 'admin_design_system.dart';
 import 'admin_api_client.dart';
 
 String _normalizeVariationSlug(String value) => value
@@ -59,7 +60,7 @@ class _AdminProductSizesPageState extends State<AdminProductSizesPage> {
     } catch (error) {
       if (!mounted) return;
       setState(() {
-        _error = error.toString();
+        _error = 'Não foi possível carregar tamanhos e preços.';
         _loading = false;
       });
     }
@@ -78,8 +79,8 @@ class _AdminProductSizesPageState extends State<AdminProductSizesPage> {
       await _load();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(error.toString())));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Não foi possível salvar a variação.')));
       }
     }
   }
@@ -100,8 +101,8 @@ class _AdminProductSizesPageState extends State<AdminProductSizesPage> {
       await _load();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(error.toString())));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Não foi possível atualizar a variação.')));
       }
     }
   }
@@ -115,8 +116,8 @@ class _AdminProductSizesPageState extends State<AdminProductSizesPage> {
       await _load();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(error.toString())));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Não foi possível alterar a disponibilidade.')));
       }
     }
   }
@@ -124,14 +125,14 @@ class _AdminProductSizesPageState extends State<AdminProductSizesPage> {
   @override
   Widget build(BuildContext context) {
     final isPizza = widget.productType == 'PIZZA';
-    return Scaffold(
-      appBar: AppBar(
-          title: Text('${isPizza ? 'Tamanhos' : 'Variações e preços'} · '
-              '${widget.productName}')),
+    return AdminScaffold(
+      title: '${isPizza ? 'Tamanhos' : 'Variações e preços'} · '
+          '${widget.productName}',
+      activeDestination: AdminDestinationId.products,
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const AdminLoadingState(label: 'Carregando tamanhos e preços')
           : _error != null
-              ? Center(child: Text(_error!))
+              ? AdminErrorState(message: _error!, onRetry: _load)
               : RefreshIndicator(
                   onRefresh: _load,
                   child: ListView(
@@ -160,8 +161,8 @@ class _AdminProductSizesPageState extends State<AdminProductSizesPage> {
                               child: ListTile(
                                 title: Text(size['name']?.toString() ?? ''),
                                 subtitle: Text(isPizza
-                                    ? "R\$ ${size['price']} · ${size['slices']} fatias · até ${size['max_flavors']} sabor(es)"
-                                    : "R\$ ${size['price']}"),
+                                    ? "${_money(size['price'])} · ${size['slices']} fatias · até ${size['max_flavors']} sabor(es)"
+                                    : _money(size['price'])),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -185,6 +186,11 @@ class _AdminProductSizesPageState extends State<AdminProductSizesPage> {
           icon: const Icon(Icons.add),
           label: Text(widget.productType == 'PIZZA' ? 'Tamanho' : 'Variação')),
     );
+  }
+
+  String _money(dynamic value) {
+    final text = value?.toString().replaceAll('.', ',') ?? '0,00';
+    return 'R\$ $text';
   }
 }
 

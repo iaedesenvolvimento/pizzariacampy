@@ -15,7 +15,8 @@ class AdminOrderSummary {
       required this.total,
       required this.paymentId,
       required this.paymentStatus,
-      required this.proofUrl});
+      required this.proofUrl,
+      this.createdAt});
 
   factory AdminOrderSummary.fromJson(Map<String, dynamic> json) =>
       AdminOrderSummary(
@@ -27,6 +28,7 @@ class AdminOrderSummary {
         paymentId: json['payment_id']?.toString(),
         paymentStatus: json['payment_status']?.toString(),
         proofUrl: json['proof_url']?.toString(),
+        createdAt: DateTime.tryParse(json['created_at']?.toString() ?? ''),
       );
 
   final String id;
@@ -37,6 +39,7 @@ class AdminOrderSummary {
   final String? paymentId;
   final String? paymentStatus;
   final String? proofUrl;
+  final DateTime? createdAt;
 }
 
 class AdminDashboardData {
@@ -164,7 +167,8 @@ class AdminDashboardController extends ChangeNotifier {
     return false;
   }
 
-  Future<bool> reviewPayment(String paymentId, String nextStatus, {String? notes}) async {
+  Future<bool> reviewPayment(String paymentId, String nextStatus,
+      {String? notes}) async {
     try {
       final token = _storage.accessToken;
       if (token == null) throw const FormatException('Sessão expirada.');

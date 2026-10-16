@@ -6,6 +6,7 @@ import '../../core/network/api_client.dart';
 import '../../core/storage/app_storage.dart';
 import 'admin_api_client.dart';
 import 'admin_product_sizes_page.dart';
+import 'admin_design_system.dart';
 
 String _productTypeLabel(String? type) {
   switch (type?.toString().toUpperCase()) {
@@ -73,6 +74,7 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
   List<Map<String, dynamic>> _categories = const [];
   final _searchController = TextEditingController();
   String? _selectedCategoryId;
+  bool? _activeFilter;
   String? _token;
   String? _error;
   bool _loading = true;
@@ -89,12 +91,16 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
       final matchesCategory = _isCategories ||
           _selectedCategoryId == null ||
           item['category_id']?.toString() == _selectedCategoryId;
+      final matchesStatus =
+          _activeFilter == null || item['is_active'] == _activeFilter;
       final text = [
         item['name']?.toString() ?? '',
         item['slug']?.toString() ?? '',
         categoryNames[item['category_id']?.toString()] ?? '',
       ].join(' ').toLowerCase();
-      return matchesCategory && (query.isEmpty || text.contains(query));
+      return matchesCategory &&
+          matchesStatus &&
+          (query.isEmpty || text.contains(query));
     }).toList();
     items.sort((first, second) {
       final firstCategory =
@@ -149,7 +155,7 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
     } catch (error) {
       if (!mounted) return;
       setState(() {
-        _error = error.toString();
+        _error = 'Não foi possível carregar o cardápio.';
         _loading = false;
       });
     }
@@ -174,7 +180,7 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
               'name': result['name'],
               'slug': result['slug'],
               'description': result['description'],
-              'sort_order': 0
+              'sort_order': int.tryParse(result['sort_order'] ?? '0') ?? 0,
             }
           : {
               'category_id': result['category_id'],
@@ -183,7 +189,7 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
               'description': result['description'],
               'product_type': result['product_type'],
               'image_url': result['image_url'],
-              'sort_order': 0,
+              'sort_order': int.tryParse(result['sort_order'] ?? '0') ?? 0,
             };
       final created = await _adminApi!.post(path, body: body);
       await _load();
@@ -225,8 +231,8 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
       if (mounted) await _load();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(error.toString())));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Não foi possível salvar o cadastro.')));
       }
     }
   }
@@ -267,6 +273,7 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
             'name': result['name'],
             'slug': result['slug'],
             'description': result['description'],
+            'sort_order': int.tryParse(result['sort_order'] ?? '0') ?? 0,
           }
         : {
             'category_id': result['category_id'],
@@ -275,6 +282,7 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
             'description': result['description'],
             'product_type': result['product_type'],
             'image_url': result['image_url'],
+            'sort_order': int.tryParse(result['sort_order'] ?? '0') ?? 0,
           };
     try {
       await _adminApi!.patch(path, body: body);
@@ -299,8 +307,8 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
       await _load();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(error.toString())));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Não foi possível atualizar o cadastro.')));
       }
     }
   }
@@ -321,14 +329,25 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
     final path = _isCategories
         ? '/admin/catalog/categories/$id'
         : '/admin/catalog/products/$id';
+    if (item['is_active'] == true) {
+      final confirmed = await AdminConfirmationDialog.show(
+        context: context,
+        title: _isCategories ? 'Desativar categoria?' : 'Pausar produto?',
+        message:
+            '${item['name']?.toString() ?? 'Este item'} ficará indisponível no cardápio.',
+        confirmLabel: _isCategories ? 'Desativar' : 'Pausar',
+        destructive: true,
+      );
+      if (!confirmed) return;
+    }
     try {
       await _adminApi!
           .patch(path, body: {'is_active': item['is_active'] != true});
       await _load();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(error.toString())));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Não foi possível alterar a disponibilidade.')));
       }
     }
   }
@@ -336,22 +355,12 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
   Future<void> _delete(Map<String, dynamic> item) async {
     if (_token == null) return;
     final name = item['name']?.toString() ?? 'este registro';
-    final confirmed = await showDialog<bool>(
+    final confirmed = await AdminConfirmationDialog.show(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Excluir registro?'),
-        content: Text('Deseja excluir "$name" definitivamente?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Excluir'),
-          ),
-        ],
-      ),
+      title: 'Excluir registro?',
+      message: 'Deseja excluir "$name" definitivamente?',
+      confirmLabel: 'Excluir',
+      destructive: true,
     );
     if (confirmed != true) return;
     final id = item['id']?.toString();
@@ -364,8 +373,8 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
       await _load();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(error.toString())));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Não foi possível excluir o registro.')));
       }
     }
   }
@@ -373,39 +382,64 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
   @override
   Widget build(BuildContext context) {
     final title = _isCategories ? 'Categorias' : 'Produtos';
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
+    return AdminScaffold(
+      title: title,
+      activeDestination: _isCategories
+          ? AdminDestinationId.categories
+          : AdminDestinationId.products,
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const AdminLoadingState(label: 'Carregando cardápio')
           : _error != null
-              ? Center(child: Text(_error!))
+              ? AdminErrorState(message: _error!, onRetry: _load)
               : RefreshIndicator(
                   onRefresh: _load,
                   child: ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: TextField(
-                          controller: _searchController,
-                          decoration: InputDecoration(
-                            labelText: _isCategories
-                                ? 'Buscar categoria'
-                                : 'Buscar produto',
-                            prefixIcon: const Icon(Icons.search),
-                            suffixIcon: _searchController.text.isEmpty
-                                ? null
-                                : IconButton(
-                                    tooltip: 'Limpar busca',
-                                    icon: const Icon(Icons.clear),
-                                    onPressed: () {
-                                      _searchController.clear();
-                                      setState(() {});
-                                    },
-                                  ),
+                      AdminPageHeader(
+                        title: _isCategories ? 'Categorias' : 'Produtos',
+                        subtitle: _isCategories
+                            ? 'Organize as categorias do cardápio.'
+                            : 'Gerencie produtos, disponibilidade e preços.',
+                        actions: [
+                          FilledButton.icon(
+                            onPressed: _create,
+                            icon: const Icon(Icons.add),
+                            label: Text(_isCategories
+                                ? 'Nova categoria'
+                                : 'Novo produto'),
                           ),
-                          onChanged: (_) => setState(() {}),
-                        ),
+                        ],
+                      ),
+                      AdminSearchField(
+                        controller: _searchController,
+                        hintText: _isCategories
+                            ? 'Buscar categoria'
+                            : 'Buscar produto',
+                        onChanged: (_) => setState(() {}),
+                      ),
+                      const SizedBox(height: 12),
+                      AdminFilterBar(
+                        children: [
+                          ChoiceChip(
+                            label: const Text('Todos'),
+                            selected: _activeFilter == null,
+                            onSelected: (_) =>
+                                setState(() => _activeFilter = null),
+                          ),
+                          ChoiceChip(
+                            label: const Text('Ativos'),
+                            selected: _activeFilter == true,
+                            onSelected: (_) =>
+                                setState(() => _activeFilter = true),
+                          ),
+                          ChoiceChip(
+                            label: const Text('Inativos'),
+                            selected: _activeFilter == false,
+                            onSelected: (_) =>
+                                setState(() => _activeFilter = false),
+                          ),
+                        ],
                       ),
                       if (!_isCategories)
                         Padding(
@@ -445,97 +479,83 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
                         ),
                       ),
                       if (_visibleItems.isEmpty)
-                        const Padding(
-                            padding: EdgeInsets.all(24),
-                            child: Center(
-                                child: Text('Nenhum registro cadastrado.'))),
-                      ..._visibleItems.map(
-                        (item) => Card(
-                          child: ListTile(
-                            title: Text(item['name']?.toString() ?? ''),
-                            subtitle: Text(_isCategories
-                                ? 'Slug: ${item['slug'] ?? ''}'
-                                : '${_productTypeLabel(item['product_type'])} · ${_categories.firstWhere(
-                                      (category) =>
-                                          category['id']?.toString() ==
-                                          item['category_id']?.toString(),
-                                      orElse: () => const {},
-                                    )['name'] ?? 'Sem categoria'}'),
-                            trailing: PopupMenuButton<String>(
-                              tooltip: 'Ações do produto',
-                              onSelected: (action) {
-                                switch (action) {
-                                  case 'prices':
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute<void>(
-                                        builder: (_) => AdminProductSizesPage(
-                                          productId: item['id'].toString(),
-                                          productName: item['name'].toString(),
-                                          productType: item['product_type']
-                                                  ?.toString() ??
-                                              'PIZZA',
-                                        ),
-                                      ),
-                                    );
-                                  case 'edit':
-                                    _edit(item);
-                                  case 'toggle':
-                                    _toggle(item);
-                                  case 'delete':
-                                    _delete(item);
-                                }
-                              },
-                              itemBuilder: (_) => [
-                                if (!_isCategories)
-                                  const PopupMenuItem(
-                                    value: 'prices',
-                                    child: ListTile(
-                                      contentPadding: EdgeInsets.zero,
-                                      leading:
-                                          Icon(Icons.price_change_outlined),
-                                      title: Text('Preços e variações'),
-                                    ),
-                                  ),
-                                const PopupMenuItem(
-                                  value: 'edit',
-                                  child: ListTile(
-                                    contentPadding: EdgeInsets.zero,
-                                    leading: Icon(Icons.edit_outlined),
-                                    title: Text('Editar dados'),
-                                  ),
-                                ),
-                                PopupMenuItem(
-                                  value: 'toggle',
-                                  child: ListTile(
-                                    contentPadding: EdgeInsets.zero,
-                                    leading: Icon(item['is_active'] == true
-                                        ? Icons.visibility_off_outlined
-                                        : Icons.visibility_outlined),
-                                    title: Text(item['is_active'] == true
-                                        ? 'Desativar'
-                                        : 'Ativar'),
-                                  ),
-                                ),
-                                const PopupMenuItem(
-                                  value: 'delete',
-                                  child: ListTile(
-                                    contentPadding: EdgeInsets.zero,
-                                    leading: Icon(Icons.delete_outline),
-                                    title: Text('Excluir'),
-                                  ),
-                                ),
-                              ],
-                            ),
+                        Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Center(
+                            child: Text(_searchController.text.isNotEmpty ||
+                                    _selectedCategoryId != null ||
+                                    _activeFilter != null
+                                ? 'Nenhum registro encontrado com esses filtros.'
+                                : _isCategories
+                                    ? 'Nenhuma categoria cadastrada.'
+                                    : 'Nenhum produto cadastrado.'),
                           ),
                         ),
-                      ),
+                      ..._visibleItems.map((item) => _isCategories
+                          ? _categoryCard(item)
+                          : AdminProductCard(
+                              item: item,
+                              categoryName: _categoryName(item),
+                              onEdit: () => _edit(item),
+                              onToggle: () => _toggle(item),
+                              onPrices: () => _openPrices(item),
+                              onDelete: () => _delete(item),
+                            )),
                     ],
                   ),
                 ),
-      floatingActionButton: FloatingActionButton.extended(
-          onPressed: _create,
-          icon: const Icon(Icons.add),
-          label: Text(_isCategories ? 'Nova categoria' : 'Novo produto')),
+    );
+  }
+
+  String _categoryName(Map<String, dynamic> item) =>
+      _categories
+          .firstWhere(
+            (category) =>
+                category['id']?.toString() == item['category_id']?.toString(),
+            orElse: () => const {},
+          )['name']
+          ?.toString() ??
+      'Sem categoria';
+
+  Widget _categoryCard(Map<String, dynamic> item) {
+    final isActive = item['is_active'] == true;
+    return Card(
+      child: ListTile(
+        leading:
+            Icon(isActive ? Icons.category_outlined : Icons.category_outlined),
+        title: Text(item['name']?.toString() ?? ''),
+        subtitle:
+            Text('${item['slug'] ?? ''} · ${isActive ? 'Ativa' : 'Inativa'}'),
+        trailing: PopupMenuButton<String>(
+          onSelected: (value) {
+            if (value == 'edit') _edit(item);
+            if (value == 'toggle') _toggle(item);
+            if (value == 'delete') _delete(item);
+          },
+          itemBuilder: (_) => [
+            const PopupMenuItem(value: 'edit', child: Text('Editar categoria')),
+            PopupMenuItem(
+              value: 'toggle',
+              child:
+                  Text(isActive ? 'Desativar categoria' : 'Ativar categoria'),
+            ),
+            const PopupMenuItem(
+                value: 'delete', child: Text('Excluir definitivamente')),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openPrices(Map<String, dynamic> item) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => AdminProductSizesPage(
+          productId: item['id'].toString(),
+          productName: item['name'].toString(),
+          productType: item['product_type']?.toString() ?? 'PIZZA',
+        ),
+      ),
     );
   }
 }
@@ -563,6 +583,7 @@ class _CatalogFormState extends State<_CatalogForm> {
   late final TextEditingController _description;
   late final TextEditingController _imageUrl;
   late final TextEditingController _price;
+  late final TextEditingController _sortOrder;
   String? _categoryId;
   String _type = 'PIZZA';
   String? _validationError;
@@ -581,6 +602,8 @@ class _CatalogFormState extends State<_CatalogForm> {
         TextEditingController(text: initial?['image_url']?.toString() ?? '');
     _price = TextEditingController(
         text: initial?['initial_price']?.toString().replaceAll(',', '.') ?? '');
+    _sortOrder =
+        TextEditingController(text: initial?['sort_order']?.toString() ?? '0');
     _categoryId = initial?['category_id']?.toString();
     final initialType = initial?['product_type']?.toString().toUpperCase();
     _type = initialType == 'DRINK'
@@ -603,6 +626,7 @@ class _CatalogFormState extends State<_CatalogForm> {
     _description.dispose();
     _imageUrl.dispose();
     _price.dispose();
+    _sortOrder.dispose();
     super.dispose();
   }
 
@@ -623,8 +647,8 @@ class _CatalogFormState extends State<_CatalogForm> {
       }
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(error.toString())));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Não foi possível enviar a imagem.')));
       }
     } finally {
       if (mounted) setState(() => _uploadingImage = false);
@@ -662,6 +686,14 @@ class _CatalogFormState extends State<_CatalogForm> {
           TextField(
               controller: _description,
               decoration: const InputDecoration(labelText: 'Descrição')),
+          TextField(
+            controller: _sortOrder,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: 'Ordem de exibição',
+              helperText: 'Números menores aparecem primeiro.',
+            ),
+          ),
           if (!widget.isCategory) ...[
             DropdownButtonFormField<String>(
               value: _categoryId,
@@ -768,6 +800,8 @@ class _CatalogFormState extends State<_CatalogForm> {
               'name': _name.text.trim(),
               'slug': generatedSlug,
               'description': _description.text.trim(),
+              'sort_order':
+                  _sortOrder.text.trim().isEmpty ? '0' : _sortOrder.text.trim(),
               if (_categoryId != null) 'category_id': _categoryId!,
               'product_type': _type,
               if (!widget.isCategory && _type != 'PIZZA')
