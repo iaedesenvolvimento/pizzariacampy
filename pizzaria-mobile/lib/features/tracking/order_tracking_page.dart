@@ -24,7 +24,8 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
   @override
   void initState() {
     super.initState();
-    _notificationSubscription = realtimeNotificationService.events.listen((event) {
+    _notificationSubscription =
+        realtimeNotificationService.events.listen((event) {
       if (event.orderNumber.isNotEmpty && mounted) {
         _controller?.load(widget.orderId);
       }
@@ -195,28 +196,31 @@ class _TrackingContent extends StatelessWidget {
               const SizedBox(height: 16),
               _infoCard(
                   context,
-                  'Itens',
-                  Column(
-                      children: order.items
-                          .map((item) => ListTile(
-                                contentPadding: EdgeInsets.zero,
-                                title: Text('${item.quantity}x ${item.name}'),
-                                subtitle: Text(item.size),
-                                trailing: Text(_price(item.total)),
-                              ))
-                          .toList())),
-              _infoCard(
-                  context,
                   'Resumo',
-                  Column(children: [
-                    _row('Total', _price(order.total), strong: true),
-                    _row('Pagamento', _paymentLabel(order.paymentMethod)),
-                    _row(
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Produtos',
+                            style: Theme.of(context).textTheme.titleMedium),
+                        const SizedBox(height: 4),
+                        ...order.items.map(_itemSummary),
+                        const Divider(height: 20),
+                        _row('Subtotal', _price(order.subtotal)),
+                        _row('Taxa de entrega', _price(order.deliveryFee)),
+                        if ((double.tryParse(order.discountAmount) ?? 0) > 0)
+                          _row(
+                            order.couponCode == null
+                                ? 'Desconto'
+                                : 'Desconto (${order.couponCode})',
+                            '- ${_price(order.discountAmount)}',
+                          ),
+                        _row('Total', _price(order.total), strong: true),
+                        _row('Pagamento', _paymentLabel(order.paymentMethod)),
                         order.fulfillmentType == 'DELIVERY'
-                            ? 'Endereço'
-                            : 'Recebimento',
-                        order.deliveryAddress ?? 'Retirada na pizzaria'),
-                  ])),
+                            ? _addressRow(order.deliveryAddress ??
+                                'Endereço não informado')
+                            : _row('Recebimento', 'Retirada na pizzaria'),
+                      ])),
               if (onSubmitProof != null)
                 Card(
                   child: ListTile(
@@ -254,14 +258,59 @@ class _TrackingContent extends StatelessWidget {
 
   Widget _row(String label, String value, {bool strong = false}) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
-        child:
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text(label),
-          Text(value,
-              style:
-                  strong ? const TextStyle(fontWeight: FontWeight.bold) : null)
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(child: Text(label)),
+          const SizedBox(width: 12),
+          Flexible(
+            child: Text(value,
+                textAlign: TextAlign.end,
+                softWrap: true,
+                style: strong
+                    ? const TextStyle(fontWeight: FontWeight.bold)
+                    : null),
+          ),
         ]),
       );
+
+  Widget _addressRow(String value) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Endereço'),
+            const SizedBox(height: 4),
+            Text(value, softWrap: true),
+          ],
+        ),
+      );
+
+  Widget _itemSummary(OrderTrackingItem item) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: Text('${item.quantity}x ${item.name}')),
+                const SizedBox(width: 12),
+                Text(_price(item.total)),
+              ],
+            ),
+            if (item.size.isNotEmpty)
+              Text('Tamanho: ${item.size}', style: _detailStyle),
+            if (item.flavors.isNotEmpty)
+              Text('Sabores: ${item.flavors.join(', ')}', style: _detailStyle),
+            if (item.edge != null && item.edge!.isNotEmpty)
+              Text('Borda: ${item.edge}', style: _detailStyle),
+            if (item.extras.isNotEmpty)
+              Text('Adicionais: ${item.extras.join(', ')}',
+                  style: _detailStyle),
+          ],
+        ),
+      );
+
+  static const _detailStyle = TextStyle(fontSize: 12);
 
   String _price(String value) => 'R\$ ${value.replaceAll('.', ',')}';
 

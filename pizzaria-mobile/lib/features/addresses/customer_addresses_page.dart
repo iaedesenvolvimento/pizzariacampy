@@ -180,6 +180,7 @@ class _AddressDialogState extends State<_AddressDialog> {
     }
     Navigator.pop(context, {
       'label': _label.text.trim(),
+      'postal_code': _cep.text.trim(),
       'address': _address.text.trim(),
       'neighborhood': _neighborhood.text.trim(),
       'city': _city.text.trim(),

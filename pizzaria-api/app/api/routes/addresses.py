@@ -14,7 +14,7 @@ router = APIRouter(prefix="/customer/addresses")
 
 
 def _response(address: CustomerAddress) -> AddressResponse:
-    return AddressResponse(id=str(address.id), label=address.label, address=address.address, neighborhood=address.neighborhood, city=address.city, complement=address.complement, is_default=address.is_default)
+    return AddressResponse(id=str(address.id), label=address.label, address=address.address, postal_code=address.postal_code, neighborhood=address.neighborhood, city=address.city, complement=address.complement, is_default=address.is_default)
 
 
 async def _set_default(session: AsyncSession, user_id: UUID, address_id: UUID | None = None) -> None:

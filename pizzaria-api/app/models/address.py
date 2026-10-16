@@ -13,6 +13,7 @@ class CustomerAddress(TimestampedModel):
     user_id: Mapped[UUID] = mapped_column(PostgreSQLUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     label: Mapped[str] = mapped_column(String(50), nullable=False)
     address: Mapped[str] = mapped_column(Text, nullable=False)
+    postal_code: Mapped[str | None] = mapped_column(String(9), nullable=True)
     neighborhood: Mapped[str] = mapped_column(String(100), nullable=False)
     city: Mapped[str] = mapped_column(String(100), nullable=False)
     complement: Mapped[str | None] = mapped_column(String(150), nullable=True)

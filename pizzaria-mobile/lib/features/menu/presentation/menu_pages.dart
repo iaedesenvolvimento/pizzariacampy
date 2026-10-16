@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/network/api_client.dart';
@@ -39,6 +40,7 @@ class _MenuHomePageState extends State<MenuHomePage> {
   late final menu_state.MenuController _menuController;
   final _searchController = TextEditingController();
   Timer? _searchDebounce;
+  DateTime? _lastBackPress;
 
   @override
   void initState() {
@@ -106,140 +108,160 @@ class _MenuHomePageState extends State<MenuHomePage> {
     return AnimatedBuilder(
       animation: _menuController,
       builder: (context, _) {
-        return Scaffold(
-          appBar: AppBar(
-            titleSpacing: 16,
-            title: Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(Icons.local_pizza_outlined,
-                      color: Colors.white, size: 22),
-                ),
-                const SizedBox(width: 10),
-                const Flexible(
-                  child: Text(
-                    'Pizzaria Campy',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              AnimatedBuilder(
-                animation: widget.cartController,
-                builder: (context, _) => IconButton(
-                  tooltip: 'Carrinho',
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => CartPage(
-                        controller: widget.cartController,
-                        accessToken: widget.authController.accessToken,
-                      ),
+        return PopScope<void>(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop) return;
+            final now = DateTime.now();
+            final isSecondPress = _lastBackPress != null &&
+                now.difference(_lastBackPress!) <= const Duration(seconds: 2);
+            if (isSecondPress) {
+              SystemNavigator.pop();
+              return;
+            }
+            _lastBackPress = now;
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(const SnackBar(
+                content: Text('Pressione voltar novamente para sair.'),
+                duration: Duration(seconds: 2),
+              ));
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              titleSpacing: 16,
+              title: Row(
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: BorderRadius.circular(10),
                     ),
+                    child: const Icon(Icons.local_pizza_outlined,
+                        color: Colors.white, size: 22),
                   ),
-                  icon: Badge(
-                    isLabelVisible: widget.cartController.itemCount > 0,
-                    label: Text('${widget.cartController.itemCount}'),
-                    child: const Icon(Icons.shopping_bag_outlined),
-                  ),
-                ),
-              ),
-              PopupMenuButton<String>(
-                tooltip: 'Mais opções',
-                onSelected: (value) async {
-                  switch (value) {
-                    case 'addresses':
-                      await Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => CustomerAddressesPage(
-                            accessToken: widget.authController.accessToken,
-                          ),
-                        ),
-                      );
-                    case 'orders':
-                      await Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => OrderHistoryPage(
-                            accessToken: widget.authController.accessToken,
-                          ),
-                        ),
-                      );
-                    case 'admin':
-                      await Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => const AdminDashboardPage(),
-                        ),
-                      );
-                    case 'settings':
-                      await Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => SettingsPage(
-                            controller: widget.settingsController,
-                          ),
-                        ),
-                      );
-                    case 'logout':
-                      await widget.authController.logout();
-                  }
-                },
-                itemBuilder: (context) => [
-                  const PopupMenuItem(
-                    value: 'addresses',
-                    child: ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: Icon(Icons.location_on_outlined),
-                      title: Text('Meus endereços'),
-                    ),
-                  ),
-                  const PopupMenuItem(
-                    value: 'orders',
-                    child: ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: Icon(Icons.receipt_long_outlined),
-                      title: Text('Meus pedidos'),
-                    ),
-                  ),
-                  const PopupMenuItem(
-                    value: 'settings',
-                    child: ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: Icon(Icons.settings_outlined),
-                      title: Text('Configurações'),
-                    ),
-                  ),
-                  if ({'ADMIN', 'MANAGER'}
-                      .contains(widget.authController.user?.role))
-                    const PopupMenuItem(
-                      value: 'admin',
-                      child: ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: Icon(Icons.dashboard_outlined),
-                        title: Text('Painel administrativo'),
-                      ),
-                    ),
-                  const PopupMenuItem(
-                    value: 'logout',
-                    child: ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: Icon(Icons.logout),
-                      title: Text('Sair'),
+                  const SizedBox(width: 10),
+                  const Flexible(
+                    child: Text(
+                      'Pizzaria Campy',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
-            ],
-          ),
-          body: RefreshIndicator(
-            onRefresh: _menuController.load,
-            notificationPredicate: (notification) => notification.depth == 0,
-            child: _buildBody(context),
+              actions: [
+                AnimatedBuilder(
+                  animation: widget.cartController,
+                  builder: (context, _) => IconButton(
+                    tooltip: 'Carrinho',
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => CartPage(
+                          controller: widget.cartController,
+                          accessToken: widget.authController.accessToken,
+                        ),
+                      ),
+                    ),
+                    icon: Badge(
+                      isLabelVisible: widget.cartController.itemCount > 0,
+                      label: Text('${widget.cartController.itemCount}'),
+                      child: const Icon(Icons.shopping_cart_outlined),
+                    ),
+                  ),
+                ),
+                PopupMenuButton<String>(
+                  tooltip: 'Mais opções',
+                  onSelected: (value) async {
+                    switch (value) {
+                      case 'addresses':
+                        await Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => CustomerAddressesPage(
+                              accessToken: widget.authController.accessToken,
+                            ),
+                          ),
+                        );
+                      case 'orders':
+                        await Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => OrderHistoryPage(
+                              accessToken: widget.authController.accessToken,
+                            ),
+                          ),
+                        );
+                      case 'admin':
+                        await Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => const AdminDashboardPage(),
+                          ),
+                        );
+                      case 'settings':
+                        await Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => SettingsPage(
+                              controller: widget.settingsController,
+                            ),
+                          ),
+                        );
+                      case 'logout':
+                        await widget.authController.logout();
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 'addresses',
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: Icon(Icons.location_on_outlined),
+                        title: Text('Meus endereços'),
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'orders',
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: Icon(Icons.receipt_long_outlined),
+                        title: Text('Meus pedidos'),
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'settings',
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: Icon(Icons.settings_outlined),
+                        title: Text('Configurações'),
+                      ),
+                    ),
+                    if ({'ADMIN', 'MANAGER'}
+                        .contains(widget.authController.user?.role))
+                      const PopupMenuItem(
+                        value: 'admin',
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: Icon(Icons.dashboard_outlined),
+                          title: Text('Painel administrativo'),
+                        ),
+                      ),
+                    const PopupMenuItem(
+                      value: 'logout',
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: Icon(Icons.logout),
+                        title: Text('Sair'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            body: RefreshIndicator(
+              onRefresh: _menuController.load,
+              notificationPredicate: (notification) => notification.depth == 0,
+              child: _buildBody(context),
+            ),
           ),
         );
       },
@@ -260,15 +282,6 @@ class _MenuHomePageState extends State<MenuHomePage> {
         onAction: _menuController.load,
       );
     }
-    if (_menuController.status == menu_state.MenuStatus.empty) {
-      return _StateMessage(
-        icon: Icons.restaurant_menu_outlined,
-        message: 'Nenhum produto encontrado.',
-        actionLabel: 'Limpar filtro',
-        onAction: () => _menuController.selectCategory(null),
-      );
-    }
-
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
@@ -294,19 +307,31 @@ class _MenuHomePageState extends State<MenuHomePage> {
         const SizedBox(height: 16),
         _CategoryList(controller: _menuController),
         const SizedBox(height: 24),
-        Text('Destaques', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 12),
-        ..._menuController.products.map(
-          (product) => Padding(
-            padding: const EdgeInsets.only(bottom: 14),
-            child: ProductCard(
-              product: product,
-              cartController: widget.cartController,
-              accessToken: widget.authController.accessToken,
-              onOpen: () => _openProduct(product),
+        if (_menuController.status == menu_state.MenuStatus.empty) ...[
+          _StateMessage(
+            icon: Icons.restaurant_menu_outlined,
+            message: 'Nenhum produto encontrado.',
+            actionLabel: 'Limpar filtro',
+            onAction: () {
+              _searchController.clear();
+              _menuController.search('');
+            },
+          ),
+        ] else ...[
+          Text('Destaques', style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 12),
+          ..._menuController.products.map(
+            (product) => Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: ProductCard(
+                product: product,
+                cartController: widget.cartController,
+                accessToken: widget.authController.accessToken,
+                onOpen: () => _openProduct(product),
+              ),
             ),
           ),
-        ),
+        ],
       ],
     );
   }
@@ -646,7 +671,7 @@ class _ProductOptionsViewState extends State<_ProductOptionsView> {
               : Text(!hasSizes
                   ? 'Produto indisponível'
                   : widget.options.product.type == 'PIZZA'
-                      ? 'Personalizar produto'
+                      ? 'Avançar'
                       : 'Adicionar ao carrinho'),
         ),
       ],

@@ -8,11 +8,17 @@ enum CheckoutStatus { idle, submitting, success, error }
 
 class CheckoutResult {
   const CheckoutResult(
-      {required this.orderId, required this.orderNumber, required this.total});
+      {required this.orderId,
+      required this.orderNumber,
+      required this.total,
+      required this.discountAmount,
+      required this.couponCode});
 
   final String orderId;
   final String orderNumber;
   final String total;
+  final String discountAmount;
+  final String? couponCode;
 }
 
 class CheckoutController extends ChangeNotifier {
@@ -84,6 +90,8 @@ class CheckoutController extends ChangeNotifier {
         orderId: response['id']?.toString() ?? '',
         orderNumber: response['order_number']?.toString() ?? '',
         total: response['total_amount']?.toString() ?? '0.00',
+        discountAmount: response['discount_amount']?.toString() ?? '0.00',
+        couponCode: response['coupon_code']?.toString(),
       );
       status = CheckoutStatus.success;
       await cart.clear();

@@ -112,19 +112,38 @@ class _CheckoutPageState extends State<CheckoutPage> {
       paymentMethod: _paymentMethod,
       customerNote: _noteController.text,
       changeFor: parsedChange,
-          deliveryAddress: _complementController.text.trim().isEmpty
-              ? _addressController.text
-              : '${_addressController.text}, ${_complementController.text}',
-          deliveryNumber: _numberController.text.trim(),
-          deliveryPostalCode: _cepController.text,
+      deliveryAddress: _complementController.text.trim().isEmpty
+          ? _addressController.text
+          : '${_addressController.text}, ${_complementController.text}',
+      deliveryNumber: _numberController.text.trim(),
+      deliveryPostalCode: _cepController.text,
       deliveryNeighborhood: _neighborhoodController.text,
       deliveryCity: _cityController.text,
       couponCode: _couponController.text,
     );
     if (success && mounted) {
+      final result = _controller.result!;
+      final discount = double.tryParse(result.discountAmount) ?? 0;
+      if (result.couponCode != null && discount > 0) {
+        await showDialog<void>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Cupom aplicado'),
+            content: Text(
+                'O cupom ${result.couponCode} foi aplicado. Desconto de ${_formatPrice(discount)}.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Continuar'),
+              ),
+            ],
+          ),
+        );
+      }
+      if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(
-            builder: (_) => OrderConfirmedPage(result: _controller.result!)),
+            builder: (_) => OrderConfirmedPage(result: result)),
       );
     }
   }
@@ -214,15 +233,24 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final matchingZone = _findMatchingZone(neighborhood, city);
     setState(() {
       _selectedAddress = address;
+      _cepController.text =
+          _formatPostalCode(address['postal_code']?.toString() ?? '');
       _addressController.text = address['address']?.toString() ?? '';
       _numberController.text = address['number']?.toString() ?? '';
       _neighborhoodController.text = address['neighborhood']?.toString() ?? '';
       _cityController.text = address['city']?.toString() ?? '';
+      _complementController.text = address['complement']?.toString() ?? '';
       _selectedZone = matchingZone;
       _coverageMessage = matchingZone == null
           ? 'Este endereço salvo está fora da área de entrega atual.'
           : null;
     });
+  }
+
+  String _formatPostalCode(String value) {
+    final digits = value.replaceAll(RegExp(r'\D'), '');
+    if (digits.length != 8) return value;
+    return '${digits.substring(0, 5)}-${digits.substring(5)}';
   }
 
   Map<String, dynamic>? _findMatchingZone(String neighborhood, String city) {

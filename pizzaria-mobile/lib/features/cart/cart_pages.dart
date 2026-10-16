@@ -5,7 +5,8 @@ import 'cart_models.dart';
 import '../checkout/checkout_pages.dart';
 
 class CartPage extends StatelessWidget {
-  const CartPage({required this.controller, required this.accessToken, super.key});
+  const CartPage(
+      {required this.controller, required this.accessToken, super.key});
 
   final CartController controller;
   final String? accessToken;
@@ -50,8 +51,12 @@ class CartPage extends StatelessWidget {
         title: const Text('Limpar carrinho?'),
         content: const Text('Todos os itens serão removidos.'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancelar')),
-          FilledButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Limpar')),
+          TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancelar')),
+          FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Limpar')),
         ],
       ),
     );
@@ -70,7 +75,8 @@ class _CartContents extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       itemCount: controller.items.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (context, index) => _CartItemTile(controller: controller, item: controller.items[index]),
+      itemBuilder: (context, index) =>
+          _CartItemTile(controller: controller, item: controller.items[index]),
     );
   }
 }
@@ -93,7 +99,9 @@ class _CartItemTile extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: Text(item.productName, style: Theme.of(context).textTheme.titleMedium)),
+                Expanded(
+                    child: Text(item.productName,
+                        style: Theme.of(context).textTheme.titleMedium)),
                 IconButton(
                   tooltip: 'Remover item',
                   onPressed: () => controller.remove(item.id),
@@ -104,21 +112,27 @@ class _CartItemTile extends StatelessWidget {
             Text(item.sizeName),
             if (flavorText.isNotEmpty) Text(flavorText),
             if (item.edgeName != null) Text('Borda: ${item.edgeName}'),
-            if (item.extras.isNotEmpty) Text('Adicionais: ${item.extras.map((extra) => extra.name).join(', ')}'),
+            if (item.extras.isNotEmpty)
+              Text(
+                  'Adicionais: ${item.extras.map((extra) => extra.name).join(', ')}'),
             const SizedBox(height: 12),
             Row(
               children: [
                 IconButton(
-                  onPressed: () => controller.updateQuantity(item.id, item.quantity - 1),
+                  onPressed: () =>
+                      controller.updateQuantity(item.id, item.quantity - 1),
                   icon: const Icon(Icons.remove_circle_outline),
                 ),
-                Text('${item.quantity}', style: Theme.of(context).textTheme.titleMedium),
+                Text('${item.quantity}',
+                    style: Theme.of(context).textTheme.titleMedium),
                 IconButton(
-                  onPressed: () => controller.updateQuantity(item.id, item.quantity + 1),
+                  onPressed: () =>
+                      controller.updateQuantity(item.id, item.quantity + 1),
                   icon: const Icon(Icons.add_circle_outline),
                 ),
                 const Spacer(),
-                Text(_formatPrice(item.totalPrice), style: Theme.of(context).textTheme.titleMedium),
+                Text(_formatPrice(item.totalPrice),
+                    style: Theme.of(context).textTheme.titleMedium),
               ],
             ),
           ],
@@ -144,7 +158,8 @@ class _CartSummary extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text('Subtotal'),
-            Text(_formatPrice(controller.subtotal), style: Theme.of(context).textTheme.titleLarge),
+            Text(_formatPrice(controller.subtotal),
+                style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
             ElevatedButton(
               onPressed: () => Navigator.of(context).push(
@@ -177,13 +192,15 @@ class _EmptyCart extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.shopping_bag_outlined, size: 64),
+            const Icon(Icons.shopping_cart_outlined, size: 64),
             const SizedBox(height: 16),
-            Text('Seu carrinho está vazio.', style: Theme.of(context).textTheme.titleLarge),
+            Text('Seu carrinho está vazio.',
+                style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
             const Text('Escolha um produto no cardápio para começar.'),
             const SizedBox(height: 20),
-            ElevatedButton(onPressed: onBrowse, child: const Text('Voltar ao cardápio')),
+            ElevatedButton(
+                onPressed: onBrowse, child: const Text('Voltar ao cardápio')),
           ],
         ),
       ),
@@ -191,4 +208,5 @@ class _EmptyCart extends StatelessWidget {
   }
 }
 
-String _formatPrice(double price) => 'R\$ ${price.toStringAsFixed(2).replaceAll('.', ',')}';
+String _formatPrice(double price) =>
+    'R\$ ${price.toStringAsFixed(2).replaceAll('.', ',')}';

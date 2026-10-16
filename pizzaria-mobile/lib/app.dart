@@ -113,6 +113,14 @@ class _PizzariaAppState extends State<PizzariaApp> with WidgetsBindingObserver {
       _ => null,
     };
     if (message == null) return;
+    if (notification.type != 'push.notification') {
+      _firebaseNotifications.showLocalNotification(
+        title: notification.type == 'order.created'
+            ? 'Novo pedido recebido'
+            : 'Atualização do pedido',
+        body: message,
+      );
+    }
     _scaffoldMessengerKey.currentState
       ?..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(

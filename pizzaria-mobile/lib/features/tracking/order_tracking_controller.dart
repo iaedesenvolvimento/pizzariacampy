@@ -11,7 +11,10 @@ class OrderTrackingItem {
       {required this.name,
       required this.size,
       required this.quantity,
-      required this.total});
+      required this.total,
+      required this.edge,
+      required this.flavors,
+      required this.extras});
 
   factory OrderTrackingItem.fromJson(Map<String, dynamic> json) {
     return OrderTrackingItem(
@@ -19,6 +22,17 @@ class OrderTrackingItem {
       size: json['size_name']?.toString() ?? '',
       quantity: json['quantity'] as int? ?? 1,
       total: json['line_total']?.toString() ?? '0.00',
+      edge: json['edge_name']?.toString(),
+      flavors: (json['flavors'] as List<dynamic>? ?? [])
+          .whereType<Map<String, dynamic>>()
+          .map((item) => item['flavor_name']?.toString() ?? '')
+          .where((name) => name.isNotEmpty)
+          .toList(),
+      extras: (json['extras'] as List<dynamic>? ?? [])
+          .whereType<Map<String, dynamic>>()
+          .map((item) => item['extra_name']?.toString() ?? '')
+          .where((name) => name.isNotEmpty)
+          .toList(),
     );
   }
 
@@ -26,6 +40,9 @@ class OrderTrackingItem {
   final String size;
   final int quantity;
   final String total;
+  final String? edge;
+  final List<String> flavors;
+  final List<String> extras;
 }
 
 class OrderTracking {
@@ -37,6 +54,10 @@ class OrderTracking {
     required this.paymentStatus,
     required this.proofUrl,
     required this.total,
+    required this.subtotal,
+    required this.deliveryFee,
+    required this.discountAmount,
+    required this.couponCode,
     required this.deliveryAddress,
     required this.items,
   });
@@ -63,6 +84,10 @@ class OrderTracking {
           .firstWhere((url) => url != null && url.isNotEmpty,
               orElse: () => null),
       total: json['total_amount']?.toString() ?? '0.00',
+      subtotal: json['subtotal']?.toString() ?? '0.00',
+      deliveryFee: json['delivery_fee']?.toString() ?? '0.00',
+      discountAmount: json['discount_amount']?.toString() ?? '0.00',
+      couponCode: json['coupon_code']?.toString(),
       deliveryAddress:
           deliveryAddress?.isEmpty == true ? null : deliveryAddress,
       items: (json['items'] as List<dynamic>? ?? [])
@@ -79,6 +104,10 @@ class OrderTracking {
   final String paymentStatus;
   final String? proofUrl;
   final String total;
+  final String subtotal;
+  final String deliveryFee;
+  final String discountAmount;
+  final String? couponCode;
   final String? deliveryAddress;
   final List<OrderTrackingItem> items;
 }

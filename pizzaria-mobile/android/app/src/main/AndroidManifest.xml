@@ -5,6 +5,9 @@
         android:label="Pizzaria Campy"
         android:name="${applicationName}"
         android:icon="@drawable/campy_launcher">
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="campy_orders" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
