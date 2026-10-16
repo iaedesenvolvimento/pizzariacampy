@@ -5,6 +5,7 @@ import '../../core/network/api_client.dart';
 import '../../core/storage/app_storage.dart';
 import 'admin_design_system.dart';
 import 'admin_api_client.dart';
+import 'admin_product_flavors_page.dart';
 
 String _normalizeVariationSlug(String value) => value
     .trim()
@@ -122,6 +123,19 @@ class _AdminProductSizesPageState extends State<AdminProductSizesPage> {
     }
   }
 
+  Future<void> _configureFlavors(Map<String, dynamic> size) async {
+    final sizeId = size['id']?.toString();
+    if (sizeId == null) return;
+    await Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => AdminProductFlavorsPage(
+        productId: widget.productId,
+        productName: widget.productName,
+        sizeId: sizeId,
+        sizeName: size['name']?.toString() ?? 'Tamanho',
+      ),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     final isPizza = widget.productType == 'PIZZA';
@@ -158,24 +172,40 @@ class _AdminProductSizesPageState extends State<AdminProductSizesPage> {
                                 child: Text('Nenhuma variação cadastrada.')))
                       else
                         ..._sizes.map((size) => Card(
-                              child: ListTile(
-                                title: Text(size['name']?.toString() ?? ''),
-                                subtitle: Text(isPizza
-                                    ? "${_money(size['price'])} · ${size['slices']} fatias · até ${size['max_flavors']} sabor(es)"
-                                    : _money(size['price'])),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    IconButton(
-                                      tooltip: 'Editar preço e variação',
-                                      icon: const Icon(Icons.edit_outlined),
-                                      onPressed: () => _edit(size),
+                              child: Column(
+                                children: [
+                                  ListTile(
+                                    title: Text(size['name']?.toString() ?? ''),
+                                    subtitle: Text(isPizza
+                                        ? "${_money(size['price'])} · ${size['slices']} fatias · até ${size['max_flavors']} sabor(es)"
+                                        : _money(size['price'])),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          tooltip: 'Editar preço e variação',
+                                          icon: const Icon(Icons.edit_outlined),
+                                          onPressed: () => _edit(size),
+                                        ),
+                                        Switch(
+                                            value: size['is_active'] == true,
+                                            onChanged: (_) => _toggle(size)),
+                                      ],
                                     ),
-                                    Switch(
-                                        value: size['is_active'] == true,
-                                        onChanged: (_) => _toggle(size)),
-                                  ],
-                                ),
+                                  ),
+                                  if (isPizza)
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                                        child: OutlinedButton.icon(
+                                          onPressed: () => _configureFlavors(size),
+                                          icon: const Icon(Icons.local_pizza_outlined),
+                                          label: const Text('Configurar sabores deste tamanho'),
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                             )),
                     ],

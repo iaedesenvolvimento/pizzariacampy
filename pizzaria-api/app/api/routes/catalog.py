@@ -36,6 +36,7 @@ from app.schemas.catalog import (
     ProductSizeCreate,
     ProductSizeResponse,
     ProductSizeUpdate,
+    ProductFlavorSelectionUpdate,
     ProductUpdate,
 )
 
@@ -364,6 +365,82 @@ async def list_product_sizes(
         select(ProductSize).where(ProductSize.product_id == product_id).order_by(ProductSize.name)
     )
     return list(result)
+
+
+@admin_router.get(
+    "/products/{product_id}/sizes/{size_id}/flavors",
+    response_model=list[FlavorResponse],
+)
+async def list_product_size_flavors(
+    product_id: UUID,
+    size_id: UUID,
+    session: AsyncSession = Depends(get_session),
+    _: User = Depends(get_admin_user),
+) -> list[Flavor]:
+    size = await session.scalar(
+        select(ProductSize).where(ProductSize.id == size_id, ProductSize.product_id == product_id)
+    )
+    if size is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Size not found")
+    result = await session.scalars(
+        select(Flavor)
+        .join(FlavorSizePrice, FlavorSizePrice.flavor_id == Flavor.id)
+        .where(FlavorSizePrice.product_size_id == size_id)
+        .order_by(Flavor.name)
+    )
+    return list(result)
+
+
+@admin_router.put(
+    "/products/{product_id}/sizes/{size_id}/flavors",
+    response_model=list[FlavorResponse],
+)
+async def replace_product_size_flavors(
+    product_id: UUID,
+    size_id: UUID,
+    payload: ProductFlavorSelectionUpdate,
+    session: AsyncSession = Depends(get_session),
+    _: User = Depends(get_admin_user),
+) -> list[Flavor]:
+    product = await session.get(Product, product_id)
+    size = await session.scalar(
+        select(ProductSize).where(ProductSize.id == size_id, ProductSize.product_id == product_id)
+    )
+    if product is None or size is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product or size not found")
+    if product.product_type != "PIZZA":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Only pizzas have flavors")
+
+    flavor_ids = list(dict.fromkeys(payload.flavor_ids))
+    flavors = list(
+        await session.scalars(
+            select(Flavor).where(Flavor.id.in_(flavor_ids), Flavor.is_active.is_(True))
+        )
+    )
+    if len(flavors) != len(flavor_ids):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Flavor not found or inactive")
+
+    existing = list(
+        await session.scalars(
+            select(FlavorSizePrice).where(FlavorSizePrice.product_size_id == size_id)
+        )
+    )
+    prices = {item.flavor_id: item.price for item in existing}
+    for item in existing:
+        await session.delete(item)
+    await session.flush()
+    session.add_all(
+        [
+            FlavorSizePrice(
+                flavor_id=flavor.id,
+                product_size_id=size_id,
+                price=prices.get(flavor.id, size.price),
+            )
+            for flavor in flavors
+        ]
+    )
+    await session.commit()
+    return sorted(flavors, key=lambda flavor: flavor.name.lower())
 
 
 @admin_router.patch("/sizes/{size_id}", response_model=ProductSizeResponse)

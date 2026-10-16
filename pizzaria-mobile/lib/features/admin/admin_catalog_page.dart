@@ -6,6 +6,7 @@ import '../../core/network/api_client.dart';
 import '../../core/storage/app_storage.dart';
 import 'admin_api_client.dart';
 import 'admin_product_sizes_page.dart';
+import 'admin_product_flavors_page.dart';
 import 'admin_design_system.dart';
 
 String _productTypeLabel(String? type) {
@@ -199,29 +200,33 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
       final productId = created['id']?.toString();
       if (productId == null || productId.isEmpty) return;
       final productType = created['product_type']?.toString() ?? 'PIZZA';
-      if (productType != 'PIZZA') {
-        final price = result['initial_price'];
-        if (price != null && price.isNotEmpty) {
-          await _adminApi!.post(
-            '/admin/catalog/products/$productId/sizes',
-            body: {
-              'name': 'Padrão',
-              'slug': 'padrao',
-              'price': price,
-              'slices': 1,
-              'max_flavors': 1,
-            },
-          );
-        }
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(price == null || price.isEmpty
-                ? '${_productTypeLabel(productType)} criado. Falta cadastrar o preço.'
-                : '${_productTypeLabel(productType)} criado com preço.')));
-        return;
-      }
+      final createdSize = await _adminApi!.post(
+        '/admin/catalog/products/$productId/sizes',
+        body: {
+          'name': result['initial_size_name'],
+          'slug': _normalizeSlug(result['initial_size_name'] ?? 'padrao'),
+          'price': result['initial_price'],
+          'slices': int.tryParse(result['initial_slices'] ?? '1') ?? 1,
+          'max_flavors':
+              int.tryParse(result['initial_max_flavors'] ?? '1') ?? 1,
+        },
+      );
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Pizza criada. Agora cadastre os tamanhos e preços.')));
+          content: Text(productType == 'PIZZA'
+              ? 'Pizza criada com tamanho, preço e sabores disponíveis.'
+              : '${_productTypeLabel(productType)} criado com preço.')));
+      if (productType == 'PIZZA' && createdSize is Map<String, dynamic>) {
+        await Navigator.of(context).push(MaterialPageRoute<void>(
+          builder: (_) => AdminProductFlavorsPage(
+            productId: productId,
+            productName: created['name']?.toString() ?? 'Produto',
+            sizeId: createdSize['id']?.toString() ?? '',
+            sizeName: createdSize['name']?.toString() ?? 'Tamanho',
+          ),
+        ));
+      }
+      if (!mounted) return;
       await Navigator.of(context).push(MaterialPageRoute<void>(
           builder: (_) => AdminProductSizesPage(
                 productId: productId,
@@ -241,7 +246,7 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
     if (_token == null) return;
     final initial = Map<String, dynamic>.from(item);
     final productType = item['product_type']?.toString().toUpperCase();
-    if (!_isCategories && productType != null && productType != 'PIZZA') {
+    if (!_isCategories && productType != null) {
       try {
         final sizes =
             await _adminApi!.get('/admin/catalog/products/${item['id']}/sizes');
@@ -249,6 +254,10 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
           final size = Map<String, dynamic>.from(sizes.first as Map);
           initial['initial_price'] = size['price']?.toString() ?? '';
           initial['initial_size_id'] = size['id']?.toString();
+          initial['initial_size_name'] = size['name']?.toString() ?? '';
+          initial['initial_slices'] = size['slices']?.toString() ?? '8';
+          initial['initial_max_flavors'] =
+              size['max_flavors']?.toString() ?? '1';
         }
       } catch (_) {}
     }
@@ -286,20 +295,27 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
           };
     try {
       await _adminApi!.patch(path, body: body);
-      if (!_isCategories && result['product_type'] != 'PIZZA') {
+      if (!_isCategories) {
         final price = result['initial_price'];
         final sizeId = initial['initial_size_id']?.toString();
         if (price != null && price.isNotEmpty) {
           if (sizeId != null && sizeId.isNotEmpty) {
-            await _adminApi!
-                .patch('/admin/catalog/sizes/$sizeId', body: {'price': price});
+            await _adminApi!.patch('/admin/catalog/sizes/$sizeId', body: {
+              'name': result['initial_size_name'],
+              'slug': _normalizeSlug(result['initial_size_name'] ?? 'padrao'),
+              'price': price,
+              'slices': int.tryParse(result['initial_slices'] ?? '1') ?? 1,
+              'max_flavors':
+                  int.tryParse(result['initial_max_flavors'] ?? '1') ?? 1,
+            });
           } else {
             await _adminApi!.post('/admin/catalog/products/$id/sizes', body: {
-              'name': 'Padrão',
-              'slug': 'padrao',
+              'name': result['initial_size_name'],
+              'slug': _normalizeSlug(result['initial_size_name'] ?? 'padrao'),
               'price': price,
-              'slices': 1,
-              'max_flavors': 1,
+              'slices': int.tryParse(result['initial_slices'] ?? '1') ?? 1,
+              'max_flavors':
+                  int.tryParse(result['initial_max_flavors'] ?? '1') ?? 1,
             });
           }
         }
@@ -583,6 +599,9 @@ class _CatalogFormState extends State<_CatalogForm> {
   late final TextEditingController _description;
   late final TextEditingController _imageUrl;
   late final TextEditingController _price;
+  late final TextEditingController _sizeName;
+  late final TextEditingController _slices;
+  late final TextEditingController _maxFlavors;
   late final TextEditingController _sortOrder;
   String? _categoryId;
   String _type = 'PIZZA';
@@ -602,9 +621,19 @@ class _CatalogFormState extends State<_CatalogForm> {
         TextEditingController(text: initial?['image_url']?.toString() ?? '');
     _price = TextEditingController(
         text: initial?['initial_price']?.toString().replaceAll(',', '.') ?? '');
+    _sizeName = TextEditingController(
+        text: initial?['initial_size_name']?.toString() ??
+            (initial == null ? 'Tradicional' : ''));
+    _slices = TextEditingController(
+        text: initial?['initial_slices']?.toString() ?? '8');
+    _maxFlavors = TextEditingController(
+        text: initial?['initial_max_flavors']?.toString() ?? '1');
     _sortOrder =
         TextEditingController(text: initial?['sort_order']?.toString() ?? '0');
-    _categoryId = initial?['category_id']?.toString();
+    _categoryId = initial?['category_id']?.toString() ??
+        (widget.categories.isNotEmpty
+            ? widget.categories.first['id']?.toString()
+            : null);
     final initialType = initial?['product_type']?.toString().toUpperCase();
     _type = initialType == 'DRINK'
         ? 'BEVERAGE'
@@ -626,6 +655,9 @@ class _CatalogFormState extends State<_CatalogForm> {
     _description.dispose();
     _imageUrl.dispose();
     _price.dispose();
+    _sizeName.dispose();
+    _slices.dispose();
+    _maxFlavors.dispose();
     _sortOrder.dispose();
     super.dispose();
   }
@@ -737,18 +769,41 @@ class _CatalogFormState extends State<_CatalogForm> {
                 ),
               ),
             ),
-            if (_type != 'PIZZA') ...[
-              const SizedBox(height: 12),
+            const SizedBox(height: 12),
+            Text('Configuração inicial',
+                style: Theme.of(context).textTheme.titleSmall),
+            TextField(
+              controller: _sizeName,
+              decoration: InputDecoration(
+                labelText: _type == 'PIZZA' ? 'Tamanho *' : 'Variação *',
+                helperText: _type == 'PIZZA'
+                    ? 'Ex.: Tradicional, Média ou Grande.'
+                    : 'Ex.: Lata, 1 litro ou Unidade.',
+              ),
+            ),
+            TextField(
+              controller: _price,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(
+                labelText: 'Preço de venda *',
+                prefixText: 'R\$ ',
+              ),
+            ),
+            if (_type == 'PIZZA') ...[
               TextField(
-                controller: _price,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                controller: _slices,
+                keyboardType: TextInputType.number,
+                decoration:
+                    const InputDecoration(labelText: 'Quantidade de fatias *'),
+              ),
+              TextField(
+                controller: _maxFlavors,
+                keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
-                  labelText: 'Preço de venda *',
-                  prefixText: 'R\$ ',
-                  helperText:
-                      'Será criada automaticamente a variação “Padrão”.',
-                ),
+                    labelText: 'Máximo de sabores *',
+                    helperText:
+                        'Os sabores ativos ficarão disponíveis ao cliente.'),
               ),
             ],
             TextField(
@@ -783,11 +838,34 @@ class _CatalogFormState extends State<_CatalogForm> {
               return;
             }
             if (!widget.isCategory &&
-                _type != 'PIZZA' &&
-                _price.text.trim().isEmpty) {
+                (_sizeName.text.trim().isEmpty || _price.text.trim().isEmpty)) {
               setState(() => _validationError =
-                  'Informe o preço de venda para este produto.');
+                  'Informe a variação/tamanho e o preço inicial.');
               return;
+            }
+            if (!widget.isCategory && _type == 'PIZZA') {
+              final price =
+                  double.tryParse(_price.text.trim().replaceAll(',', '.'));
+              final slices = int.tryParse(_slices.text.trim());
+              final maxFlavors = int.tryParse(_maxFlavors.text.trim());
+              if (price == null ||
+                  price < 0 ||
+                  slices == null ||
+                  slices < 1 ||
+                  maxFlavors == null ||
+                  maxFlavors < 1) {
+                setState(() => _validationError =
+                    'Informe preço, fatias e máximo de sabores válidos.');
+                return;
+              }
+            }
+            if (!widget.isCategory && _type != 'PIZZA') {
+              final price =
+                  double.tryParse(_price.text.trim().replaceAll(',', '.'));
+              if (price == null || price < 0) {
+                setState(() => _validationError = 'Informe um preço válido.');
+                return;
+              }
             }
             final slug = _normalizeSlug(_slug.text);
             final generatedSlug =
@@ -804,9 +882,14 @@ class _CatalogFormState extends State<_CatalogForm> {
                   _sortOrder.text.trim().isEmpty ? '0' : _sortOrder.text.trim(),
               if (_categoryId != null) 'category_id': _categoryId!,
               'product_type': _type,
-              if (!widget.isCategory && _type != 'PIZZA')
-                'initial_price': _price.text.trim().replaceAll(',', '.'),
               if (!widget.isCategory) 'image_url': _imageUrl.text.trim(),
+              if (!widget.isCategory)
+                'initial_size_name': _sizeName.text.trim(),
+              if (!widget.isCategory)
+                'initial_price': _price.text.trim().replaceAll(',', '.'),
+              if (!widget.isCategory) 'initial_slices': _slices.text.trim(),
+              if (!widget.isCategory)
+                'initial_max_flavors': _maxFlavors.text.trim(),
             });
           },
           child: const Text('Salvar'),
