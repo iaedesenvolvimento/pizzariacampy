@@ -186,6 +186,7 @@ class _SizeFormState extends State<_SizeForm> {
   final _price = TextEditingController();
   final _slices = TextEditingController(text: '8');
   final _maxFlavors = TextEditingController(text: '1');
+  String? _priceError;
 
   @override
   void initState() {
@@ -226,7 +227,13 @@ class _SizeFormState extends State<_SizeForm> {
                 controller: _price,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'Preço')),
+                onChanged: (_) {
+                  if (_priceError != null) {
+                    setState(() => _priceError = null);
+                  }
+                },
+                decoration: InputDecoration(
+                    labelText: 'Preço (R\$)', errorText: _priceError)),
             TextField(
                 controller: _slices,
                 keyboardType: TextInputType.number,
@@ -246,6 +253,12 @@ class _SizeFormState extends State<_SizeForm> {
               child: const Text('Cancelar')),
           FilledButton(
             onPressed: () {
+              final normalizedPrice = _price.text.trim().replaceAll(',', '.');
+              final parsedPrice = double.tryParse(normalizedPrice);
+              if (parsedPrice == null || parsedPrice < 0) {
+                setState(() => _priceError = 'Informe um preço válido.');
+                return;
+              }
               if (_name.text.trim().isEmpty ||
                   _slug.text.trim().isEmpty ||
                   _price.text.trim().isEmpty) {
@@ -254,7 +267,7 @@ class _SizeFormState extends State<_SizeForm> {
               Navigator.pop(context, {
                 'name': _name.text.trim(),
                 'slug': _slug.text.trim().toLowerCase(),
-                'price': _price.text.trim().replaceAll(',', '.'),
+                'price': parsedPrice.toStringAsFixed(2),
                 'slices': _slices.text.trim(),
                 'max_flavors': _maxFlavors.text.trim(),
               });
