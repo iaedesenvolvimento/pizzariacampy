@@ -52,6 +52,14 @@ async def create_order(
     user_id: UUID,
     request: CreateOrderRequest,
 ) -> Order:
+    from app.services.business_hours import get_business_status
+
+    business_status = await get_business_status(session)
+    if business_status["status"] != "OPEN":
+        raise OrderError(
+            "STORE_CLOSED",
+            business_status.get("message") or "A pizzaria está fechada no momento.",
+        )
     zone = None
     verified_neighborhood = request.delivery_neighborhood
     verified_city = request.delivery_city

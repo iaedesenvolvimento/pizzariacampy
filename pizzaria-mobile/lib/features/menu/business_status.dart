@@ -2,47 +2,54 @@ import 'package:flutter/material.dart';
 
 import '../../core/network/api_client.dart';
 
+class BusinessStatusController extends ChangeNotifier {
+  bool isOpen = false;
+  bool isLoading = true;
+  String? message;
+
+  Future<void> load() async {
+    isLoading = true;
+    notifyListeners();
+    try {
+      final response = await ApiClient().get('/business-status');
+      if (response is Map<String, dynamic>) {
+        isOpen = response['status'] == 'OPEN';
+        message = response['message']?.toString();
+      }
+    } catch (_) {
+      isOpen = false;
+      message = 'Não foi possível consultar o horário da loja.';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+}
+
 class BusinessStatusBanner extends StatefulWidget {
-  const BusinessStatusBanner({super.key});
+  const BusinessStatusBanner({required this.controller, super.key});
+
+  final BusinessStatusController controller;
 
   @override
   State<BusinessStatusBanner> createState() => _BusinessStatusBannerState();
 }
 
 class _BusinessStatusBannerState extends State<BusinessStatusBanner> {
-  String? _message;
-  bool _isOpen = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    try {
-      final response = await ApiClient().get('/business-status');
-      if (!mounted || response is! Map<String, dynamic>) {
-        return;
-      }
-      setState(() {
-        _isOpen = response['status'] == 'OPEN';
-        _message = response['message']?.toString();
-      });
-    } catch (_) {
-      if (mounted) {
-        setState(
-            () => _message = 'Não foi possível consultar o horário da loja.');
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: widget.controller,
+      builder: (context, _) => _buildBanner(context),
+    );
+  }
+
+  Widget _buildBanner(BuildContext context) {
+    final isOpen = widget.controller.isOpen;
     final background =
-        _isOpen ? const Color(0xFFDDF3E5) : const Color(0xFFFFD9D5);
+        isOpen ? const Color(0xFFDDF3E5) : const Color(0xFFFFD9D5);
     final foreground =
-        _isOpen ? const Color(0xFF246B3A) : const Color(0xFF9D2D2D);
+        isOpen ? const Color(0xFF246B3A) : const Color(0xFF9D2D2D);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
@@ -52,14 +59,16 @@ class _BusinessStatusBannerState extends State<BusinessStatusBanner> {
       child: Row(
         children: [
           Icon(
-              _isOpen
+              isOpen
                   ? Icons.storefront_outlined
                   : Icons.store_mall_directory_outlined,
               color: foreground),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              _message ?? 'Consultando horário da loja...',
+              widget.controller.isLoading
+                  ? 'Consultando horário da loja...'
+                  : widget.controller.message ?? 'Fechado',
               style: TextStyle(color: foreground, fontWeight: FontWeight.w600),
             ),
           ),

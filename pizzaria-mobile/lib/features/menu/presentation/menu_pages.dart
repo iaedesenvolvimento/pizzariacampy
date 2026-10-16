@@ -38,6 +38,7 @@ class MenuHomePage extends StatefulWidget {
 
 class _MenuHomePageState extends State<MenuHomePage> {
   late final menu_state.MenuController _menuController;
+  late final BusinessStatusController _businessStatusController;
   final _searchController = TextEditingController();
   Timer? _searchDebounce;
   DateTime? _lastBackPress;
@@ -47,6 +48,7 @@ class _MenuHomePageState extends State<MenuHomePage> {
     super.initState();
     _menuController = menu_state.MenuController(MenuService(ApiClient()))
       ..load();
+    _businessStatusController = BusinessStatusController()..load();
   }
 
   @override
@@ -54,6 +56,7 @@ class _MenuHomePageState extends State<MenuHomePage> {
     _searchDebounce?.cancel();
     _searchController.dispose();
     _menuController.dispose();
+    _businessStatusController.dispose();
     super.dispose();
   }
 
@@ -79,6 +82,12 @@ class _MenuHomePageState extends State<MenuHomePage> {
   }
 
   Future<void> _openProduct(MenuProduct product) async {
+    if (!_businessStatusController.isOpen) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('A pizzaria está fechada no momento.'),
+      ));
+      return;
+    }
     final added = await Navigator.of(context).push<bool>(
       MaterialPageRoute<bool>(
         builder: (_) => ProductDetailsPage(
@@ -258,7 +267,10 @@ class _MenuHomePageState extends State<MenuHomePage> {
               ],
             ),
             body: RefreshIndicator(
-              onRefresh: _menuController.load,
+              onRefresh: () async => Future.wait([
+                _menuController.load(),
+                _businessStatusController.load(),
+              ]),
               notificationPredicate: (notification) => notification.depth == 0,
               child: _buildBody(context),
             ),
@@ -303,7 +315,7 @@ class _MenuHomePageState extends State<MenuHomePage> {
           ),
         ),
         const SizedBox(height: 16),
-        const BusinessStatusBanner(),
+        BusinessStatusBanner(controller: _businessStatusController),
         const SizedBox(height: 16),
         _CategoryList(controller: _menuController),
         const SizedBox(height: 24),
@@ -327,6 +339,8 @@ class _MenuHomePageState extends State<MenuHomePage> {
                 product: product,
                 cartController: widget.cartController,
                 accessToken: widget.authController.accessToken,
+                isOpen: _businessStatusController.isOpen &&
+                    !_businessStatusController.isLoading,
                 onOpen: () => _openProduct(product),
               ),
             ),
@@ -342,12 +356,14 @@ class ProductCard extends StatelessWidget {
       {required this.product,
       required this.cartController,
       required this.accessToken,
+      required this.isOpen,
       required this.onOpen,
       super.key});
 
   final MenuProduct product;
   final CartController cartController;
   final String? accessToken;
+  final bool isOpen;
   final VoidCallback onOpen;
 
   @override
@@ -355,7 +371,12 @@ class ProductCard extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: onOpen,
+        onTap: isOpen
+            ? onOpen
+            : () => ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text('A pizzaria está fechada no momento.')),
+                ),
         child: Row(
           children: [
             SizedBox(
@@ -381,7 +402,7 @@ class ProductCard extends StatelessWidget {
                     const SizedBox(height: 10),
                     Row(
                       children: [
-                        Text('Escolher',
+                        Text(isOpen ? 'Escolher' : 'Indisponível agora',
                             style: TextStyle(
                                 color: Theme.of(context).colorScheme.primary,
                                 fontWeight: FontWeight.w700)),
