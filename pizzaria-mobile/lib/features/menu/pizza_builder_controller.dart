@@ -92,7 +92,12 @@ class PizzaBuilderController extends ChangeNotifier {
       return;
     }
     selectedConfigurationId = configurationId;
-    selectedFlavorIds.clear();
+    final previousFlavorSlots = selectedFlavorSlots;
+    selectedFlavorIds
+      ..clear()
+      ..addAll(
+        previousFlavorSlots.whereType<String>().take(configuration.flavorCount),
+      );
     quoteTotal = null;
     isQuoting = false;
     errorMessage = null;
