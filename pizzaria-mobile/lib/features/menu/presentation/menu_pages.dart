@@ -353,6 +353,25 @@ class _MenuHomePageState extends State<MenuHomePage> {
         onAction: _menuController.load,
       );
     }
+    if (_menuController.status == menu_state.MenuStatus.empty) {
+      return _StateMessage(
+        icon: Icons.restaurant_menu_outlined,
+        message: _menuController.selectedCategoryId == null
+            ? 'Nenhum produto encontrado.'
+            : 'Ainda não há produtos disponíveis nesta categoria.',
+        actionLabel: _menuController.selectedCategoryId == null
+            ? 'Limpar filtro'
+            : 'Voltar ao cardápio',
+        onAction: () async {
+          _searchController.clear();
+          if (_menuController.selectedCategoryId != null) {
+            await _menuController.selectCategory(null);
+          } else {
+            await _menuController.search('');
+          }
+        },
+      );
+    }
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
@@ -383,99 +402,81 @@ class _MenuHomePageState extends State<MenuHomePage> {
         const SizedBox(height: 16),
         BusinessStatusBanner(controller: _businessStatusController),
         const SizedBox(height: 16),
-        if (_menuController.status == menu_state.MenuStatus.empty) ...[
-          _StateMessage(
-            icon: Icons.restaurant_menu_outlined,
-            message: 'Nenhum produto encontrado.',
-            actionLabel: _menuController.selectedCategoryId == null
-                ? 'Limpar filtro'
-                : 'Voltar ao cardápio',
-            onAction: () async {
-              _searchController.clear();
-              if (_menuController.selectedCategoryId != null) {
-                await _menuController.selectCategory(null);
-              } else {
-                await _menuController.search('');
-              }
-            },
+        if (_menuController.selectedCategoryId == null) ...[
+          Text('Pizzas salgadas',
+              style: Theme.of(context).textTheme.headlineMedium),
+          const SizedBox(height: 6),
+          const Text(
+            'Escolha o tamanho e deixe o resto com seus sabores favoritos.',
           ),
-        ] else ...[
-          if (_menuController.selectedCategoryId == null) ...[
-            Text('Pizzas salgadas',
-                style: Theme.of(context).textTheme.headlineMedium),
-            const SizedBox(height: 6),
-            const Text(
-              'Escolha o tamanho e deixe o resto com seus sabores favoritos.',
-            ),
-            const SizedBox(height: 16),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: _PizzaModeCard(
-                    title: 'Pizza Grande · 1 sabor',
-                    description:
-                        'Um sabor inteiro, do primeiro ao último pedaço.',
-                    icon: Icons.looks_one_outlined,
-                    onTap: () => _openPizzaMode(1),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _PizzaModeCard(
-                    title: 'Pizza Grande · meio a meio',
-                    description:
-                        'Escolha 2 sabores. Uma metade de cada, do seu jeito.',
-                    icon: Icons.looks_two_outlined,
-                    onTap: () => _openPizzaMode(2),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-          ] else ...[
-            Row(
-              children: [
-                IconButton(
-                  tooltip: 'Voltar ao cardápio',
-                  onPressed: () => _menuController.selectCategory(null),
-                  icon: const Icon(Icons.arrow_back),
-                ),
-                Expanded(
-                  child: Text(
-                    _menuController.categories
-                        .firstWhere(
-                          (category) =>
-                              category.id == _menuController.selectedCategoryId,
-                          orElse: () => const MenuCategory(
-                              id: '', name: 'Cardápio', slug: ''),
-                        )
-                        .name,
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-          ],
-          Text('Destaques', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 12),
-          ..._menuController.products
-              .where((product) => !isPizzaProductType(product.type))
-              .map(
-                (product) => Padding(
-                  padding: const EdgeInsets.only(bottom: 14),
-                  child: ProductCard(
-                    product: product,
-                    cartController: widget.cartController,
-                    accessToken: widget.authController.accessToken,
-                    isOpen: _businessStatusController.isOpen &&
-                        !_businessStatusController.isLoading,
-                    onOpen: () => _openProduct(product),
-                  ),
+          const SizedBox(height: 16),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _PizzaModeCard(
+                  title: 'Pizza Grande · 1 sabor',
+                  description:
+                      'Um sabor inteiro, do primeiro ao último pedaço.',
+                  icon: Icons.looks_one_outlined,
+                  onTap: () => _openPizzaMode(1),
                 ),
               ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _PizzaModeCard(
+                  title: 'Pizza Grande · meio a meio',
+                  description:
+                      'Escolha 2 sabores. Uma metade de cada, do seu jeito.',
+                  icon: Icons.looks_two_outlined,
+                  onTap: () => _openPizzaMode(2),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+        ] else ...[
+          Row(
+            children: [
+              IconButton(
+                tooltip: 'Voltar ao cardápio',
+                onPressed: () => _menuController.selectCategory(null),
+                icon: const Icon(Icons.arrow_back),
+              ),
+              Expanded(
+                child: Text(
+                  _menuController.categories
+                      .firstWhere(
+                        (category) =>
+                            category.id == _menuController.selectedCategoryId,
+                        orElse: () => const MenuCategory(
+                            id: '', name: 'Cardápio', slug: ''),
+                      )
+                      .name,
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
         ],
+        Text('Destaques', style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 12),
+        ..._menuController.products
+            .where((product) => !isPizzaProductType(product.type))
+            .map(
+              (product) => Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: ProductCard(
+                  product: product,
+                  cartController: widget.cartController,
+                  accessToken: widget.authController.accessToken,
+                  isOpen: _businessStatusController.isOpen &&
+                      !_businessStatusController.isLoading,
+                  onOpen: () => _openProduct(product),
+                ),
+              ),
+            ),
       ],
     );
   }
