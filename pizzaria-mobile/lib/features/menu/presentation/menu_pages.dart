@@ -478,25 +478,22 @@ class _MenuHomePageState extends State<MenuHomePage> {
           ),
           const SizedBox(height: 16),
         ],
-        Text('Destaques', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 12),
-        ..._menuController.products
-            .where((product) =>
-                _menuController.selectedCategoryId != null ||
-                !isPizzaProductType(product.type))
-            .map(
-              (product) => Padding(
-                padding: const EdgeInsets.only(bottom: 14),
-                child: ProductCard(
-                  product: product,
-                  cartController: widget.cartController,
-                  accessToken: widget.authController.accessToken,
-                  isOpen: _businessStatusController.isOpen &&
-                      !_businessStatusController.isLoading,
-                  onOpen: () => _openProduct(product),
-                ),
+        if (_menuController.selectedCategoryId != null) ...[
+          const SizedBox(height: 8),
+          ..._menuController.products.map(
+            (product) => Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: ProductCard(
+                product: product,
+                cartController: widget.cartController,
+                accessToken: widget.authController.accessToken,
+                isOpen: _businessStatusController.isOpen &&
+                    !_businessStatusController.isLoading,
+                onOpen: () => _openProduct(product),
               ),
             ),
+          ),
+        ],
       ],
     );
   }
