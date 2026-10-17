@@ -21,8 +21,10 @@ class MenuService {
     return _decodeList(response).map(MenuProduct.fromJson).toList();
   }
 
-  Future<MenuProductOptions> fetchOptions(String productId) async {
-    final response = await _apiClient.get('/products/$productId/options');
+  Future<MenuProductOptions> fetchOptions(String productId,
+      {bool halfHalf = false}) async {
+    final suffix = halfHalf ? '?flavor_mode=HALF_HALF' : '';
+    final response = await _apiClient.get('/products/$productId/options$suffix');
     return MenuProductOptions.fromJson(response as Map<String, dynamic>);
   }
 

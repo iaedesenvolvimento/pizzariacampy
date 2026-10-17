@@ -159,7 +159,11 @@ async def create_order(
 
         flavor_prices = (
             await get_flavor_prices(
-                session, size.id, item_input.flavor_ids, fallback_price=size.price
+                session,
+                size.id,
+                item_input.flavor_ids,
+                fallback_price=size.price,
+                allow_fallback=item_input.pizza_configuration_id is not None,
             )
             if item_input.flavor_ids
             else {}

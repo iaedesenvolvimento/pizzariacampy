@@ -107,7 +107,11 @@ async def calculate_item(
     base_price = size.price
     if item.flavor_ids:
         flavor_prices = await get_flavor_prices(
-            session, size.id, item.flavor_ids, fallback_price=size.price
+            session,
+            size.id,
+            item.flavor_ids,
+            fallback_price=size.price,
+            allow_fallback=item.pizza_configuration_id is not None,
         )
         if configuration is not None and configuration.pricing_rule == "AVERAGE_FLAVOR_PRICE":
             base_price = sum(flavor_prices.values(), ZERO) / len(flavor_prices)
@@ -163,6 +167,7 @@ async def get_flavor_prices(
     product_size_id: UUID,
     flavor_ids: list[UUID],
     fallback_price: Decimal | None = None,
+    allow_fallback: bool = False,
 ) -> dict[UUID, Decimal]:
     result = await session.execute(
         select(FlavorSizePrice.flavor_id, FlavorSizePrice.price)
@@ -174,8 +179,8 @@ async def get_flavor_prices(
         )
     )
     prices = {flavor_id: price for flavor_id, price in result.all()}
-    if not prices and fallback_price is not None:
-        return {flavor_id: fallback_price for flavor_id in set(flavor_ids)}
+    if allow_fallback and fallback_price is not None:
+        return {flavor_id: prices.get(flavor_id, fallback_price) for flavor_id in set(flavor_ids)}
     if len(prices) != len(set(flavor_ids)):
         raise PricingError("FLAVOR_UNAVAILABLE", "One or more flavors are unavailable")
     return prices

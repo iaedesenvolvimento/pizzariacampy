@@ -136,6 +136,7 @@ async def get_product(product_id: UUID, session: AsyncSession = Depends(get_sess
 @router.get("/products/{product_id}/options", response_model=ProductOptionsResponse)
 async def get_product_options(
     product_id: UUID,
+    flavor_mode: str | None = Query(default=None),
     session: AsyncSession = Depends(get_session),
 ) -> ProductOptionsResponse:
     product = await session.get(Product, product_id)
@@ -151,7 +152,15 @@ async def get_product_options(
     )
     is_pizza = product.product_type == "PIZZA"
     flavors = []
-    if is_pizza and sizes:
+    if is_pizza and sizes and flavor_mode == "HALF_HALF":
+        flavors = list(
+            await session.scalars(
+                select(Flavor)
+                .where(Flavor.is_active.is_(True))
+                .order_by(Flavor.name)
+            )
+        )
+    elif is_pizza and sizes:
         flavors = list(
             await session.scalars(
                 select(Flavor)

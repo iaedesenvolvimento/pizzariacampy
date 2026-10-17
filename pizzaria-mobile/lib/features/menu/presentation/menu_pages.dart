@@ -545,7 +545,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   @override
   void initState() {
     super.initState();
-    _options = MenuService(ApiClient()).fetchOptions(widget.product.id);
+    _options = MenuService(ApiClient()).fetchOptions(
+      widget.product.id,
+      halfHalf: widget.maxFlavorsOverride == 2,
+    );
   }
 
   @override
