@@ -341,12 +341,8 @@ class _MenuHomePageState extends State<MenuHomePage> {
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
       children: [
-        Text('Olá, ${widget.authController.user?.name ?? 'cliente'}',
-            style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 4),
-        Text('Escolha seu próximo sabor.',
-            style: Theme.of(context).textTheme.bodyMedium),
-        const SizedBox(height: 16),
+        _MenuHero(userName: widget.authController.user?.name),
+        const SizedBox(height: 18),
         Row(
           children: [
             Expanded(
@@ -376,7 +372,18 @@ class _MenuHomePageState extends State<MenuHomePage> {
           onSubmitted: _search,
           decoration: InputDecoration(
             hintText: 'Buscar no cardápio',
-            prefixIcon: const Icon(Icons.search),
+            prefixIcon: const Icon(Icons.search_rounded),
+            suffixIcon: _searchController.text.isEmpty
+                ? null
+                : IconButton(
+                    tooltip: 'Limpar busca',
+                    icon: const Icon(Icons.close_rounded),
+                    onPressed: () {
+                      _searchController.clear();
+                      _search('');
+                      setState(() {});
+                    },
+                  ),
           ),
         ),
         const SizedBox(height: 16),
@@ -395,27 +402,123 @@ class _MenuHomePageState extends State<MenuHomePage> {
             },
           ),
         ] else ...[
-          Text('Destaques', style: Theme.of(context).textTheme.titleLarge),
+          Text('Destaques', style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: 12),
           ..._menuController.products
               .where((product) => !isPizzaProductType(product.type))
               .map(
-            (product) => Padding(
-              padding: const EdgeInsets.only(bottom: 14),
-              child: ProductCard(
-                product: product,
-                cartController: widget.cartController,
-                accessToken: widget.authController.accessToken,
-                isOpen: _businessStatusController.isOpen &&
-                    !_businessStatusController.isLoading,
-                onOpen: () => _openProduct(product),
+                (product) => Padding(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: ProductCard(
+                    product: product,
+                    cartController: widget.cartController,
+                    accessToken: widget.authController.accessToken,
+                    isOpen: _businessStatusController.isOpen &&
+                        !_businessStatusController.isLoading,
+                    onOpen: () => _openProduct(product),
+                  ),
+                ),
               ),
-            ),
-          ),
         ],
       ],
     );
   }
+}
+
+class _MenuHero extends StatelessWidget {
+  const _MenuHero({this.userName});
+
+  final String? userName;
+
+  @override
+  Widget build(BuildContext context) {
+    final name = userName?.trim();
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      padding: const EdgeInsets.fromLTRB(20, 22, 18, 20),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0E4D6),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            right: -34,
+            top: -35,
+            child: Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFFDCA35A).withValues(alpha: .35),
+              ),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'PIZZARIA CAMPY',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.4,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Uma boa pizza\ncomeça aqui.',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontFamily: 'serif',
+                      fontSize: 28,
+                      height: 1.08,
+                    ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                name == null || name.isEmpty
+                    ? 'Monte seu pedido com seus sabores favoritos.'
+                    : 'Olá, $name. Monte seu pedido com seus sabores favoritos.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: const Color(0xFF766451),
+                    ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: const [
+                  _HeroTag(icon: Icons.local_pizza_outlined, label: '1 sabor'),
+                  SizedBox(width: 14),
+                  _HeroTag(icon: Icons.pie_chart_outline, label: 'Meio a meio'),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HeroTag extends StatelessWidget {
+  const _HeroTag({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: const Color(0xFF80674B)),
+          const SizedBox(width: 5),
+          Text(label,
+              style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF80674B))),
+        ],
+      );
 }
 
 class ProductCard extends StatelessWidget {
@@ -437,6 +540,7 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       clipBehavior: Clip.antiAlias,
+      color: const Color(0xFFFFF7F4),
       child: InkWell(
         onTap: onOpen,
         child: Row(
@@ -464,7 +568,7 @@ class ProductCard extends StatelessWidget {
                     const SizedBox(height: 10),
                     Row(
                       children: [
-                        Text(isOpen ? 'Escolher' : 'Indisponível agora',
+                        Text(isOpen ? 'Ver opções' : 'Indisponível agora',
                             style: TextStyle(
                                 color: Theme.of(context).colorScheme.primary,
                                 fontWeight: FontWeight.w700)),
@@ -503,14 +607,23 @@ class _PizzaModeCard extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return Card(
       clipBehavior: Clip.antiAlias,
+      color: const Color(0xFFF3E7DB),
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, color: colors.primary),
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: .7),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: colors.primary, size: 21),
+              ),
               const SizedBox(height: 8),
               Text(title, style: Theme.of(context).textTheme.titleMedium),
               Text(subtitle),
@@ -868,7 +981,7 @@ class _ProductOptionsViewState extends State<_ProductOptionsView> {
                   : !widget.isStoreOpen
                       ? 'Loja fechada'
                       : isPizza
-                          ? 'Escolher opções'
+                          ? 'Avançar'
                           : 'Adicionar ao carrinho'),
         ),
       ],

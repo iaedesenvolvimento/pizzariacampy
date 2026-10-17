@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static const primary = Color(0xFFD62828);
-  static const primaryPressed = Color(0xFFAD2020);
-  static const accent = Color(0xFFF4A261);
-  static const surface = Color(0xFFFFF8F2);
-  static const textPrimary = Color(0xFF292321);
-  static const textSecondary = Color(0xFF665E5A);
-  static const cardSurface = Color(0xFFFFFDFC);
+  static const primary = Color(0xFFB72D2D);
+  static const primaryPressed = Color(0xFF912323);
+  static const accent = Color(0xFFDCA35A);
+  static const surface = Color(0xFFFBF8F3);
+  static const textPrimary = Color(0xFF2C2725);
+  static const textSecondary = Color(0xFF77706A);
+  static const cardSurface = Color(0xFFFFFFFF);
 
   static ThemeData get light {
     final colorScheme = ColorScheme.fromSeed(
@@ -28,17 +28,19 @@ class AppTheme {
         headlineLarge: TextStyle(
             fontSize: 32,
             height: 1.15,
-            fontWeight: FontWeight.w700,
-            color: textPrimary),
+            fontWeight: FontWeight.w600,
+            color: textPrimary,
+            fontFamily: 'serif'),
         headlineMedium: TextStyle(
             fontSize: 24,
             height: 1.15,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
+            fontFamily: 'serif',
             color: textPrimary),
         titleLarge: TextStyle(
             fontSize: 20,
             height: 1.2,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
             color: textPrimary),
         titleMedium: TextStyle(
             fontSize: 17,
@@ -57,12 +59,12 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         color: cardSurface,
-        elevation: 1,
-        shadowColor: Color(0x1A6D5E59),
+        elevation: 0,
+        shadowColor: Color(0x1442251E),
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
-          side: BorderSide(color: Color(0xFFEFE3DB)),
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+          side: BorderSide(color: Color(0xFFE9E1D8)),
         ),
       ),
       chipTheme: ChipThemeData(
@@ -70,8 +72,8 @@ class AppTheme {
         selectedColor: primary,
         disabledColor: Color(0xFFF1E9E3),
         side: BorderSide(color: Color(0xFFDCCBC1)),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        labelStyle: const TextStyle(fontSize: 13, color: textPrimary),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        labelStyle: const TextStyle(fontSize: 12, color: textPrimary),
         secondaryLabelStyle: const TextStyle(fontSize: 13, color: Colors.white),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       ),
@@ -80,23 +82,22 @@ class AppTheme {
           backgroundColor: primary,
           foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(48),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
           borderSide: const BorderSide(color: Color(0xFFE4DCD6)),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
           borderSide: const BorderSide(color: Color(0xFFE4DCD6)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
           borderSide: const BorderSide(color: primary, width: 2),
         ),
       ),

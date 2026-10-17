@@ -31,9 +31,20 @@ class AdminScaffold extends StatelessWidget {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontFamily: 'serif',
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
             if (subtitle != null)
-              Text(subtitle!, style: Theme.of(context).textTheme.bodySmall),
+              Text(
+                subtitle!,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
           ],
         ),
         actions: actions,
@@ -43,7 +54,10 @@ class AdminScaffold extends StatelessWidget {
           ? body
           : Row(
               children: [
-                _buildNavigationRail(context, layout),
+                ColoredBox(
+                  color: Theme.of(context).colorScheme.surface,
+                  child: _buildNavigationRail(context, layout),
+                ),
                 const VerticalDivider(width: 1),
                 Expanded(child: body),
               ],
@@ -55,6 +69,8 @@ class AdminScaffold extends StatelessWidget {
     final selectedIndex =
         AdminDestinations.main.indexWhere(_isDestinationActive);
     return NavigationRail(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      indicatorColor: Theme.of(context).colorScheme.primaryContainer,
       selectedIndex: selectedIndex < 0 ? 0 : selectedIndex,
       labelType: layout == AdminLayoutSize.expanded
           ? NavigationRailLabelType.all
