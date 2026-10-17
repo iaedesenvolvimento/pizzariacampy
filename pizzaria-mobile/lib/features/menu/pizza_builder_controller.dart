@@ -191,6 +191,7 @@ class PizzaBuilderController extends ChangeNotifier {
   void selectDough(String doughName) {
     selectedDoughName = doughName;
     notifyListeners();
+    refreshQuote();
   }
 
   void toggleExtra(String extraId) {
