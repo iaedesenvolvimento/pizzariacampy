@@ -31,6 +31,8 @@ Caddy solicita e renova o certificado HTTPS automaticamente quando o DNS e as po
 
 Depois do primeiro deploy da imagem que contém `catalogo-real.json`, configure `IMPORT_CATALOG_ON_STARTUP=true` nas variáveis de ambiente do serviço Render e faça um novo deploy. O entrypoint executará a importação depois das migrations, sem exigir acesso ao Shell.
 
+Para publicar o catálogo normalizado v2, configure `IMPORT_CATALOG_V2_ON_STARTUP=true` no Render e faça um novo deploy. Esse seed cria/atualiza as duas bases de pizza, seus tamanhos, configurações de 1/2 sabores e os produtos simples sem apagar dados existentes.
+
 Depois que os produtos aparecerem, altere a variável para `false` e faça outro deploy. Se o Shell estiver disponível, a importação manual equivalente é:
 
 ```bash

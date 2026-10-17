@@ -121,6 +121,14 @@ class _MenuHomePageState extends State<MenuHomePage> {
           content: Text('Nenhuma pizza disponível no momento.')));
       return;
     }
+    final normalizedBase = pizzas.where((product) {
+      final slug = product.name.trim().toLowerCase();
+      return slug == 'pizza salgada' || slug == 'pizza doce';
+    }).toList();
+    if (normalizedBase.isNotEmpty) {
+      await _openProduct(normalizedBase.first, maxFlavorsOverride: maxFlavors);
+      return;
+    }
     final product = await showModalBottomSheet<MenuProduct>(
       context: context,
       showDragHandle: true,
