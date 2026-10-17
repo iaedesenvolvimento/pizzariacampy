@@ -52,7 +52,7 @@ class PizzaBuilderController extends ChangeNotifier {
   }
 
   List<MenuProductSize> get sizesByPrice => [...options.sizes]
-    ..sort((first, second) => second.price.compareTo(first.price));
+    ..sort((first, second) => (second.price ?? 0).compareTo(first.price ?? 0));
   bool get canCustomize =>
       selectedSize != null &&
       selectedDoughName != null &&

@@ -397,7 +397,9 @@ class _MenuHomePageState extends State<MenuHomePage> {
         ] else ...[
           Text('Destaques', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 12),
-          ..._menuController.products.map(
+          ..._menuController.products
+              .where((product) => !isPizzaProductType(product.type))
+              .map(
             (product) => Padding(
               padding: const EdgeInsets.only(bottom: 14),
               child: ProductCard(
@@ -812,7 +814,9 @@ class _ProductOptionsViewState extends State<_ProductOptionsView> {
                   ? Text(
                       '${size.slices} fatias · até ${size.maxFlavors} sabores')
                   : null,
-              trailing: Text(_formatPrice(size.price)),
+              trailing: Text(size.price == null
+                  ? 'Conforme o sabor'
+                  : _formatPrice(size.price!)),
             ),
           ),
         ],

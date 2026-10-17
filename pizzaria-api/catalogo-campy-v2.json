@@ -1,0 +1,1899 @@
+{
+  "schema_version": 2,
+  "categories": [
+    {
+      "name": "Pizzas salgadas",
+      "slug": "pizzas-salgadas",
+      "sort_order": 0
+    },
+    {
+      "name": "Pizzas doces",
+      "slug": "pizzas-doces",
+      "sort_order": 1
+    },
+    {
+      "name": "Bebidas",
+      "slug": "bebidas",
+      "sort_order": 2
+    },
+    {
+      "name": "Esfihas salgadas",
+      "slug": "esfihas-salgadas",
+      "sort_order": 3
+    },
+    {
+      "name": "Esfihas doces",
+      "slug": "esfihas-doces",
+      "sort_order": 4
+    },
+    {
+      "name": "Combos de esfihas",
+      "slug": "combos-de-esfihas",
+      "sort_order": 5
+    },
+    {
+      "name": "Doces",
+      "slug": "doces",
+      "sort_order": 6
+    }
+  ],
+  "pizza_products": [
+    {
+      "slug": "pizza-pizzas-salgadas",
+      "name": "Pizza salgada",
+      "category_slug": "pizzas-salgadas",
+      "product_type": "PIZZA",
+      "description": "Escolha o tamanho e o sabor da sua pizza.",
+      "sizes": [
+        {
+          "label": "Grande",
+          "slug": "grande",
+          "configurations": [
+            1,
+            2
+          ]
+        },
+        {
+          "label": "Broto",
+          "slug": "broto",
+          "configurations": [
+            1
+          ]
+        }
+      ],
+      "flavors": [
+        {
+          "slug": "a-moda-do-chefe-i",
+          "name": "A Moda do Chefe I",
+          "description": "Palmito, champignon e mussarela",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "a-moda-do-chefe-ii",
+          "name": "A Moda do Chefe II",
+          "description": "Palmito, champignon, catupiry, mussarela e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "55.00",
+            "broto": "36.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "a-moda-do-chefe-iii",
+          "name": "A Moda do Chefe III",
+          "description": "Palmito, mussarela e cheddar",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "alho-i",
+          "name": "Alho I",
+          "description": "Mussarela e alho frito",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "alho-ii",
+          "name": "Alho II",
+          "description": "Catupiry, mussarela e alho frito",
+          "image_url": null,
+          "prices": {
+            "grande": "49.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "alho-iii",
+          "name": "Alho III",
+          "description": "Catupiry e alho frito",
+          "image_url": null,
+          "prices": {
+            "grande": "49.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "atum-i",
+          "name": "Atum I",
+          "description": "Atum e cebola",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "atum-ii",
+          "name": "Atum II",
+          "description": "Atum e vinagrete",
+          "image_url": null,
+          "prices": {
+            "grande": "49.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "americana",
+          "name": "Americana",
+          "description": "Presunto, ervilhas, palmito, ovos e cebola",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "ac-cias",
+          "name": "Acácias",
+          "description": "Lombo, catupiry, mussarela, tomate e alho frito",
+          "image_url": null,
+          "prices": {
+            "grande": "53.00",
+            "broto": "35.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "bacon",
+          "name": "Bacon",
+          "description": "Mussarela e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "49.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "bacon-iii",
+          "name": "Bacon III",
+          "description": "Catupiry, mussarela e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "bauru",
+          "name": "Bauru",
+          "description": "Presunto moído, rodelas de tomate e mussarela",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "baiana",
+          "name": "Baiana",
+          "description": "Calabresa moída, ovos, cebola e molho de pimenta",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "batata-palha",
+          "name": "Batata Palha",
+          "description": "Mussarela e batata palha",
+          "image_url": null,
+          "prices": {
+            "grande": "47.00",
+            "broto": "31.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "bolonhesa-i",
+          "name": "Bolonhesa I",
+          "description": "Carne moída refogada coberta por mussarela",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "35.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "bolonhesa-ii",
+          "name": "Bolonhesa II",
+          "description": "Carne moída refogada, mussarela e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "52.00",
+            "broto": "35.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "bolonhesa-iii",
+          "name": "Bolonhesa III",
+          "description": "Carne moída refogada com catupiry",
+          "image_url": null,
+          "prices": {
+            "grande": "53.00",
+            "broto": "35.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "br-colis-com-mussarela",
+          "name": "Brócolis com Mussarela",
+          "description": "Brócolis com mussarela e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "52.00",
+            "broto": "34.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "br-colis-com-catupiry",
+          "name": "Brócolis com Catupiry",
+          "description": "Brócolis com catupiry",
+          "image_url": null,
+          "prices": {
+            "grande": "52.00",
+            "broto": "34.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "br-colis-especial-i",
+          "name": "Brócolis Especial I",
+          "description": "Brócolis, cream cheese Philadelphia, mussarela e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "65.00",
+            "broto": "43.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "br-colis-especial-ii",
+          "name": "Brócolis Especial II",
+          "description": "Brócolis, palmito, ervilha, champignon, mussarela e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "60.00",
+            "broto": "40.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "carapicu-ba-i",
+          "name": "Carapicuíba I",
+          "description": "Lombo, palmito, ervilha e mussarela",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "carapicu-ba-ii",
+          "name": "Carapicuíba II",
+          "description": "Lombo, palmito, ervilha, mussarela e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "carapicu-ba-iii",
+          "name": "Carapicuíba III",
+          "description": "Lombo, palmito, ervilha e catupiry",
+          "image_url": null,
+          "prices": {
+            "grande": "49.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "calabresa-i",
+          "name": "Calabresa I",
+          "description": "Calabresa e cebola",
+          "image_url": null,
+          "prices": {
+            "grande": "45.00",
+            "broto": "30.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "calabresa-ii",
+          "name": "Calabresa II",
+          "description": "Calabresa, cebola e mussarela",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "calabresa-iii",
+          "name": "Calabresa III",
+          "description": "Calabresa e catupiry",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "calabresa-e-cheddar",
+          "name": "Calabresa e Cheddar",
+          "description": "Calabresa fatiada, cheddar e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "59.00",
+            "broto": "48.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "calabresa-e-vinagrete",
+          "name": "Calabresa e Vinagrete",
+          "description": "Calabresa, vinagrete e cebola",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "catupiry",
+          "name": "Catupiry",
+          "description": "Catupiry",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "carne-seca",
+          "name": "Carne Seca",
+          "description": "Carne seca desfiada e mussarela",
+          "image_url": null,
+          "prices": {
+            "grande": "55.00",
+            "broto": "36.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "carne-seca-ii",
+          "name": "Carne Seca II",
+          "description": "Carne seca desfiada e catupiry",
+          "image_url": null,
+          "prices": {
+            "grande": "56.00",
+            "broto": "37.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "carne-seca-especial",
+          "name": "Carne Seca Especial",
+          "description": "Carne seca desfiada, cream cheese Philadelphia, mussarela e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "65.00",
+            "broto": "43.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "camar-o-i",
+          "name": "Camarão I",
+          "description": "Camarão e mussarela",
+          "image_url": null,
+          "prices": {
+            "grande": "65.00",
+            "broto": "43.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "camar-o-ii",
+          "name": "Camarão II",
+          "description": "Camarão, palmito e mussarela",
+          "image_url": null,
+          "prices": {
+            "grande": "70.00",
+            "broto": "46.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "camar-o-iii",
+          "name": "Camarão III",
+          "description": "Camarão e catupiry",
+          "image_url": null,
+          "prices": {
+            "grande": "70.00",
+            "broto": "46.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "campy",
+          "name": "Campy",
+          "description": "Presunto, palmito, ervilhas, ovos, mussarela e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "52.00",
+            "broto": "34.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "campy-ii",
+          "name": "Campy II",
+          "description": "Presunto, palmito, ervilhas, ovos, milho e catupiry",
+          "image_url": null,
+          "prices": {
+            "grande": "51.00",
+            "broto": "34.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "champignon-i",
+          "name": "Champignon I",
+          "description": "Champignon, mussarela e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "champignon-ii",
+          "name": "Champignon II",
+          "description": "Champignon, palmito, mussarela e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "52.00",
+            "broto": "34.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "champignon-iii",
+          "name": "Champignon III",
+          "description": "Champignon, catupiry e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "52.00",
+            "broto": "34.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "chester-i",
+          "name": "Chester I",
+          "description": "Peito de peru defumado e mussarela",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "chester-ii",
+          "name": "Chester II",
+          "description": "Peito de peru defumado, mussarela e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "52.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "chester-iii",
+          "name": "Chester III",
+          "description": "Peito de peru defumado e catupiry",
+          "image_url": null,
+          "prices": {
+            "grande": "51.00",
+            "broto": "34.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "dois-queijos",
+          "name": "Dois Queijos",
+          "description": "Mussarela e catupiry",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "doritos",
+          "name": "Doritos",
+          "description": "Mussarela, cheddar e Doritos",
+          "image_url": null,
+          "prices": {
+            "grande": "55.00",
+            "broto": "36.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "escarola-i",
+          "name": "Escarola I",
+          "description": "Escarola refogada, mussarela e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "escarola-ii",
+          "name": "Escarola II",
+          "description": "Escarola refogada, catupiry e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "escarola-iii",
+          "name": "Escarola III",
+          "description": "Escarola refogada, mussarela e tomate",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "escarola-especial",
+          "name": "Escarola Especial",
+          "description": "Escarola refogada, ervilha, palmito, champignon, cream cheese Philadelphia, milho e mussarela",
+          "image_url": null,
+          "prices": {
+            "grande": "65.00",
+            "broto": "43.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "frango",
+          "name": "Frango",
+          "description": "Peito de frango desfiado e cebola",
+          "image_url": null,
+          "prices": {
+            "grande": "46.00",
+            "broto": "31.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "frango-i",
+          "name": "Frango I",
+          "description": "Peito de frango desfiado e mussarela",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "frango-ii",
+          "name": "Frango II",
+          "description": "Peito de frango desfiado, mussarela e milho verde",
+          "image_url": null,
+          "prices": {
+            "grande": "49.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "frango-iii",
+          "name": "Frango III",
+          "description": "Peito de frango desfiado e requeijão comum",
+          "image_url": null,
+          "prices": {
+            "grande": "47.00",
+            "broto": "31.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "frango-iv",
+          "name": "Frango IV",
+          "description": "Peito de frango desfiado, palmito, catupiry e milho verde",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "frango-v",
+          "name": "Frango V",
+          "description": "Peito de frango desfiado, catupiry e milho verde",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "frango-vi",
+          "name": "Frango VI",
+          "description": "Peito de frango desfiado, catupiry e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "51.00",
+            "broto": "34.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "frango-vii",
+          "name": "Frango VII",
+          "description": "Peito de frango desfiado, mussarela e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "frango-viii",
+          "name": "Frango VIII",
+          "description": "Peito de frango desfiado, catupiry e batata palha",
+          "image_url": null,
+          "prices": {
+            "grande": "60.00",
+            "broto": "40.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "frango-com-catupiry",
+          "name": "Frango com Catupiry",
+          "description": "Peito de frango desfiado com catupiry",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "frango-com-philadelphia",
+          "name": "Frango com Philadelphia",
+          "description": "Peito de frango desfiado com cream cheese Philadelphia",
+          "image_url": null,
+          "prices": {
+            "grande": "59.00",
+            "broto": "46.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "frango-com-cheddar",
+          "name": "Frango com Cheddar",
+          "description": "Peito de frango desfiado com cheddar e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "60.00",
+            "broto": "40.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "galinhada",
+          "name": "Galinhada",
+          "description": "Peito de frango desfiado, milho, ovos e mussarela",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "galinhada-ii",
+          "name": "Galinhada II",
+          "description": "Peito de frango desfiado, milho, ovos, mussarela e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "52.00",
+            "broto": "34.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "lombinho-i",
+          "name": "Lombinho I",
+          "description": "Lombo canadense e cebola",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "lombinho-ii",
+          "name": "Lombinho II",
+          "description": "Lombo canadense e catupiry",
+          "image_url": null,
+          "prices": {
+            "grande": "49.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "lombinho-iii",
+          "name": "Lombinho III",
+          "description": "Lombo canadense e mussarela",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "lombinho-especial",
+          "name": "Lombinho Especial",
+          "description": "Lombo, milho, palmito, ervilha, ovos, mussarela e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "59.00",
+            "broto": "40.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "lusitana",
+          "name": "Lusitana",
+          "description": "Presunto picado, calabresa, cebola, ovos, champignon, mussarela e parmesão",
+          "image_url": null,
+          "prices": {
+            "grande": "52.00",
+            "broto": "34.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "maluca-i",
+          "name": "Maluca I",
+          "description": "Presunto moído, calabresa moída, ervilha e mussarela",
+          "image_url": null,
+          "prices": {
+            "grande": "49.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "maluca-ii",
+          "name": "Maluca II",
+          "description": "Presunto moído, calabresa moída, mussarela e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "maluca-iii",
+          "name": "Maluca III",
+          "description": "Presunto moído, calabresa moída, ervilha e catupiry",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "marguerita",
+          "name": "Marguerita",
+          "description": "Mussarela, molho de tomate, manjericão e parmesão",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "milho-verde-i",
+          "name": "Milho Verde I",
+          "description": "Mussarela e milho verde",
+          "image_url": null,
+          "prices": {
+            "grande": "47.00",
+            "broto": "31.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "milho-verde-ii",
+          "name": "Milho Verde II",
+          "description": "Catupiry e milho verde",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "milho-verde-iii",
+          "name": "Milho Verde III",
+          "description": "Mussarela, milho verde e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "49.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "mussarela",
+          "name": "Mussarela",
+          "description": "Mussarela e rodelas de tomate",
+          "image_url": null,
+          "prices": {
+            "grande": "45.00",
+            "broto": "30.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "malva",
+          "name": "Malva",
+          "description": "Presunto, palmito, ovos e catupiry",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "misto-quente",
+          "name": "Misto Quente",
+          "description": "Presunto moído e mussarela",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "napole",
+          "name": "Napole",
+          "description": "Calabresa fatiada, palmito, catupiry, mussarela e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "60.00",
+            "broto": "40.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "napolitana",
+          "name": "Napolitana",
+          "description": "Mussarela de búfala, tomate seco e manjericão",
+          "image_url": null,
+          "prices": {
+            "grande": "53.00",
+            "broto": "34.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "napolitana-ii",
+          "name": "Napolitana II",
+          "description": "Mussarela, tomate fresco e parmesão",
+          "image_url": null,
+          "prices": {
+            "grande": "51.00",
+            "broto": "34.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "palmito-i",
+          "name": "Palmito I",
+          "description": "Palmito e mussarela",
+          "image_url": null,
+          "prices": {
+            "grande": "49.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "palmito-ii",
+          "name": "Palmito II",
+          "description": "Palmito, champignon, mussarela e bacon",
+          "image_url": null,
+          "prices": {
+            "grande": "52.00",
+            "broto": "35.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "palmito-iii",
+          "name": "Palmito III",
+          "description": "Palmito e catupiry",
+          "image_url": null,
+          "prices": {
+            "grande": "49.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "peito-de-peru-mais-dois-queijos",
+          "name": "Peito de Peru Mais Dois Queijos",
+          "description": "Peito de peru defumado, catupiry e mussarela",
+          "image_url": null,
+          "prices": {
+            "grande": "60.00",
+            "broto": "40.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "peruana-i",
+          "name": "Peruana I",
+          "description": "Atum e mussarela",
+          "image_url": null,
+          "prices": {
+            "grande": "52.00",
+            "broto": "34.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "peruana-ii",
+          "name": "Peruana II",
+          "description": "Atum, mussarela e catupiry",
+          "image_url": null,
+          "prices": {
+            "grande": "52.00",
+            "broto": "34.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "peruana-iii",
+          "name": "Peruana III",
+          "description": "Atum e catupiry",
+          "image_url": null,
+          "prices": {
+            "grande": "53.00",
+            "broto": "35.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "peperone",
+          "name": "Peperone",
+          "description": "Mussarela e peperone",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "peperone-ii",
+          "name": "Peperone II",
+          "description": "Catupiry, mussarela e peperone",
+          "image_url": null,
+          "prices": {
+            "grande": "60.00",
+            "broto": "40.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "provolone",
+          "name": "Provolone",
+          "description": "Provolone, mussarela e milho verde",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "portuguesa-i",
+          "name": "Portuguesa I",
+          "description": "Presunto, ervilha, ovos, cebola e mussarela",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "portuguesa-ii",
+          "name": "Portuguesa II",
+          "description": "Presunto, ervilha, ovos, cebola e catupiry",
+          "image_url": null,
+          "prices": {
+            "grande": "49.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "portuguesa-especial",
+          "name": "Portuguesa Especial",
+          "description": "Presunto, palmito, ervilha, ovos, cebola, catupiry, mussarela e batata palha",
+          "image_url": null,
+          "prices": {
+            "grande": "60.00",
+            "broto": "40.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "presunto",
+          "name": "Presunto",
+          "description": "Presunto moído e cebola",
+          "image_url": null,
+          "prices": {
+            "grande": "45.00",
+            "broto": "30.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "quatro-queijos",
+          "name": "Quatro Queijos",
+          "description": "Mussarela, catupiry, provolone e gorgonzola",
+          "image_url": null,
+          "prices": {
+            "grande": "53.00",
+            "broto": "34.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "romana",
+          "name": "Romana",
+          "description": "Mussarela, atum e catupiry",
+          "image_url": null,
+          "prices": {
+            "grande": "55.00",
+            "broto": "36.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "r-cula",
+          "name": "Rúcula",
+          "description": "Mussarela, rúcula e tomate seco",
+          "image_url": null,
+          "prices": {
+            "grande": "49.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "salame-com-mussarela",
+          "name": "Salame com Mussarela",
+          "description": "Salame e mussarela",
+          "image_url": null,
+          "prices": {
+            "grande": "52.00",
+            "broto": "34.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "siciliana-i",
+          "name": "Siciliana I",
+          "description": "Mussarela salpicada com calabresa",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "siciliana-ii",
+          "name": "Siciliana II",
+          "description": "Catupiry salpicado com calabresa",
+          "image_url": null,
+          "prices": {
+            "grande": "49.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "siciliana-iii",
+          "name": "Siciliana III",
+          "description": "Mussarela e catupiry salpicados com calabresa",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "toscana",
+          "name": "Toscana",
+          "description": "Calabresa, mussarela e pimentão",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "toscana-ii",
+          "name": "Toscana II",
+          "description": "Calabresa, catupiry e pimentão",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "toscana-iii",
+          "name": "Toscana III",
+          "description": "Calabresa, palmito, mussarela e pimentão",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "tropical-i",
+          "name": "Tropical I",
+          "description": "Atum, vinagrete e mussarela",
+          "image_url": null,
+          "prices": {
+            "grande": "55.00",
+            "broto": "36.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "tropical-ii",
+          "name": "Tropical II",
+          "description": "Atum, vinagrete e catupiry",
+          "image_url": null,
+          "prices": {
+            "grande": "55.00",
+            "broto": "36.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "vinagrete",
+          "name": "Vinagrete",
+          "description": "Catupiry, vinagrete e mussarela",
+          "image_url": null,
+          "prices": {
+            "grande": "56.00",
+            "broto": "35.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "a-moda-do-fregu-s",
+          "name": "A Moda do Freguês",
+          "description": "Pizza salgada personalizada",
+          "image_url": null,
+          "prices": {
+            "personalizada": "50.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "tr-s-esta-es",
+          "name": "Três Estações",
+          "description": "Pizza salgada personalizada",
+          "image_url": null,
+          "prices": {
+            "personalizada": "50.00"
+          },
+          "active": true
+        }
+      ]
+    },
+    {
+      "slug": "pizza-pizzas-doces",
+      "name": "Pizza doce",
+      "category_slug": "pizzas-doces",
+      "product_type": "PIZZA",
+      "description": "Escolha o tamanho e o sabor da sua pizza.",
+      "sizes": [
+        {
+          "label": "Grande",
+          "slug": "grande",
+          "configurations": [
+            1,
+            2
+          ]
+        },
+        {
+          "label": "Broto",
+          "slug": "broto",
+          "configurations": [
+            1
+          ]
+        }
+      ],
+      "flavors": [
+        {
+          "slug": "banana",
+          "name": "Banana",
+          "description": "Banana fatiada com leite condensado e canela",
+          "image_url": null,
+          "prices": {
+            "grande": "45.00",
+            "broto": "30.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "bis-com-chocolate-ao-leite",
+          "name": "Bis com Chocolate ao Leite",
+          "description": "Chocolate ao leite e Bis de chocolate",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "brigadeiro",
+          "name": "Brigadeiro",
+          "description": "Chocolate ao leite com chocolate granulado",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "chocolate-ao-leite-com-banana",
+          "name": "Chocolate ao Leite com Banana",
+          "description": "Chocolate ao leite com banana fatiada",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "chocolate-ao-leite-com-morango",
+          "name": "Chocolate ao Leite com Morango",
+          "description": "Chocolate ao leite com morango fatiado",
+          "image_url": null,
+          "prices": {
+            "grande": "50.00",
+            "broto": "33.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "ferrero-rocher-ao-leite",
+          "name": "Ferrero Rocher ao Leite",
+          "description": "Chocolate ao leite com bombons Ferrero Rocher",
+          "image_url": null,
+          "prices": {
+            "grande": "66.00",
+            "broto": "43.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "m-m-s-ao-leite",
+          "name": "M&M's ao Leite",
+          "description": "Chocolate ao leite com M&M's",
+          "image_url": null,
+          "prices": {
+            "grande": "56.00",
+            "broto": "37.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "nutella-com-morango-e-leite-ninho",
+          "name": "Nutella com Morango e Leite Ninho",
+          "description": "Nutella com morangos fatiados e leite Ninho",
+          "image_url": null,
+          "prices": {
+            "grande": "66.00",
+            "broto": "44.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "prest-gio",
+          "name": "Prestígio",
+          "description": "Chocolate ao leite e coco ralado",
+          "image_url": null,
+          "prices": {
+            "grande": "48.00",
+            "broto": "32.00"
+          },
+          "active": true
+        },
+        {
+          "slug": "romeu-e-julieta",
+          "name": "Romeu e Julieta",
+          "description": "Mussarela com goiabada derretida",
+          "image_url": null,
+          "prices": {
+            "grande": "45.00",
+            "broto": "30.00"
+          },
+          "active": true
+        }
+      ]
+    }
+  ],
+  "simple_products": [
+    {
+      "slug": "atum-com-mussarela",
+      "name": "Atum com Mussarela",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "Unidade",
+          "slug": "unidade",
+          "fixed_price": "3.50",
+          "active": true
+        }
+      ],
+      "active": true
+    },
+    {
+      "slug": "brocolis-com-mussarela-esfihas-salgadas",
+      "name": "Brócolis com Mussarela",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "Unidade",
+          "slug": "unidade",
+          "fixed_price": "3.50",
+          "active": true
+        }
+      ],
+      "active": true
+    },
+    {
+      "slug": "calabresa",
+      "name": "Calabresa",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "Unidade",
+          "slug": "unidade",
+          "fixed_price": "3.50",
+          "active": true
+        }
+      ],
+      "active": true
+    },
+    {
+      "slug": "calabresa-com-cheddar",
+      "name": "Calabresa com Cheddar",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "Unidade",
+          "slug": "unidade",
+          "fixed_price": "3.50",
+          "active": true
+        }
+      ],
+      "active": true
+    },
+    {
+      "slug": "carne",
+      "name": "Carne",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "Unidade",
+          "slug": "unidade",
+          "fixed_price": "3.50",
+          "active": true
+        }
+      ],
+      "active": true
+    },
+    {
+      "slug": "carne-com-queijo",
+      "name": "Carne com Queijo",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "Unidade",
+          "slug": "unidade",
+          "fixed_price": "3.50",
+          "active": true
+        }
+      ],
+      "active": true
+    },
+    {
+      "slug": "carne-seca-com-mussarela",
+      "name": "Carne Seca com Mussarela",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "Unidade",
+          "slug": "unidade",
+          "fixed_price": "3.50",
+          "active": true
+        }
+      ],
+      "active": true
+    },
+    {
+      "slug": "escarola-com-mussarela",
+      "name": "Escarola com Mussarela",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "Unidade",
+          "slug": "unidade",
+          "fixed_price": "3.50",
+          "active": true
+        }
+      ],
+      "active": true
+    },
+    {
+      "slug": "frango-esfihas-salgadas",
+      "name": "Frango",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "Unidade",
+          "slug": "unidade",
+          "fixed_price": "3.50",
+          "active": true
+        }
+      ],
+      "active": true
+    },
+    {
+      "slug": "frango-com-catupiry-esfihas-salgadas",
+      "name": "Frango com Catupiry",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "Unidade",
+          "slug": "unidade",
+          "fixed_price": "3.50",
+          "active": true
+        }
+      ],
+      "active": true
+    },
+    {
+      "slug": "milho-com-mussarela",
+      "name": "Milho com Mussarela",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "Unidade",
+          "slug": "unidade",
+          "fixed_price": "3.50",
+          "active": true
+        }
+      ],
+      "active": true
+    },
+    {
+      "slug": "mussarela-com-alho",
+      "name": "Mussarela com Alho",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "Unidade",
+          "slug": "unidade",
+          "fixed_price": "3.50",
+          "active": true
+        }
+      ],
+      "active": true
+    },
+    {
+      "slug": "peperone-com-mussarela",
+      "name": "Peperone com Mussarela",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "Unidade",
+          "slug": "unidade",
+          "fixed_price": "3.50",
+          "active": true
+        }
+      ],
+      "active": true
+    },
+    {
+      "slug": "presunto-com-queijo",
+      "name": "Presunto com Queijo",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "Unidade",
+          "slug": "unidade",
+          "fixed_price": "3.50",
+          "active": true
+        }
+      ],
+      "active": true
+    },
+    {
+      "slug": "queijo",
+      "name": "Queijo",
+      "category_slug": "esfihas-salgadas",
+      "product_type": "DESSERT",
+      "description": null,
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "Unidade",
+          "slug": "unidade",
+          "fixed_price": "3.50",
+          "active": true
+        }
+      ],
+      "active": true
+    },
+    {
+      "slug": "chocolate",
+      "name": "Chocolate",
+      "category_slug": "esfihas-doces",
+      "product_type": "DESSERT",
+      "description": null,
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "Unidade",
+          "slug": "unidade",
+          "fixed_price": "5.50",
+          "active": true
+        }
+      ],
+      "active": true
+    },
+    {
+      "slug": "chocolate-com-m-m-s",
+      "name": "Chocolate com M&M's",
+      "category_slug": "esfihas-doces",
+      "product_type": "DESSERT",
+      "description": null,
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "Unidade",
+          "slug": "unidade",
+          "fixed_price": "5.50",
+          "active": true
+        }
+      ],
+      "active": true
+    },
+    {
+      "slug": "romeu-e-julieta-esfihas-doces",
+      "name": "Romeu e Julieta",
+      "category_slug": "esfihas-doces",
+      "product_type": "DESSERT",
+      "description": null,
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "Unidade",
+          "slug": "unidade",
+          "fixed_price": "5.50",
+          "active": true
+        }
+      ],
+      "active": true
+    },
+    {
+      "slug": "prestigio-esfihas-doces",
+      "name": "Prestígio",
+      "category_slug": "esfihas-doces",
+      "product_type": "DESSERT",
+      "description": null,
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "Unidade",
+          "slug": "unidade",
+          "fixed_price": "5.50",
+          "active": true
+        }
+      ],
+      "active": true
+    },
+    {
+      "slug": "sucos-de-caixinha",
+      "name": "Sucos de Caixinha",
+      "category_slug": "bebidas",
+      "product_type": "BEVERAGE",
+      "description": "Suco de caixinha 1 litro",
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "1L",
+          "slug": "1l",
+          "fixed_price": "13.00",
+          "active": true
+        }
+      ],
+      "active": true
+    },
+    {
+      "slug": "refrigerante",
+      "name": "Refrigerante",
+      "category_slug": "bebidas",
+      "product_type": "BEVERAGE",
+      "description": "Refrigerante 2 litros",
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "2L",
+          "slug": "2l",
+          "fixed_price": "15.00",
+          "active": true
+        }
+      ],
+      "active": true
+    },
+    {
+      "slug": "refrigerante-lata",
+      "name": "Refrigerante Lata",
+      "category_slug": "bebidas",
+      "product_type": "BEVERAGE",
+      "description": "Refrigerante lata 350 ml",
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "350 ml",
+          "slug": "350-ml",
+          "fixed_price": "6.00",
+          "active": true
+        }
+      ],
+      "active": true
+    },
+    {
+      "slug": "cerveja-lata",
+      "name": "Cerveja Lata",
+      "category_slug": "bebidas",
+      "product_type": "BEVERAGE",
+      "description": "Cerveja lata",
+      "image_url": null,
+      "sizes": [
+        {
+          "label": "Lata",
+          "slug": "lata",
+          "fixed_price": "7.00",
+          "active": true
+        }
+      ],
+      "active": true
+    }
+  ],
+  "combos": [
+    {
+      "slug": "combo-1",
+      "name": "Combo 1",
+      "category_slug": "combos-de-esfihas",
+      "description": "20 esfihas dos sabores: carne, frango e mussarela. 1 refrigerante Dolly (2L)",
+      "sizes": [
+        {
+          "name": "20 esfihas + 1 refrigerante 2L",
+          "slug": "20-esfihas-1-refrigerante-2l",
+          "price": "65.00",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ],
+      "groups": [],
+      "review_required": true
+    },
+    {
+      "slug": "combo-2",
+      "name": "Combo 2",
+      "category_slug": "combos-de-esfihas",
+      "description": "20 esfihas dos sabores: carne, mussarela e frango com catupiry. 1 refrigerante Kuat (2L)",
+      "sizes": [
+        {
+          "name": "20 esfihas + 1 refrigerante 2L",
+          "slug": "20-esfihas-1-refrigerante-2l",
+          "price": "65.00",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ],
+      "groups": [],
+      "review_required": true
+    },
+    {
+      "slug": "combo-3",
+      "name": "Combo 3",
+      "category_slug": "combos-de-esfihas",
+      "description": "30 esfihas dos sabores: carne, frango com catupiry e calabresa. 1 refrigerante Coca-Cola (2L)",
+      "sizes": [
+        {
+          "name": "30 esfihas + 1 refrigerante 2L",
+          "slug": "30-esfihas-1-refrigerante-2l",
+          "price": "90.00",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ],
+      "groups": [],
+      "review_required": true
+    },
+    {
+      "slug": "combo-4",
+      "name": "Combo 4",
+      "category_slug": "combos-de-esfihas",
+      "description": "40 esfihas dos sabores: carne e frango com mussarela. 1 refrigerante Dolly (2L)",
+      "sizes": [
+        {
+          "name": "40 esfihas + 1 refrigerante 2L",
+          "slug": "40-esfihas-1-refrigerante-2l",
+          "price": "110.00",
+          "slices": 8,
+          "max_flavors": 1
+        }
+      ],
+      "groups": [],
+      "review_required": true
+    }
+  ],
+  "crusts": [],
+  "addons": []
+}

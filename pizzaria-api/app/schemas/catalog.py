@@ -68,7 +68,7 @@ class ProductResponse(CatalogBase):
 class ProductSizeCreate(BaseModel):
     name: str = Field(min_length=1, max_length=60)
     slug: str = Field(min_length=1, max_length=80, pattern=r"^[a-z0-9-]+$")
-    price: Decimal = Field(ge=0, decimal_places=2)
+    price: Decimal | None = Field(default=None, ge=0, decimal_places=2)
     slices: int = Field(default=8, ge=1)
     max_flavors: int = Field(ge=1)
 
@@ -78,7 +78,7 @@ class ProductSizeResponse(CatalogBase):
     product_id: UUID
     name: str
     slug: str
-    price: Decimal
+    price: Decimal | None
     slices: int
     max_flavors: int
     is_active: bool

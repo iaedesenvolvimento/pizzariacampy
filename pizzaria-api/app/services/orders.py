@@ -164,6 +164,7 @@ async def create_order(
                 item_input.flavor_ids,
                 fallback_price=size.price,
                 allow_fallback=item_input.pizza_configuration_id is not None,
+                product_id=product.id,
             )
             if item_input.flavor_ids
             else {}

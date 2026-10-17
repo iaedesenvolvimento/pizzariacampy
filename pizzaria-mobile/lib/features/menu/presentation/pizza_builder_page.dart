@@ -113,7 +113,9 @@ class _PizzaBuilderPageState extends State<PizzaBuilderPage> {
               title: Text(size.name),
               subtitle: Text(
                   '${size.slices} fatias · até ${size.maxFlavors} sabores'),
-              secondary: Text(_formatPrice(size.price)),
+              secondary: Text(size.price == null
+                  ? 'Preço conforme o sabor'
+                  : _formatPrice(size.price!)),
             ),
           ),
           _sectionTitle(context, '2. Escolha a massa'),

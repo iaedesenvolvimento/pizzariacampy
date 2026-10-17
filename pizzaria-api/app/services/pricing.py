@@ -104,12 +104,15 @@ async def calculate_item(
     elif item.flavor_ids:
         raise PricingError("FLAVOR_NOT_ALLOWED", "This product does not accept flavors")
 
-    base_price = size.price
+    if not item.flavor_ids and size.price is None:
+        raise PricingError("PRICE_UNAVAILABLE", "This product has no price")
+    base_price = size.price or ZERO
     if item.flavor_ids:
         flavor_prices = await get_flavor_prices_for_size_name(
             session,
             size.name,
             item.flavor_ids,
+            product.id,
         )
         if (
             configuration is not None
@@ -170,17 +173,21 @@ async def get_flavor_prices(
     flavor_ids: list[UUID],
     fallback_price: Decimal | None = None,
     allow_fallback: bool = False,
+    product_id: UUID | None = None,
 ) -> dict[UUID, Decimal]:
     result = await session.execute(
         select(FlavorSizePrice.flavor_id, FlavorSizePrice.price)
         .join(Flavor, Flavor.id == FlavorSizePrice.flavor_id)
         .where(
             FlavorSizePrice.product_size_id == product_size_id,
+            *([FlavorSizePrice.product_id == product_id] if product_id is not None else []),
             FlavorSizePrice.flavor_id.in_(flavor_ids),
             Flavor.is_active.is_(True),
         )
     )
     prices = {flavor_id: price for flavor_id, price in result.all()}
+    if not prices and fallback_price is not None:
+        return {flavor_id: fallback_price for flavor_id in set(flavor_ids)}
     if allow_fallback and fallback_price is not None:
         return {flavor_id: prices.get(flavor_id, fallback_price) for flavor_id in set(flavor_ids)}
     if len(prices) != len(set(flavor_ids)):
@@ -192,6 +199,7 @@ async def get_flavor_prices_for_size_name(
     session: AsyncSession,
     size_name: str,
     flavor_ids: list[UUID],
+    product_id: UUID | None = None,
 ) -> dict[UUID, Decimal]:
     result = await session.execute(
         select(FlavorSizePrice.flavor_id, func.max(FlavorSizePrice.price))
@@ -203,6 +211,7 @@ async def get_flavor_prices_for_size_name(
             ProductSize.is_active.is_(True),
             Product.product_type == "PIZZA",
             Product.is_active.is_(True),
+            *([Product.id == product_id] if product_id is not None else []),
             FlavorSizePrice.flavor_id.in_(flavor_ids),
             Flavor.is_active.is_(True),
         )

@@ -6,7 +6,7 @@ from sqlalchemy import Boolean, ForeignKey, Integer, Numeric, String, Text, Uniq
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.models.base import TimestampedModel
+from app.models.base import Base, TimestampedModel
 
 if TYPE_CHECKING:
     from app.models.user import User
@@ -51,7 +51,7 @@ class ProductSize(TimestampedModel):
     )
     name: Mapped[str] = mapped_column(String(60), nullable=False)
     slug: Mapped[str] = mapped_column(String(80), nullable=False)
-    price: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    price: Mapped[Decimal | None] = mapped_column(Numeric(12, 2), nullable=True)
     slices: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("8"))
     max_flavors: Mapped[int] = mapped_column(Integer, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("true"))
@@ -61,6 +61,17 @@ class ProductSize(TimestampedModel):
     )
     configurations: Mapped[list["PizzaConfiguration"]] = relationship(
         back_populates="product_size", cascade="all, delete-orphan", order_by="PizzaConfiguration.display_order"
+    )
+
+
+class ProductFlavor(Base):
+    __tablename__ = "product_flavors"
+
+    product_id: Mapped[UUID] = mapped_column(
+        PostgreSQLUUID(as_uuid=True), ForeignKey("products.id", ondelete="RESTRICT"), primary_key=True
+    )
+    flavor_id: Mapped[UUID] = mapped_column(
+        PostgreSQLUUID(as_uuid=True), ForeignKey("flavors.id", ondelete="RESTRICT"), primary_key=True
     )
 
 
@@ -101,6 +112,9 @@ class FlavorSizePrice(TimestampedModel):
     __tablename__ = "flavor_size_prices"
     __table_args__ = (UniqueConstraint("flavor_id", "product_size_id", name="uq_flavor_size_price"),)
 
+    product_id: Mapped[UUID | None] = mapped_column(
+        PostgreSQLUUID(as_uuid=True), ForeignKey("products.id", ondelete="RESTRICT"), nullable=True
+    )
     flavor_id: Mapped[UUID] = mapped_column(
         PostgreSQLUUID(as_uuid=True), ForeignKey("flavors.id", ondelete="RESTRICT"), nullable=False
     )

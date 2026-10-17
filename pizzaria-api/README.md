@@ -34,6 +34,30 @@ alembic upgrade head
 
 As tabelas de autenticação, catálogo, pedidos, pagamentos, zonas, horários e cupons estão versionadas em `migrations/versions`. Execute `alembic upgrade head` antes de iniciar a API.
 
+### Catálogo normalizado v2
+
+O catálogo v2 separa pizzas configuráveis, produtos simples e combos. Gere o
+arquivo a partir do catálogo legado sem alterar o banco:
+
+```powershell
+python scripts/build_catalog_v2.py catalogo-real.json catalogo-campy-v2.json
+```
+
+Valide a estrutura do arquivo antes de importar:
+
+```powershell
+python scripts/seed_catalog_v2.py catalogo-campy-v2.json --dry-run
+```
+
+O importador é idempotente e não publica combos cuja composição ainda exige
+revisão manual. A importação real deve ser feita somente após validar o arquivo
+e executar as migrations no banco local:
+
+```powershell
+alembic upgrade head
+python scripts/seed_catalog_v2.py catalogo-campy-v2.json
+```
+
 ## Importação do catálogo oficial
 
 O arquivo JSON do cardápio deve conter somente dados conferidos. Antes de gravar no banco, execute o modo de validação:

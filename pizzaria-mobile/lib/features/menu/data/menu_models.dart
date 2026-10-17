@@ -76,7 +76,7 @@ class MenuProductSize {
       id: json['id'].toString(),
       productId: json['product_id'].toString(),
       name: json['name'] as String? ?? '',
-      price: _decimal(json['price']),
+      price: json['price'] == null ? null : _decimal(json['price']),
       slices: json['slices'] as int? ?? 8,
       maxFlavors: json['max_flavors'] as int? ?? 1,
     );
@@ -85,7 +85,7 @@ class MenuProductSize {
   final String id;
   final String productId;
   final String name;
-  final double price;
+  final double? price;
   final int slices;
   final int maxFlavors;
 }

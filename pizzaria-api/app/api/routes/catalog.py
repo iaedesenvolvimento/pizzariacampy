@@ -13,6 +13,7 @@ from app.models.catalog import (
     Extra,
     Flavor,
     FlavorSizePrice,
+    ProductFlavor,
     Product,
     ProductSize,
     PizzaConfiguration,
@@ -152,39 +153,29 @@ async def get_product_options(
     )
     is_pizza = product.product_type == "PIZZA"
     flavors = []
-    if is_pizza and sizes and flavor_mode == "HALF_HALF":
+    if is_pizza and sizes:
         flavors = list(
             await session.scalars(
                 select(Flavor)
-                .where(Flavor.is_active.is_(True))
-                .order_by(Flavor.name)
-            )
-        )
-    elif is_pizza and sizes:
-        flavors = list(
-            await session.scalars(
-                select(Flavor)
+                .join(ProductFlavor, ProductFlavor.flavor_id == Flavor.id)
                 .join(FlavorSizePrice, FlavorSizePrice.flavor_id == Flavor.id)
                 .where(
                     Flavor.is_active.is_(True),
+                    ProductFlavor.product_id == product_id,
+                    FlavorSizePrice.product_id == product_id,
                     FlavorSizePrice.product_size_id.in_([size.id for size in sizes]),
                 )
                 .distinct()
                 .order_by(Flavor.name)
             )
         )
-        if not flavors:
-            flavors = list(
-                await session.scalars(
-                    select(Flavor)
-                    .where(Flavor.is_active.is_(True))
-                    .order_by(Flavor.name)
-                )
-            )
     flavor_prices = list(
         await session.scalars(
             select(FlavorSizePrice)
-            .where(FlavorSizePrice.product_size_id.in_([size.id for size in sizes]))
+            .where(
+                FlavorSizePrice.product_id == product_id,
+                FlavorSizePrice.product_size_id.in_([size.id for size in sizes]),
+            )
             .order_by(FlavorSizePrice.price)
         )
     ) if sizes else []
@@ -359,11 +350,12 @@ async def create_product_size(
     size = ProductSize(product_id=product_id, **payload.model_dump())
     session.add(size)
     await session.flush()
-    if product.product_type == "PIZZA":
+    if product.product_type == "PIZZA" and size.price is not None:
         active_flavors = await session.scalars(select(Flavor).where(Flavor.is_active.is_(True)))
         session.add_all(
             [
                 FlavorSizePrice(
+                    product_id=product_id,
                     flavor_id=flavor.id,
                     product_size_id=size.id,
                     price=size.price,
@@ -444,24 +436,15 @@ async def replace_product_size_flavors(
     if len(flavors) != len(flavor_ids):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Flavor not found or inactive")
 
-    existing = list(
-        await session.scalars(
-            select(FlavorSizePrice).where(FlavorSizePrice.product_size_id == size_id)
-        )
+    existing_links = list(
+        await session.scalars(select(ProductFlavor).where(ProductFlavor.product_id == product_id))
     )
-    prices = {item.flavor_id: item.price for item in existing}
-    for item in existing:
-        await session.delete(item)
+    for item in existing_links:
+        if item.flavor_id not in flavor_ids:
+            await session.delete(item)
     await session.flush()
     session.add_all(
-        [
-            FlavorSizePrice(
-                flavor_id=flavor.id,
-                product_size_id=size_id,
-                price=prices.get(flavor.id, size.price),
-            )
-            for flavor in flavors
-        ]
+        [ProductFlavor(product_id=product_id, flavor_id=flavor.id) for flavor in flavors if flavor.id not in {item.flavor_id for item in existing_links}]
     )
     await session.commit()
     return sorted(flavors, key=lambda flavor: flavor.name.lower())
@@ -642,6 +625,7 @@ async def create_flavor_price(
     size = await session.get(ProductSize, payload.product_size_id)
     if flavor is None or size is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Flavor or size not found")
+    await session.merge(ProductFlavor(product_id=size.product_id, flavor_id=flavor.id))
     existing = await session.scalar(
         select(FlavorSizePrice).where(
             FlavorSizePrice.flavor_id == payload.flavor_id,
@@ -653,7 +637,7 @@ async def create_flavor_price(
         await session.commit()
         await session.refresh(existing)
         return existing
-    flavor_price = FlavorSizePrice(**payload.model_dump())
+    flavor_price = FlavorSizePrice(product_id=size.product_id, **payload.model_dump())
     session.add(flavor_price)
     await session.commit()
     await session.refresh(flavor_price)

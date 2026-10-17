@@ -13,6 +13,7 @@ COPY app ./app
 COPY migrations ./migrations
 COPY scripts ./scripts
 COPY catalogo-real.json ./catalogo-real.json
+COPY catalogo-campy-v2.json ./catalogo-campy-v2.json
 COPY catalog.real.example.json ./catalog.real.example.json
 COPY catalog-images-manifest.json ./catalog-images-manifest.json
 COPY assets/catalog-images ./assets/catalog-images
