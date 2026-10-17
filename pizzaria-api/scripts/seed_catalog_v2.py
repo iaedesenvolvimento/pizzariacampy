@@ -114,6 +114,15 @@ async def seed(path: Path, dry_run: bool) -> None:
                         INSERT INTO flavors (id, name, description, image_url, is_active, version)
                         VALUES (:id, :name, :description, :image_url, :active, 1)
                     """), {"id": flavor_id, "name": flavor_item["name"], "description": flavor_item.get("description"), "image_url": flavor_item.get("image_url"), "active": flavor_item.get("active", True)})
+                else:
+                    await session.execute(text("""
+                        UPDATE flavors
+                        SET description=:description,
+                            image_url=:image_url,
+                            is_active=:active,
+                            version=version+1
+                        WHERE id=:id
+                    """), {"id": flavor_id, "description": flavor_item.get("description"), "image_url": flavor_item.get("image_url"), "active": flavor_item.get("active", True)})
                 await session.execute(text("""
                     INSERT INTO product_flavors (product_id, flavor_id) VALUES (:product_id, :flavor_id)
                     ON CONFLICT DO NOTHING
