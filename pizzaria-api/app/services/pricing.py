@@ -1,7 +1,7 @@
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.catalog import (
@@ -106,12 +106,10 @@ async def calculate_item(
 
     base_price = size.price
     if item.flavor_ids:
-        flavor_prices = await get_flavor_prices(
+        flavor_prices = await get_flavor_prices_for_size_name(
             session,
-            size.id,
+            size.name,
             item.flavor_ids,
-            fallback_price=size.price,
-            allow_fallback=item.pizza_configuration_id is not None,
         )
         if (
             configuration is not None
@@ -185,6 +183,32 @@ async def get_flavor_prices(
     prices = {flavor_id: price for flavor_id, price in result.all()}
     if allow_fallback and fallback_price is not None:
         return {flavor_id: prices.get(flavor_id, fallback_price) for flavor_id in set(flavor_ids)}
+    if len(prices) != len(set(flavor_ids)):
+        raise PricingError("FLAVOR_UNAVAILABLE", "One or more flavors are unavailable")
+    return prices
+
+
+async def get_flavor_prices_for_size_name(
+    session: AsyncSession,
+    size_name: str,
+    flavor_ids: list[UUID],
+) -> dict[UUID, Decimal]:
+    result = await session.execute(
+        select(FlavorSizePrice.flavor_id, func.max(FlavorSizePrice.price))
+        .join(Flavor, Flavor.id == FlavorSizePrice.flavor_id)
+        .join(ProductSize, ProductSize.id == FlavorSizePrice.product_size_id)
+        .join(Product, Product.id == ProductSize.product_id)
+        .where(
+            ProductSize.name == size_name,
+            ProductSize.is_active.is_(True),
+            Product.product_type == "PIZZA",
+            Product.is_active.is_(True),
+            FlavorSizePrice.flavor_id.in_(flavor_ids),
+            Flavor.is_active.is_(True),
+        )
+        .group_by(FlavorSizePrice.flavor_id)
+    )
+    prices = {flavor_id: price for flavor_id, price in result.all()}
     if len(prices) != len(set(flavor_ids)):
         raise PricingError("FLAVOR_UNAVAILABLE", "One or more flavors are unavailable")
     return prices
