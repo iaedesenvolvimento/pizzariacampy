@@ -32,6 +32,7 @@ class PizzaBuilderPage extends StatefulWidget {
 class _PizzaBuilderPageState extends State<PizzaBuilderPage> {
   static const _noEdgeId = '__no_edge__';
   late final PizzaBuilderController _controller;
+  String _flavorQuery = '';
 
   @override
   void initState() {
@@ -145,29 +146,7 @@ class _PizzaBuilderPageState extends State<PizzaBuilderPage> {
               ),
             ),
           ],
-          _sectionTitle(context, '4. Escolha os sabores'),
-          if (_controller.requiresTwoFlavorSlots)
-            _buildTwoFlavorSelectors(context)
-          else ...[
-            Text(_flavorLimitText),
-            const SizedBox(height: 8),
-            ...widget.options.flavors.map(
-              (flavor) => CheckboxListTile(
-                contentPadding: EdgeInsets.zero,
-                value: _controller.selectedFlavorIds.contains(flavor.id),
-                onChanged: (_) => _controller.toggleFlavor(flavor.id),
-                title: Text(flavor.name),
-                subtitle: flavor.description == null
-                    ? null
-                    : Text(flavor.description!),
-              ),
-            ),
-          ],
-          if (_controller.selectedFlavorIds.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(_selectedFlavorsText,
-                style: Theme.of(context).textTheme.labelLarge),
-          ],
+          _buildFlavorSelection(context),
           if (widget.options.edges.isNotEmpty) ...[
             _sectionTitle(context, '5. Escolha a borda'),
             RadioListTile<String>(
@@ -241,22 +220,37 @@ class _PizzaBuilderPageState extends State<PizzaBuilderPage> {
             color: Theme.of(context).colorScheme.surface,
             boxShadow: const [BoxShadow(blurRadius: 8, color: Colors.black12)],
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: Row(
             children: [
-              _controller.isQuoting
-                  ? const Text('Atualizando preço...')
-                  : Text(
-                      _controller.quoteTotal == null
-                          ? 'Selecione os sabores'
+              _QuantityControl(
+                quantity: _controller.quantity,
+                onDecrease: _controller.quantity > 1
+                    ? () => _controller.setQuantity(_controller.quantity - 1)
+                    : null,
+                onIncrease: () =>
+                    _controller.setQuantity(_controller.quantity + 1),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('Total do item', style: TextStyle(fontSize: 12)),
+                    const SizedBox(height: 4),
+                    Text(
+                      _controller.isQuoting || _controller.quoteTotal == null
+                          ? '—'
                           : _formatPrice(_controller.quoteTotal!),
-                      style: Theme.of(context).textTheme.titleLarge,
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
-              const SizedBox(height: 8),
-              ElevatedButton(
+                  ],
+                ),
+              ),
+              FilledButton.icon(
                 onPressed: canAdd ? _addToCart : null,
-                child: const Text('Adicionar'),
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text('Adicionar'),
               ),
             ],
           ),
@@ -272,59 +266,97 @@ class _PizzaBuilderPageState extends State<PizzaBuilderPage> {
     );
   }
 
-  Widget _buildTwoFlavorSelectors(BuildContext context) {
-    final slots = _controller.selectedFlavorSlots;
+  Widget _buildFlavorSelection(BuildContext context) {
+    final limit = _controller.flavorLimit;
+    final selectedCount = _controller.selectedFlavorIds.length;
+    final query = _flavorQuery.trim().toLowerCase();
+    final flavors = widget.options.flavors.where((flavor) {
+      if (query.isEmpty) return true;
+      return '${flavor.name} ${flavor.description ?? ''}'
+          .toLowerCase()
+          .contains(query);
+    }).toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('Escolha um sabor em cada campo. Os dois são obrigatórios.'),
-        const SizedBox(height: 12),
-        _flavorDropdown(
-          context,
-          label: '1º sabor *',
-          value: slots[0],
-          slot: 0,
+        Padding(
+          padding: const EdgeInsets.only(top: 24, bottom: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                limit == 2 ? '01. Escolha os 2 sabores' : '01. Escolha o sabor',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              Text(
+                '$selectedCount de $limit selecionado${limit == 1 ? '' : 's'}',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
+          ),
+        ),
+        Text(
+          limit == 2
+              ? 'Escolha dois sabores diferentes para sua pizza.'
+              : 'Escolha o sabor da sua pizza.',
         ),
         const SizedBox(height: 12),
-        _flavorDropdown(
-          context,
-          label: '2º sabor *',
-          value: slots[1],
-          slot: 1,
+        TextField(
+          onChanged: (value) => setState(() => _flavorQuery = value),
+          decoration: const InputDecoration(
+            hintText: 'Buscar sabor ou ingrediente',
+            prefixIcon: Icon(Icons.search),
+            isDense: true,
+          ),
         ),
+        const SizedBox(height: 12),
+        ...flavors.map(
+          (flavor) => Card(
+            margin: const EdgeInsets.only(bottom: 8),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () => _controller.toggleFlavor(flavor.id),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: _controller.selectedFlavorIds.contains(flavor.id),
+                      onChanged: (_) => _controller.toggleFlavor(flavor.id),
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(flavor.name,
+                              style: Theme.of(context).textTheme.titleMedium),
+                          if (flavor.description != null) ...[
+                            const SizedBox(height: 3),
+                            Text(flavor.description!,
+                                maxLines: 2, overflow: TextOverflow.ellipsis),
+                          ],
+                        ],
+                      ),
+                    ),
+                    Text(
+                      'Conforme tamanho',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (flavors.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 24),
+            child: Text('Nenhum sabor encontrado.'),
+          ),
       ],
     );
-  }
-
-  Widget _flavorDropdown(
-    BuildContext context, {
-    required String label,
-    required String? value,
-    required int slot,
-  }) {
-    return DropdownButtonFormField<String>(
-      value: value,
-      isExpanded: true,
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-      ),
-      hint: const Text('Selecione um sabor'),
-      items: widget.options.flavors
-          .map(
-            (flavor) => DropdownMenuItem<String>(
-              value: flavor.id,
-              child: Text(flavor.name),
-            ),
-          )
-          .toList(),
-      onChanged: (flavorId) => _controller.selectFlavorSlot(slot, flavorId),
-    );
-  }
-
-  String get _flavorLimitText {
-    final maxFlavors = _controller.flavorLimit;
-    return 'Selecione até $maxFlavors ${maxFlavors == 1 ? 'sabor' : 'sabores'}.';
   }
 
   List<MenuPizzaConfiguration> get _configurationsForSelectedSize => widget
@@ -335,26 +367,6 @@ class _PizzaBuilderPageState extends State<PizzaBuilderPage> {
       .toList()
     ..sort(
         (first, second) => first.displayOrder.compareTo(second.displayOrder));
-
-  String get _selectedFlavorsText {
-    final selectedIds = _controller.requiresTwoFlavorSlots
-        ? _controller.selectedFlavorSlots.whereType<String>().toList()
-        : _controller.selectedFlavorIds.toList();
-    final names = selectedIds
-        .map((id) => widget.options.flavors
-            .where((flavor) => flavor.id == id)
-            .map((flavor) => flavor.name)
-            .toList()
-            .firstOrNull)
-        .whereType<String>()
-        .toList();
-    if (names.length == 1) return names.first;
-    return names
-        .asMap()
-        .entries
-        .map((entry) => '${entry.key + 1}/${names.length} ${entry.value}')
-        .join(' · ');
-  }
 
   Future<void> _addToCart() async {
     final selectedSize = _controller.selectedSize;
@@ -395,3 +407,41 @@ class _PizzaBuilderPageState extends State<PizzaBuilderPage> {
 
 String _formatPrice(double price) =>
     'R\$ ${price.toStringAsFixed(2).replaceAll('.', ',')}';
+
+class _QuantityControl extends StatelessWidget {
+  const _QuantityControl({
+    required this.quantity,
+    required this.onDecrease,
+    required this.onIncrease,
+  });
+
+  final int quantity;
+  final VoidCallback? onDecrease;
+  final VoidCallback onIncrease;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: const Color(0xFFE1D8D2)),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            tooltip: 'Diminuir quantidade',
+            onPressed: onDecrease,
+            icon: const Icon(Icons.remove, size: 18),
+          ),
+          Text('$quantity'),
+          IconButton(
+            tooltip: 'Aumentar quantidade',
+            onPressed: onIncrease,
+            icon: const Icon(Icons.add, size: 18),
+          ),
+        ],
+      ),
+    );
+  }
+}
