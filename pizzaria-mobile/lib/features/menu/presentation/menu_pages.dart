@@ -387,10 +387,16 @@ class _MenuHomePageState extends State<MenuHomePage> {
           _StateMessage(
             icon: Icons.restaurant_menu_outlined,
             message: 'Nenhum produto encontrado.',
-            actionLabel: 'Limpar filtro',
-            onAction: () {
+            actionLabel: _menuController.selectedCategoryId == null
+                ? 'Limpar filtro'
+                : 'Voltar ao cardápio',
+            onAction: () async {
               _searchController.clear();
-              _menuController.search('');
+              if (_menuController.selectedCategoryId != null) {
+                await _menuController.selectCategory(null);
+              } else {
+                await _menuController.search('');
+              }
             },
           ),
         ] else ...[
@@ -428,16 +434,27 @@ class _MenuHomePageState extends State<MenuHomePage> {
             ),
             const SizedBox(height: 24),
           ] else ...[
-            Text(
-              _menuController.categories
-                  .firstWhere(
-                    (category) =>
-                        category.id == _menuController.selectedCategoryId,
-                    orElse: () =>
-                        const MenuCategory(id: '', name: 'Cardápio', slug: ''),
-                  )
-                  .name,
-              style: Theme.of(context).textTheme.headlineMedium,
+            Row(
+              children: [
+                IconButton(
+                  tooltip: 'Voltar ao cardápio',
+                  onPressed: () => _menuController.selectCategory(null),
+                  icon: const Icon(Icons.arrow_back),
+                ),
+                Expanded(
+                  child: Text(
+                    _menuController.categories
+                        .firstWhere(
+                          (category) =>
+                              category.id == _menuController.selectedCategoryId,
+                          orElse: () => const MenuCategory(
+                              id: '', name: 'Cardápio', slug: ''),
+                        )
+                        .name,
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
           ],
