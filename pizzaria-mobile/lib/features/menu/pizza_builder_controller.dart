@@ -60,7 +60,22 @@ class PizzaBuilderController extends ChangeNotifier {
       (!requiresTwoFlavorSlots || selectedFlavorIds.length == 2);
 
   void initialize() {
-    selectedSizeId ??= sizesByPrice.firstOrNull?.id;
+    if (selectedSizeId == null) {
+      final requested = maxFlavorsOverride;
+      final matchingSizes = requested == null
+          ? sizesByPrice
+          : sizesByPrice.where((size) => options.configurations.any(
+                (configuration) =>
+                    configuration.productSizeId == size.id &&
+                    configuration.isActive &&
+                    configuration.flavorCount == requested,
+              ));
+      selectedSizeId = matchingSizes
+              .where((size) => size.name.trim().toLowerCase() == 'grande')
+              .firstOrNull
+              ?.id ??
+          sizesByPrice.firstOrNull?.id;
+    }
     _selectDefaultConfiguration();
     if (initialFlavorId != null &&
         options.flavors.any((flavor) => flavor.id == initialFlavorId)) {
