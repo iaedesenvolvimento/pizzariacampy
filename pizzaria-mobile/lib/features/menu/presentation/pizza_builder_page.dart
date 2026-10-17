@@ -141,18 +141,23 @@ class _PizzaBuilderPageState extends State<PizzaBuilderPage> {
             ),
           ],
           _sectionTitle(context, '4. Escolha os sabores'),
-          Text(_flavorLimitText),
-          const SizedBox(height: 8),
-          ...widget.options.flavors.map(
-            (flavor) => CheckboxListTile(
-              contentPadding: EdgeInsets.zero,
-              value: _controller.selectedFlavorIds.contains(flavor.id),
-              onChanged: (_) => _controller.toggleFlavor(flavor.id),
-              title: Text(flavor.name),
-              subtitle:
-                  flavor.description == null ? null : Text(flavor.description!),
+          if (_controller.requiresTwoFlavorSlots)
+            _buildTwoFlavorSelectors(context)
+          else ...[
+            Text(_flavorLimitText),
+            const SizedBox(height: 8),
+            ...widget.options.flavors.map(
+              (flavor) => CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                value: _controller.selectedFlavorIds.contains(flavor.id),
+                onChanged: (_) => _controller.toggleFlavor(flavor.id),
+                title: Text(flavor.name),
+                subtitle: flavor.description == null
+                    ? null
+                    : Text(flavor.description!),
+              ),
             ),
-          ),
+          ],
           if (_controller.selectedFlavorIds.isNotEmpty) ...[
             const SizedBox(height: 4),
             Text(_selectedFlavorsText,
@@ -262,6 +267,56 @@ class _PizzaBuilderPageState extends State<PizzaBuilderPage> {
     );
   }
 
+  Widget _buildTwoFlavorSelectors(BuildContext context) {
+    final slots = _controller.selectedFlavorSlots;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text('Escolha um sabor em cada campo. Os dois são obrigatórios.'),
+        const SizedBox(height: 12),
+        _flavorDropdown(
+          context,
+          label: '1º sabor *',
+          value: slots[0],
+          slot: 0,
+        ),
+        const SizedBox(height: 12),
+        _flavorDropdown(
+          context,
+          label: '2º sabor *',
+          value: slots[1],
+          slot: 1,
+        ),
+      ],
+    );
+  }
+
+  Widget _flavorDropdown(
+    BuildContext context, {
+    required String label,
+    required String? value,
+    required int slot,
+  }) {
+    return DropdownButtonFormField<String>(
+      value: value,
+      isExpanded: true,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+      ),
+      hint: const Text('Selecione um sabor'),
+      items: widget.options.flavors
+          .map(
+            (flavor) => DropdownMenuItem<String>(
+              value: flavor.id,
+              child: Text(flavor.name),
+            ),
+          )
+          .toList(),
+      onChanged: (flavorId) => _controller.selectFlavorSlot(slot, flavorId),
+    );
+  }
+
   String get _flavorLimitText {
     final maxFlavors = _controller.flavorLimit;
     return 'Selecione até $maxFlavors ${maxFlavors == 1 ? 'sabor' : 'sabores'}.';
@@ -277,9 +332,16 @@ class _PizzaBuilderPageState extends State<PizzaBuilderPage> {
         (first, second) => first.displayOrder.compareTo(second.displayOrder));
 
   String get _selectedFlavorsText {
-    final names = widget.options.flavors
-        .where((flavor) => _controller.selectedFlavorIds.contains(flavor.id))
-        .map((flavor) => flavor.name)
+    final selectedIds = _controller.requiresTwoFlavorSlots
+        ? _controller.selectedFlavorSlots.whereType<String>().toList()
+        : _controller.selectedFlavorIds.toList();
+    final names = selectedIds
+        .map((id) => widget.options.flavors
+            .where((flavor) => flavor.id == id)
+            .map((flavor) => flavor.name)
+            .toList()
+            .firstOrNull)
+        .whereType<String>()
         .toList();
     if (names.length == 1) return names.first;
     return names

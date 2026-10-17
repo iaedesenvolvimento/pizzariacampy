@@ -82,7 +82,8 @@ class _MenuHomePageState extends State<MenuHomePage> {
     await _menuController.search(normalizedQuery);
   }
 
-  Future<void> _openProduct(MenuProduct product, {int? maxFlavorsOverride}) async {
+  Future<void> _openProduct(MenuProduct product,
+      {int? maxFlavorsOverride}) async {
     final added = await Navigator.of(context).push<bool>(
       MaterialPageRoute<bool>(
         builder: (_) => ProductDetailsPage(
@@ -799,33 +800,28 @@ class _ProductOptionsViewState extends State<_ProductOptionsView> {
             ),
           ),
         ],
-        if (isPizza && widget.options.flavors.isNotEmpty) ...[
+        if (isPizza) ...[
           const SizedBox(height: 16),
-          Text('Sabores disponíveis',
-              style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 8),
-          Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: widget.options.flavors
-                  .map((flavor) => Chip(label: Text(flavor.name)))
-                  .toList()),
-        ],
-        if (isPizza && widget.options.edges.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          Text('Bordas', style: Theme.of(context).textTheme.titleLarge),
-          ...widget.options.edges.map((edge) => ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(edge.name),
-              trailing: Text(_formatPrice(edge.price)))),
-        ],
-        if (isPizza && widget.options.extras.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          Text('Adicionais', style: Theme.of(context).textTheme.titleLarge),
-          ...widget.options.extras.map((extra) => ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(extra.name),
-              trailing: Text(_formatPrice(extra.price)))),
+          Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.tune_rounded,
+                      color: Theme.of(context).colorScheme.primary),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Na próxima etapa você escolhe o tamanho, a massa, a borda, os sabores e os adicionais.',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
         if (!hasSizes)
           Container(
@@ -852,7 +848,7 @@ class _ProductOptionsViewState extends State<_ProductOptionsView> {
                   : !widget.isStoreOpen
                       ? 'Loja fechada'
                       : isPizza
-                          ? 'Avançar'
+                          ? 'Escolher opções'
                           : 'Adicionar ao carrinho'),
         ),
       ],

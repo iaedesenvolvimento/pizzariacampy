@@ -33,6 +33,15 @@ class PizzaBuilderController extends ChangeNotifier {
   MenuProductSize? get selectedSize => _findSize(selectedSizeId);
   MenuPizzaConfiguration? get selectedConfiguration =>
       _findConfiguration(selectedConfigurationId);
+  List<String?> get selectedFlavorSlots {
+    final selected = selectedFlavorIds.toList();
+    return [
+      selected.isNotEmpty ? selected[0] : null,
+      selected.length > 1 ? selected[1] : null,
+    ];
+  }
+
+  bool get requiresTwoFlavorSlots => flavorLimit == 2;
   int get flavorLimit {
     final sizeLimit = selectedSize?.maxFlavors ?? 0;
     final requestedLimit =
@@ -45,7 +54,8 @@ class PizzaBuilderController extends ChangeNotifier {
   bool get canCustomize =>
       selectedSize != null &&
       selectedDoughName != null &&
-      selectedFlavorIds.isNotEmpty;
+      selectedFlavorIds.isNotEmpty &&
+      (!requiresTwoFlavorSlots || selectedFlavorIds.length == 2);
 
   void initialize() {
     selectedSizeId ??= sizesByPrice.firstOrNull?.id;
@@ -108,6 +118,26 @@ class PizzaBuilderController extends ChangeNotifier {
     } else {
       errorMessage = 'Esta modalidade permite até $flavorLimit sabores.';
     }
+    notifyListeners();
+    refreshQuote();
+  }
+
+  void selectFlavorSlot(int slot, String? flavorId) {
+    if (slot < 0 || slot > 1) return;
+    final slots = selectedFlavorSlots;
+    if (flavorId != null &&
+        ((slot == 0 && slots[1] == flavorId) ||
+            (slot == 1 && slots[0] == flavorId))) {
+      errorMessage = 'Escolha dois sabores diferentes.';
+      notifyListeners();
+      return;
+    }
+    slots[slot] = flavorId;
+    selectedFlavorIds
+      ..clear()
+      ..addAll(slots.whereType<String>());
+    errorMessage = null;
+    quoteTotal = null;
     notifyListeners();
     refreshQuote();
   }
