@@ -1018,16 +1018,48 @@ class _ProductOptionsViewState extends State<_ProductOptionsView> {
   }
 }
 
-class _CategoryList extends StatelessWidget {
+class _CategoryList extends StatefulWidget {
   const _CategoryList({required this.controller});
 
   final menu_state.MenuController controller;
 
   @override
+  State<_CategoryList> createState() => _CategoryListState();
+}
+
+class _CategoryListState extends State<_CategoryList> {
+  final Map<String, GlobalKey> _categoryKeys = {};
+
+  @override
+  void didUpdateWidget(covariant _CategoryList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller.selectedCategoryId !=
+        widget.controller.selectedCategoryId) {
+      _ensureSelectedCategoryVisible();
+    }
+  }
+
+  void _ensureSelectedCategoryVisible() {
+    final selectedId = widget.controller.selectedCategoryId;
+    if (selectedId == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final categoryContext = _categoryKeys[selectedId]?.currentContext;
+      if (categoryContext == null) return;
+      Scrollable.ensureVisible(
+        categoryContext,
+        alignment: 0.5,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final categories = <({String label, String emoji, String? id})>[
       (label: 'Pizzas salgadas', emoji: '🍕', id: null),
-      ...controller.categories
+      ...widget.controller.categories
           .where((category) =>
               category.name.trim().toLowerCase() != 'pizzas salgadas')
           .map((category) => (
@@ -1044,18 +1076,22 @@ class _CategoryList extends StatelessWidget {
             (category) => Padding(
               padding: const EdgeInsets.only(right: 8),
               child: ActionChip(
+                key: category.id == null
+                    ? null
+                    : (_categoryKeys[category.id!] ??= GlobalKey()),
                 avatar:
                     Text(category.emoji, style: const TextStyle(fontSize: 16)),
                 label: Text(category.label),
                 side: BorderSide(
-                  color: controller.selectedCategoryId == category.id
+                  color: widget.controller.selectedCategoryId == category.id
                       ? AppTheme.primary
                       : const Color(0xFFE1D2C8),
                 ),
-                backgroundColor: controller.selectedCategoryId == category.id
-                    ? const Color(0xFFFFF0E8)
-                    : Colors.transparent,
-                onPressed: () => controller.selectCategory(category.id),
+                backgroundColor:
+                    widget.controller.selectedCategoryId == category.id
+                        ? const Color(0xFFFFF0E8)
+                        : Colors.transparent,
+                onPressed: () => widget.controller.selectCategory(category.id),
               ),
             ),
           ),
