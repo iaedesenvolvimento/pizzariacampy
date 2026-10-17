@@ -75,6 +75,7 @@ class PizzaBuilderController extends ChangeNotifier {
     if (size == null) return;
     selectedSizeId = sizeId;
     _selectDefaultConfiguration();
+    quoteTotal = null;
     if (selectedFlavorIds.length > flavorLimit) {
       selectedFlavorIds
           .removeWhere((_) => selectedFlavorIds.length > flavorLimit);
@@ -92,6 +93,8 @@ class PizzaBuilderController extends ChangeNotifier {
     }
     selectedConfigurationId = configurationId;
     selectedFlavorIds.clear();
+    quoteTotal = null;
+    isQuoting = false;
     errorMessage = null;
     notifyListeners();
     refreshQuote();
@@ -181,6 +184,8 @@ class PizzaBuilderController extends ChangeNotifier {
   Future<void> refreshQuote() async {
     if (!canCustomize) {
       quoteTotal = null;
+      isQuoting = false;
+      notifyListeners();
       return;
     }
     final requestVersion = ++_quoteVersion;

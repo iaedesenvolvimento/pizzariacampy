@@ -545,7 +545,10 @@ async def create_pizza_configuration(
     )
     if existing is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Flavor count already configured")
-    configuration = PizzaConfiguration(product_size_id=size_id, **payload.model_dump())
+    values = payload.model_dump()
+    if values["flavor_count"] == 2:
+        values["pricing_rule"] = "MAX_FLAVOR_PRICE"
+    configuration = PizzaConfiguration(product_size_id=size_id, **values)
     session.add(configuration)
     await session.commit()
     await session.refresh(configuration)
@@ -574,6 +577,7 @@ async def update_pizza_configuration(
     if configuration is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Configuration not found")
     values = payload.model_dump(exclude_unset=True)
+    effective_flavor_count = values.get("flavor_count", configuration.flavor_count)
     if values.get("flavor_count") is not None and values["flavor_count"] > size.max_flavors:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -589,6 +593,8 @@ async def update_pizza_configuration(
         )
         if duplicate is not None:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Flavor count already configured")
+    if effective_flavor_count == 2:
+        values["pricing_rule"] = "MAX_FLAVOR_PRICE"
     for field, value in values.items():
         setattr(configuration, field, value)
     await session.commit()

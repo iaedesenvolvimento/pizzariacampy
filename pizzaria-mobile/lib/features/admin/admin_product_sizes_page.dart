@@ -452,7 +452,7 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
         text: initial?['display_name']?.toString() ?? '1 sabor');
     _order = TextEditingController(
         text: initial?['display_order']?.toString() ?? '0');
-    _pricingRule = initial?['pricing_rule']?.toString() ?? _pricingRule;
+    _pricingRule = 'MAX_FLAVOR_PRICE';
   }
 
   @override
@@ -485,19 +485,9 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(labelText: 'Ordem'),
             ),
-            DropdownButtonFormField<String>(
-              value: _pricingRule,
-              decoration: const InputDecoration(labelText: 'Regra de preço'),
-              items: const [
-                DropdownMenuItem(
-                    value: 'MAX_FLAVOR_PRICE',
-                    child: Text('Maior preço dos sabores')),
-                DropdownMenuItem(
-                    value: 'AVERAGE_FLAVOR_PRICE',
-                    child: Text('Média dos sabores')),
-              ],
-              onChanged: (value) =>
-                  setState(() => _pricingRule = value ?? 'MAX_FLAVOR_PRICE'),
+            const InputDecorator(
+              decoration: InputDecoration(labelText: 'Regra de preço'),
+              child: Text('Maior preço dos sabores'),
             ),
           ]),
         ),

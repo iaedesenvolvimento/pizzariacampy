@@ -113,7 +113,11 @@ async def calculate_item(
             fallback_price=size.price,
             allow_fallback=item.pizza_configuration_id is not None,
         )
-        if configuration is not None and configuration.pricing_rule == "AVERAGE_FLAVOR_PRICE":
+        if (
+            configuration is not None
+            and configuration.flavor_count != 2
+            and configuration.pricing_rule == "AVERAGE_FLAVOR_PRICE"
+        ):
             base_price = sum(flavor_prices.values(), ZERO) / len(flavor_prices)
         else:
             base_price = max(flavor_prices.values())
