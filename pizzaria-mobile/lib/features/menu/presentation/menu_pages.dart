@@ -317,6 +317,13 @@ class _MenuHomePageState extends State<MenuHomePage> {
   }
 
   Widget _buildBody(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _businessStatusController,
+      builder: (context, _) => _buildBodyContent(context),
+    );
+  }
+
+  Widget _buildBodyContent(BuildContext context) {
     if (_menuController.status == menu_state.MenuStatus.loading ||
         _menuController.status == menu_state.MenuStatus.initial) {
       return const Center(child: CircularProgressIndicator());

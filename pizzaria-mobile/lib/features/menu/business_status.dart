@@ -72,7 +72,6 @@ class _BusinessStatusBannerState extends State<BusinessStatusBanner> {
               style: TextStyle(color: foreground, fontWeight: FontWeight.w600),
             ),
           ),
-          Icon(Icons.chevron_right, color: foreground),
         ],
       ),
     );
