@@ -353,30 +353,8 @@ class _MenuHomePageState extends State<MenuHomePage> {
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
       children: [
-        _MenuHero(userName: widget.authController.user?.name),
+        _CategoryList(controller: _menuController),
         const SizedBox(height: 18),
-        Row(
-          children: [
-            Expanded(
-              child: _PizzaModeCard(
-                title: 'Pizza grande',
-                subtitle: '1 sabor',
-                icon: Icons.looks_one_outlined,
-                onTap: () => _openPizzaMode(1),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _PizzaModeCard(
-                title: 'Pizza grande',
-                subtitle: '2 sabores',
-                icon: Icons.looks_two_outlined,
-                onTap: () => _openPizzaMode(2),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
         TextField(
           controller: _searchController,
           textInputAction: TextInputAction.search,
@@ -401,8 +379,6 @@ class _MenuHomePageState extends State<MenuHomePage> {
         const SizedBox(height: 16),
         BusinessStatusBanner(controller: _businessStatusController),
         const SizedBox(height: 16),
-        _CategoryList(controller: _menuController),
-        const SizedBox(height: 24),
         if (_menuController.status == menu_state.MenuStatus.empty) ...[
           _StateMessage(
             icon: Icons.restaurant_menu_outlined,
@@ -414,7 +390,54 @@ class _MenuHomePageState extends State<MenuHomePage> {
             },
           ),
         ] else ...[
-          Text('Destaques', style: Theme.of(context).textTheme.headlineMedium),
+          if (_menuController.selectedCategoryId == null) ...[
+            Text('Pizzas salgadas',
+                style: Theme.of(context).textTheme.headlineMedium),
+            const SizedBox(height: 6),
+            const Text(
+              'Escolha o tamanho e deixe o resto com seus sabores favoritos.',
+            ),
+            const SizedBox(height: 16),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: _PizzaModeCard(
+                    title: 'Pizza Grande · 1 sabor',
+                    description:
+                        'Um sabor inteiro, do primeiro ao último pedaço.',
+                    icon: Icons.looks_one_outlined,
+                    onTap: () => _openPizzaMode(1),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _PizzaModeCard(
+                    title: 'Pizza Grande · meio a meio',
+                    description:
+                        'Escolha 2 sabores. Uma metade de cada, do seu jeito.',
+                    icon: Icons.looks_two_outlined,
+                    onTap: () => _openPizzaMode(2),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+          ] else ...[
+            Text(
+              _menuController.categories
+                  .firstWhere(
+                    (category) =>
+                        category.id == _menuController.selectedCategoryId,
+                    orElse: () =>
+                        const MenuCategory(id: '', name: 'Cardápio', slug: ''),
+                  )
+                  .name,
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 16),
+          ],
+          Text('Destaques', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 12),
           ..._menuController.products
               .where((product) => !isPizzaProductType(product.type))
@@ -435,102 +458,6 @@ class _MenuHomePageState extends State<MenuHomePage> {
       ],
     );
   }
-}
-
-class _MenuHero extends StatelessWidget {
-  const _MenuHero({this.userName});
-
-  final String? userName;
-
-  @override
-  Widget build(BuildContext context) {
-    final name = userName?.trim();
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      padding: const EdgeInsets.fromLTRB(20, 22, 18, 20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF0E4D6),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            right: -34,
-            top: -35,
-            child: Container(
-              width: 150,
-              height: 150,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFFDCA35A).withValues(alpha: .35),
-              ),
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'PIZZARIA CAMPY',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.4,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Uma boa pizza\ncomeça aqui.',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontFamily: 'serif',
-                      fontSize: 28,
-                      height: 1.08,
-                    ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                name == null || name.isEmpty
-                    ? 'Monte seu pedido com seus sabores favoritos.'
-                    : 'Olá, $name. Monte seu pedido com seus sabores favoritos.',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: const Color(0xFF766451),
-                    ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: const [
-                  _HeroTag(icon: Icons.local_pizza_outlined, label: '1 sabor'),
-                  SizedBox(width: 14),
-                  _HeroTag(icon: Icons.pie_chart_outline, label: 'Meio a meio'),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HeroTag extends StatelessWidget {
-  const _HeroTag({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) => Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: const Color(0xFF80674B)),
-          const SizedBox(width: 5),
-          Text(label,
-              style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF80674B))),
-        ],
-      );
 }
 
 class ProductCard extends StatelessWidget {
@@ -604,13 +531,13 @@ class ProductCard extends StatelessWidget {
 class _PizzaModeCard extends StatelessWidget {
   const _PizzaModeCard({
     required this.title,
-    required this.subtitle,
+    required this.description,
     required this.icon,
     required this.onTap,
   });
 
   final String title;
-  final String subtitle;
+  final String description;
   final IconData icon;
   final VoidCallback onTap;
 
@@ -619,32 +546,98 @@ class _PizzaModeCard extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return Card(
       clipBehavior: Clip.antiAlias,
-      color: const Color(0xFFF3E7DB),
+      color: Colors.white,
       child: InkWell(
         onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: .7),
-                  shape: BoxShape.circle,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 132,
+              width: double.infinity,
+              color: const Color(0xFFF5E8D8),
+              child: Center(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      width: 94,
+                      height: 94,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFFE4A24C),
+                        border: Border.all(
+                            color: const Color(0xFFB86B2A), width: 3),
+                      ),
+                      child: Icon(icon, size: 42, color: colors.primary),
+                    ),
+                    Positioned(
+                      top: 14,
+                      left: 12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 7, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: .9),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Text(
+                          icon == Icons.looks_two_outlined
+                              ? 'METADE DE CADA'
+                              : 'SEU SABOR FAVORITO',
+                          style: const TextStyle(
+                            fontSize: 7,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: .5,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                child: Icon(icon, color: colors.primary, size: 21),
               ),
-              const SizedBox(height: 8),
-              Text(title, style: Theme.of(context).textTheme.titleMedium),
-              Text(subtitle),
-              const SizedBox(height: 8),
-              Text('Montar agora',
-                  style: TextStyle(
-                      color: colors.primary, fontWeight: FontWeight.w700)),
-            ],
-          ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 14, 12, 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 10),
+                  Text(description,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodyMedium),
+                  const SizedBox(height: 20),
+                  const Text('A partir de',
+                      style: TextStyle(
+                          fontSize: 11, color: AppTheme.textSecondary)),
+                  const SizedBox(height: 2),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('R\$ 45,00',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.w700)),
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: colors.primary.withValues(alpha: .08),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.arrow_forward_rounded,
+                            size: 18, color: colors.primary),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -1008,23 +1001,37 @@ class _CategoryList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final categories = <({String label, String emoji, String? id})>[
+      (label: 'Pizzas salgadas', emoji: '🍕', id: null),
+      ...controller.categories
+          .where((category) =>
+              category.name.trim().toLowerCase() != 'pizzas salgadas')
+          .map((category) => (
+                label: category.name,
+                emoji: _categoryEmoji(category.name),
+                id: category.id,
+              )),
+    ];
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          ChoiceChip(
-            label: const Text('Todos'),
-            selected: controller.selectedCategoryId == null,
-            onSelected: (_) => controller.selectCategory(null),
-          ),
-          const SizedBox(width: 8),
-          ...controller.categories.map(
+          ...categories.map(
             (category) => Padding(
               padding: const EdgeInsets.only(right: 8),
-              child: ChoiceChip(
-                label: Text(category.name),
-                selected: controller.selectedCategoryId == category.id,
-                onSelected: (_) => controller.selectCategory(category.id),
+              child: ActionChip(
+                avatar:
+                    Text(category.emoji, style: const TextStyle(fontSize: 16)),
+                label: Text(category.label),
+                side: BorderSide(
+                  color: controller.selectedCategoryId == category.id
+                      ? AppTheme.primary
+                      : const Color(0xFFE1D2C8),
+                ),
+                backgroundColor: controller.selectedCategoryId == category.id
+                    ? const Color(0xFFFFF0E8)
+                    : Colors.transparent,
+                onPressed: () => controller.selectCategory(category.id),
               ),
             ),
           ),
@@ -1032,6 +1039,18 @@ class _CategoryList extends StatelessWidget {
       ),
     );
   }
+}
+
+String _categoryEmoji(String name) {
+  final normalized = name.toLowerCase();
+  if (normalized.contains('doce')) return '🍫';
+  if (normalized.contains('bebida')) return '🥤';
+  if (normalized.contains('esfiha')) return '🥟';
+  if (normalized.contains('doce') || normalized.contains('sobremesa')) {
+    return '🍰';
+  }
+  if (normalized.contains('combo')) return '📦';
+  return '🍴';
 }
 
 class _ProductImage extends StatelessWidget {
