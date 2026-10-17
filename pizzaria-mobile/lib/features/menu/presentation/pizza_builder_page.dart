@@ -13,6 +13,7 @@ class PizzaBuilderPage extends StatefulWidget {
       required this.accessToken,
       required this.refreshAccessToken,
       this.maxFlavorsOverride,
+      this.preferredSizeName,
       this.initialFlavorId,
       super.key});
 
@@ -21,6 +22,7 @@ class PizzaBuilderPage extends StatefulWidget {
   final String? accessToken;
   final Future<String?> Function() refreshAccessToken;
   final int? maxFlavorsOverride;
+  final String? preferredSizeName;
   final String? initialFlavorId;
 
   static const fixedDoughs = ['Tradicional', 'Fina', 'Grossa'];
@@ -42,6 +44,7 @@ class _PizzaBuilderPageState extends State<PizzaBuilderPage> {
       widget.options,
       widget.accessToken,
       maxFlavorsOverride: widget.maxFlavorsOverride,
+      preferredSizeName: widget.preferredSizeName,
       initialFlavorId: widget.initialFlavorId,
       refreshAccessToken: widget.refreshAccessToken,
     );

@@ -83,7 +83,7 @@ class _MenuHomePageState extends State<MenuHomePage> {
   }
 
   Future<void> _openProduct(MenuProduct product,
-      {int? maxFlavorsOverride}) async {
+      {int? maxFlavorsOverride, String? preferredSizeName}) async {
     final added = await Navigator.of(context).push<bool>(
       MaterialPageRoute<bool>(
         builder: (_) => ProductDetailsPage(
@@ -98,6 +98,7 @@ class _MenuHomePageState extends State<MenuHomePage> {
             return widget.authController.accessToken;
           },
           maxFlavorsOverride: maxFlavorsOverride,
+          preferredSizeName: preferredSizeName,
         ),
       ),
     );
@@ -112,7 +113,8 @@ class _MenuHomePageState extends State<MenuHomePage> {
     }
   }
 
-  Future<void> _openPizzaMode(int maxFlavors) async {
+  Future<void> _openPizzaMode(int maxFlavors,
+      {String? preferredSizeName}) async {
     final pizzas = _menuController.products
         .where((product) => isPizzaProductType(product.type))
         .toList();
@@ -130,7 +132,8 @@ class _MenuHomePageState extends State<MenuHomePage> {
         (product) => product.name.trim().toLowerCase() == 'pizza salgada',
         orElse: () => normalizedBase.first,
       );
-      await _openProduct(product, maxFlavorsOverride: maxFlavors);
+      await _openProduct(product,
+          maxFlavorsOverride: maxFlavors, preferredSizeName: preferredSizeName);
       return;
     }
     final product = await showModalBottomSheet<MenuProduct>(
@@ -156,7 +159,8 @@ class _MenuHomePageState extends State<MenuHomePage> {
       ),
     );
     if (product != null && mounted) {
-      await _openProduct(product, maxFlavorsOverride: maxFlavors);
+      await _openProduct(product,
+          maxFlavorsOverride: maxFlavors, preferredSizeName: preferredSizeName);
     }
   }
 
@@ -434,6 +438,20 @@ class _MenuHomePageState extends State<MenuHomePage> {
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: (MediaQuery.sizeOf(context).width - 44) / 2,
+            child: _PizzaModeCard(
+              title: 'Pizza Broto · 1 sabor',
+              description: 'Um sabor inteiro, do primeiro ao último pedaço.',
+              priceLabel: 'R\$ 30,00',
+              icon: Icons.looks_one_outlined,
+              onTap: () => _openPizzaMode(
+                1,
+                preferredSizeName: 'Broto',
+              ),
+            ),
+          ),
           const SizedBox(height: 24),
         ] else ...[
           Row(
@@ -558,12 +576,14 @@ class _PizzaModeCard extends StatelessWidget {
     required this.description,
     required this.icon,
     required this.onTap,
+    this.priceLabel = 'R\$ 45,00',
   });
 
   final String title;
   final String description;
   final IconData icon;
   final VoidCallback onTap;
+  final String priceLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -643,7 +663,7 @@ class _PizzaModeCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('R\$ 45,00',
+                      Text(priceLabel,
                           style: TextStyle(
                               fontSize: 20, fontWeight: FontWeight.w700)),
                       Container(
@@ -677,6 +697,7 @@ class ProductDetailsPage extends StatefulWidget {
       required this.storeStatusMessage,
       required this.refreshAccessToken,
       this.maxFlavorsOverride,
+      this.preferredSizeName,
       super.key});
 
   final MenuProduct product;
@@ -686,6 +707,7 @@ class ProductDetailsPage extends StatefulWidget {
   final String? storeStatusMessage;
   final Future<String?> Function() refreshAccessToken;
   final int? maxFlavorsOverride;
+  final String? preferredSizeName;
 
   @override
   State<ProductDetailsPage> createState() => _ProductDetailsPageState();
@@ -729,6 +751,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             storeStatusMessage: widget.storeStatusMessage,
             refreshAccessToken: widget.refreshAccessToken,
             maxFlavorsOverride: widget.maxFlavorsOverride,
+            preferredSizeName: widget.preferredSizeName,
           );
         },
       ),
@@ -744,7 +767,8 @@ class _ProductOptionsView extends StatefulWidget {
       required this.isStoreOpen,
       required this.storeStatusMessage,
       required this.refreshAccessToken,
-      this.maxFlavorsOverride});
+      this.maxFlavorsOverride,
+      this.preferredSizeName});
 
   final MenuProductOptions options;
   final CartController cartController;
@@ -753,6 +777,7 @@ class _ProductOptionsView extends StatefulWidget {
   final String? storeStatusMessage;
   final Future<String?> Function() refreshAccessToken;
   final int? maxFlavorsOverride;
+  final String? preferredSizeName;
 
   @override
   State<_ProductOptionsView> createState() => _ProductOptionsViewState();
@@ -770,6 +795,7 @@ class _ProductOptionsViewState extends State<_ProductOptionsView> {
           accessToken: widget.accessToken,
           refreshAccessToken: widget.refreshAccessToken,
           maxFlavorsOverride: widget.maxFlavorsOverride,
+          preferredSizeName: widget.preferredSizeName,
           initialFlavorId: _matchingFlavorId(widget.options),
         ),
       ),
