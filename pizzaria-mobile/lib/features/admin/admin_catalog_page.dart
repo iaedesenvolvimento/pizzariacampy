@@ -221,6 +221,20 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
               int.tryParse(result['initial_max_flavors'] ?? '1') ?? 1,
         },
       );
+      if (productType == 'PIZZA' &&
+          result['initial_broto_price']?.trim().isNotEmpty == true) {
+        await _adminApi!.post(
+          '/admin/catalog/products/$productId/sizes',
+          body: {
+            'name': 'Broto',
+            'slug': 'broto',
+            'price': result['initial_broto_price'],
+            'slices': 4,
+            'max_flavors':
+                int.tryParse(result['initial_max_flavors'] ?? '1') ?? 1,
+          },
+        );
+      }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(productType == 'PIZZA'
@@ -260,14 +274,28 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
       try {
         final sizes =
             await _adminApi!.get('/admin/catalog/products/${item['id']}/sizes');
-        if (sizes is List && sizes.isNotEmpty && sizes.first is Map) {
-          final size = Map<String, dynamic>.from(sizes.first as Map);
+        if (sizes is List && sizes.isNotEmpty) {
+          final sizeMaps = sizes
+              .whereType<Map>()
+              .map((size) => Map<String, dynamic>.from(size))
+              .toList();
+          final size = sizeMaps.firstWhere(
+            (item) => item['name']?.toString().toLowerCase() == 'grande',
+            orElse: () => sizeMaps.first,
+          );
+          final broto = sizeMaps.where(
+              (item) => item['name']?.toString().toLowerCase() == 'broto');
           initial['initial_price'] = size['price']?.toString() ?? '';
           initial['initial_size_id'] = size['id']?.toString();
           initial['initial_size_name'] = size['name']?.toString() ?? '';
           initial['initial_slices'] = size['slices']?.toString() ?? '8';
           initial['initial_max_flavors'] =
               size['max_flavors']?.toString() ?? '1';
+          if (broto.isNotEmpty) {
+            initial['initial_broto_price'] =
+                broto.first['price']?.toString() ?? '';
+            initial['initial_broto_size_id'] = broto.first['id']?.toString();
+          }
         }
       } catch (_) {}
     }
@@ -327,6 +355,25 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
               'max_flavors':
                   int.tryParse(result['initial_max_flavors'] ?? '1') ?? 1,
             });
+          }
+        }
+        if (productType == 'PIZZA' &&
+            result['initial_broto_price']?.trim().isNotEmpty == true) {
+          final brotoBody = {
+            'name': 'Broto',
+            'slug': 'broto',
+            'price': result['initial_broto_price'],
+            'slices': 4,
+            'max_flavors':
+                int.tryParse(result['initial_max_flavors'] ?? '1') ?? 1,
+          };
+          final brotoId = initial['initial_broto_size_id']?.toString();
+          if (brotoId != null && brotoId.isNotEmpty) {
+            await _adminApi!
+                .patch('/admin/catalog/sizes/$brotoId', body: brotoBody);
+          } else {
+            await _adminApi!
+                .post('/admin/catalog/products/$id/sizes', body: brotoBody);
           }
         }
       }
@@ -734,6 +781,7 @@ class _CatalogFormState extends State<_CatalogForm> {
   late final TextEditingController _description;
   late final TextEditingController _imageUrl;
   late final TextEditingController _price;
+  late final TextEditingController _brotoPrice;
   late final TextEditingController _sizeName;
   late final TextEditingController _slices;
   late final TextEditingController _maxFlavors;
@@ -756,9 +804,13 @@ class _CatalogFormState extends State<_CatalogForm> {
         TextEditingController(text: initial?['image_url']?.toString() ?? '');
     _price = TextEditingController(
         text: initial?['initial_price']?.toString().replaceAll(',', '.') ?? '');
+    _brotoPrice = TextEditingController(
+        text:
+            initial?['initial_broto_price']?.toString().replaceAll(',', '.') ??
+                '');
     _sizeName = TextEditingController(
         text: initial?['initial_size_name']?.toString() ??
-            (initial == null ? 'Tradicional' : ''));
+            (initial == null ? 'Grande' : ''));
     _slices = TextEditingController(
         text: initial?['initial_slices']?.toString() ?? '8');
     _maxFlavors = TextEditingController(
@@ -791,6 +843,7 @@ class _CatalogFormState extends State<_CatalogForm> {
     _description.dispose();
     _imageUrl.dispose();
     _price.dispose();
+    _brotoPrice.dispose();
     _sizeName.dispose();
     _slices.dispose();
     _maxFlavors.dispose();
@@ -932,6 +985,17 @@ class _CatalogFormState extends State<_CatalogForm> {
             ),
             if (_type == 'PIZZA') ...[
               TextField(
+                controller: _brotoPrice,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(
+                  labelText: 'Preço do Broto (opcional)',
+                  prefixText: 'R\$ ',
+                  helperText:
+                      'O cliente poderá escolher Grande ou Broto no cardápio.',
+                ),
+              ),
+              TextField(
                 controller: _slices,
                 keyboardType: TextInputType.number,
                 decoration:
@@ -986,6 +1050,10 @@ class _CatalogFormState extends State<_CatalogForm> {
             if (!widget.isCategory && _type == 'PIZZA') {
               final price =
                   double.tryParse(_price.text.trim().replaceAll(',', '.'));
+              final brotoPrice = _brotoPrice.text.trim().isEmpty
+                  ? null
+                  : double.tryParse(
+                      _brotoPrice.text.trim().replaceAll(',', '.'));
               final slices = int.tryParse(_slices.text.trim());
               final maxFlavors = int.tryParse(_maxFlavors.text.trim());
               if (price == null ||
@@ -993,7 +1061,9 @@ class _CatalogFormState extends State<_CatalogForm> {
                   slices == null ||
                   slices < 1 ||
                   maxFlavors == null ||
-                  maxFlavors < 1) {
+                  maxFlavors < 1 ||
+                  (_brotoPrice.text.trim().isNotEmpty && brotoPrice == null) ||
+                  (brotoPrice != null && brotoPrice < 0)) {
                 setState(() => _validationError =
                     'Informe preço, fatias e máximo de sabores válidos.');
                 return;
@@ -1027,6 +1097,9 @@ class _CatalogFormState extends State<_CatalogForm> {
                 'initial_size_name': _sizeName.text.trim(),
               if (!widget.isCategory)
                 'initial_price': _price.text.trim().replaceAll(',', '.'),
+              if (!widget.isCategory && _type == 'PIZZA')
+                'initial_broto_price':
+                    _brotoPrice.text.trim().replaceAll(',', '.'),
               if (!widget.isCategory) 'initial_slices': _slices.text.trim(),
               if (!widget.isCategory)
                 'initial_max_flavors': _maxFlavors.text.trim(),
