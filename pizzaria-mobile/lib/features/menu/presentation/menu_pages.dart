@@ -126,7 +126,11 @@ class _MenuHomePageState extends State<MenuHomePage> {
       return slug == 'pizza salgada' || slug == 'pizza doce';
     }).toList();
     if (normalizedBase.isNotEmpty) {
-      await _openProduct(normalizedBase.first, maxFlavorsOverride: maxFlavors);
+      final product = normalizedBase.firstWhere(
+        (product) => product.name.trim().toLowerCase() == 'pizza salgada',
+        orElse: () => normalizedBase.first,
+      );
+      await _openProduct(product, maxFlavorsOverride: maxFlavors);
       return;
     }
     final product = await showModalBottomSheet<MenuProduct>(
