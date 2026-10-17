@@ -619,12 +619,21 @@ class _ProductOptionsViewState extends State<_ProductOptionsView> {
           accessToken: widget.accessToken,
           refreshAccessToken: widget.refreshAccessToken,
           maxFlavorsOverride: widget.maxFlavorsOverride,
+          initialFlavorId: _matchingFlavorId(widget.options),
         ),
       ),
     );
     if (added == true && mounted) {
       Navigator.of(context).pop(true);
     }
+  }
+
+  String? _matchingFlavorId(MenuProductOptions options) {
+    final productName = options.product.name.trim().toLowerCase();
+    return options.flavors
+        .where((flavor) => flavor.name.trim().toLowerCase() == productName)
+        .map((flavor) => flavor.id)
+        .firstOrNull;
   }
 
   Future<void> _addSimpleProduct() async {

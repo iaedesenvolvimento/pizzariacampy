@@ -10,6 +10,7 @@ class PizzaBuilderController extends ChangeNotifier {
     this.options,
     this.accessToken, {
     this.maxFlavorsOverride,
+    this.initialFlavorId,
     this.refreshAccessToken,
   });
 
@@ -17,6 +18,7 @@ class PizzaBuilderController extends ChangeNotifier {
   final MenuProductOptions options;
   final String? accessToken;
   final int? maxFlavorsOverride;
+  final String? initialFlavorId;
   final Future<String?> Function()? refreshAccessToken;
   String? selectedSizeId;
   String? selectedConfigurationId;
@@ -60,6 +62,12 @@ class PizzaBuilderController extends ChangeNotifier {
   void initialize() {
     selectedSizeId ??= sizesByPrice.firstOrNull?.id;
     _selectDefaultConfiguration();
+    if (initialFlavorId != null &&
+        options.flavors.any((flavor) => flavor.id == initialFlavorId)) {
+      selectedFlavorIds
+        ..clear()
+        ..add(initialFlavorId!);
+    }
   }
 
   void selectSize(String sizeId) {
