@@ -340,9 +340,15 @@ class _PizzaBuilderPageState extends State<PizzaBuilderPage> {
                         ],
                       ),
                     ),
+                    const SizedBox(width: 12),
                     Text(
-                      'Conforme tamanho',
-                      style: Theme.of(context).textTheme.bodySmall,
+                      _flavorPrice(flavor) == null
+                          ? 'Conforme tamanho'
+                          : _formatPrice(_flavorPrice(flavor)!),
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelLarge
+                          ?.copyWith(fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
@@ -357,6 +363,17 @@ class _PizzaBuilderPageState extends State<PizzaBuilderPage> {
           ),
       ],
     );
+  }
+
+  double? _flavorPrice(MenuFlavor flavor) {
+    final sizeId = _controller.selectedSizeId;
+    if (sizeId == null) return null;
+    for (final price in widget.options.flavorPrices) {
+      if (price.flavorId == flavor.id && price.productSizeId == sizeId) {
+        return price.price;
+      }
+    }
+    return null;
   }
 
   List<MenuPizzaConfiguration> get _configurationsForSelectedSize => widget

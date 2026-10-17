@@ -139,6 +139,26 @@ class MenuFlavor {
   final String? description;
 }
 
+class MenuFlavorSizePrice {
+  const MenuFlavorSizePrice({
+    required this.flavorId,
+    required this.productSizeId,
+    required this.price,
+  });
+
+  factory MenuFlavorSizePrice.fromJson(Map<String, dynamic> json) {
+    return MenuFlavorSizePrice(
+      flavorId: json['flavor_id'].toString(),
+      productSizeId: json['product_size_id'].toString(),
+      price: _decimal(json['price']),
+    );
+  }
+
+  final String flavorId;
+  final String productSizeId;
+  final double price;
+}
+
 class MenuPricedOption {
   const MenuPricedOption(
       {required this.id, required this.name, required this.price});
@@ -162,6 +182,7 @@ class MenuProductOptions {
     required this.sizes,
     required this.configurations,
     required this.flavors,
+    required this.flavorPrices,
     required this.edges,
     required this.extras,
   });
@@ -173,6 +194,7 @@ class MenuProductOptions {
       configurations:
           _list(json['configurations'], MenuPizzaConfiguration.fromJson),
       flavors: _list(json['flavors'], MenuFlavor.fromJson),
+      flavorPrices: _list(json['flavor_prices'], MenuFlavorSizePrice.fromJson),
       edges: _list(json['edges'], MenuPricedOption.fromJson),
       extras: _list(json['extras'], MenuPricedOption.fromJson),
     );
@@ -182,6 +204,7 @@ class MenuProductOptions {
   final List<MenuProductSize> sizes;
   final List<MenuPizzaConfiguration> configurations;
   final List<MenuFlavor> flavors;
+  final List<MenuFlavorSizePrice> flavorPrices;
   final List<MenuPricedOption> edges;
   final List<MenuPricedOption> extras;
 }
