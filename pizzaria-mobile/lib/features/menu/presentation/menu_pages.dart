@@ -463,7 +463,9 @@ class _MenuHomePageState extends State<MenuHomePage> {
         Text('Destaques', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 12),
         ..._menuController.products
-            .where((product) => !isPizzaProductType(product.type))
+            .where((product) =>
+                _menuController.selectedCategoryId != null ||
+                !isPizzaProductType(product.type))
             .map(
               (product) => Padding(
                 padding: const EdgeInsets.only(bottom: 14),
