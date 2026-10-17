@@ -219,6 +219,10 @@ class _MenuHomePageState extends State<MenuHomePage> {
                         builder: (_) => CartPage(
                           controller: widget.cartController,
                           accessToken: widget.authController.accessToken,
+                          refreshAccessToken: () async {
+                            await widget.authController.refreshSession();
+                            return widget.authController.accessToken;
+                          },
                         ),
                       ),
                     ),

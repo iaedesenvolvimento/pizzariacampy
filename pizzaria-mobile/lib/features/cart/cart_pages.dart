@@ -6,10 +6,14 @@ import '../checkout/checkout_pages.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage(
-      {required this.controller, required this.accessToken, super.key});
+      {required this.controller,
+      required this.accessToken,
+      required this.refreshAccessToken,
+      super.key});
 
   final CartController controller;
   final String? accessToken;
+  final Future<String?> Function() refreshAccessToken;
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +42,7 @@ class CartPage extends StatelessWidget {
               : _CartSummary(
                   controller: controller,
                   accessToken: accessToken,
+                  refreshAccessToken: refreshAccessToken,
                 ),
         );
       },
@@ -144,10 +149,15 @@ class _CartItemTile extends StatelessWidget {
 }
 
 class _CartSummary extends StatelessWidget {
-  const _CartSummary({required this.controller, required this.accessToken});
+  const _CartSummary({
+    required this.controller,
+    required this.accessToken,
+    required this.refreshAccessToken,
+  });
 
   final CartController controller;
   final String? accessToken;
+  final Future<String?> Function() refreshAccessToken;
 
   @override
   Widget build(BuildContext context) {
@@ -168,6 +178,7 @@ class _CartSummary extends StatelessWidget {
                   builder: (_) => CheckoutPage(
                     cartController: controller,
                     accessToken: accessToken,
+                    refreshAccessToken: refreshAccessToken,
                   ),
                 ),
               ),

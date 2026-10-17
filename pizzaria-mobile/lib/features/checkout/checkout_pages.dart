@@ -9,10 +9,14 @@ import 'checkout_controller.dart';
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage(
-      {required this.cartController, required this.accessToken, super.key});
+      {required this.cartController,
+      required this.accessToken,
+      required this.refreshAccessToken,
+      super.key});
 
   final CartController cartController;
   final String? accessToken;
+  final Future<String?> Function() refreshAccessToken;
 
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
@@ -46,7 +50,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
   @override
   void initState() {
     super.initState();
-    _controller = CheckoutController(ApiClient(), widget.accessToken);
+    _controller = CheckoutController(
+      ApiClient(),
+      widget.accessToken,
+      refreshAccessToken: widget.refreshAccessToken,
+    );
     _loadPixSettings();
   }
 
