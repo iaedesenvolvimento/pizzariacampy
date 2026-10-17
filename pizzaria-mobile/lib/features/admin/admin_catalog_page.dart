@@ -164,11 +164,21 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
 
   Future<void> _create() async {
     if (_token == null) return;
+    String? forcedType;
+    if (!_isCategories) {
+      forcedType = await showDialog<String>(
+        context: context,
+        builder: (_) => const _ProductCreationChooser(),
+      );
+      if (!mounted) return;
+      if (forcedType == null) return;
+    }
     final result = await showDialog<Map<String, String>>(
       context: context,
       builder: (_) => _CatalogForm(
           isCategory: _isCategories,
           categories: _categories,
+          forcedType: forcedType,
           onUploadImage: _uploadImage),
     );
     if (result == null) return;
@@ -413,10 +423,12 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
                     padding: const EdgeInsets.all(16),
                     children: [
                       AdminPageHeader(
-                        title: _isCategories ? 'Categorias' : 'Produtos',
+                        title: _isCategories
+                            ? 'Categorias'
+                            : 'Seu cardápio, em um só lugar',
                         subtitle: _isCategories
                             ? 'Organize as categorias do cardápio.'
-                            : 'Gerencie produtos, disponibilidade e preços.',
+                            : 'Cadastre uma vez e acompanhe o resultado no cardápio do cliente.',
                         actions: [
                           FilledButton.icon(
                             onPressed: _create,
@@ -427,6 +439,25 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
                           ),
                         ],
                       ),
+                      if (!_isCategories)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: Wrap(
+                            spacing: 20,
+                            runSpacing: 8,
+                            children: [
+                              _CatalogStat(
+                                  value: '${_items.length}', label: 'produtos'),
+                              _CatalogStat(
+                                  value: '${_categories.length}',
+                                  label: 'categorias'),
+                              _CatalogStat(
+                                  value:
+                                      '${_items.where((item) => item['is_active'] == true).length}',
+                                  label: 'ativos'),
+                            ],
+                          ),
+                        ),
                       AdminSearchField(
                         controller: _searchController,
                         hintText: _isCategories
@@ -576,17 +607,121 @@ class _AdminCatalogPageState extends State<AdminCatalogPage> {
   }
 }
 
+class _CatalogStat extends StatelessWidget {
+  const _CatalogStat({required this.value, required this.label});
+
+  final String value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return RichText(
+      text: TextSpan(
+        style: Theme.of(context).textTheme.bodyMedium,
+        children: [
+          TextSpan(
+            text: '$value ',
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+          TextSpan(text: label),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProductCreationChooser extends StatelessWidget {
+  const _ProductCreationChooser();
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('O que vamos adicionar?'),
+      content: const Text(
+          'Escolha um tipo para abrir somente os campos necessários.'),
+      actions: [
+        _ChooserAction(
+          icon: Icons.local_pizza_outlined,
+          title: 'Sabor de pizza',
+          subtitle: 'Um sabor, com preços Grande e Broto.',
+          onPressed: () => Navigator.of(context).pop('PIZZA'),
+        ),
+        _ChooserAction(
+          icon: Icons.local_drink_outlined,
+          title: 'Produto simples',
+          subtitle: 'Bebida, doce ou esfiha com uma apresentação.',
+          onPressed: () => Navigator.of(context).pop('BEVERAGE'),
+        ),
+        _ChooserAction(
+          icon: Icons.inventory_2_outlined,
+          title: 'Combo',
+          subtitle: 'Produto agrupado com preço e apresentação.',
+          onPressed: () => Navigator.of(context).pop('COMBO'),
+        ),
+      ],
+    );
+  }
+}
+
+class _ChooserAction extends StatelessWidget {
+  const _ChooserAction({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: OutlinedButton(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          padding: const EdgeInsets.all(14),
+          alignment: Alignment.centerLeft,
+        ),
+        child: Row(
+          children: [
+            Icon(icon),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: const TextStyle(fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 3),
+                  Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _CatalogForm extends StatefulWidget {
   const _CatalogForm({
     required this.isCategory,
     required this.categories,
     required this.onUploadImage,
+    this.forcedType,
     this.initial,
   });
 
   final bool isCategory;
   final List<Map<String, dynamic>> categories;
   final Future<String?> Function(String filePath) onUploadImage;
+  final String? forcedType;
   final Map<String, dynamic>? initial;
 
   @override
@@ -634,7 +769,8 @@ class _CatalogFormState extends State<_CatalogForm> {
         (widget.categories.isNotEmpty
             ? widget.categories.first['id']?.toString()
             : null);
-    final initialType = initial?['product_type']?.toString().toUpperCase();
+    final initialType =
+        widget.forcedType ?? initial?['product_type']?.toString().toUpperCase();
     _type = initialType == 'DRINK'
         ? 'BEVERAGE'
         : <String>{
@@ -739,6 +875,8 @@ class _CatalogFormState extends State<_CatalogForm> {
             ),
             DropdownButtonFormField<String>(
               value: _type,
+              key: ValueKey(_type),
+              isExpanded: true,
               decoration: const InputDecoration(
                   labelText: 'Tipo do produto *',
                   helperText:
@@ -749,7 +887,9 @@ class _CatalogFormState extends State<_CatalogForm> {
                 DropdownMenuItem(value: 'DESSERT', child: Text('Sobremesa')),
                 DropdownMenuItem(value: 'COMBO', child: Text('Combo'))
               ],
-              onChanged: (value) => setState(() => _type = value ?? 'PIZZA'),
+              onChanged: widget.forcedType == null
+                  ? (value) => setState(() => _type = value ?? 'PIZZA')
+                  : null,
             ),
             Card(
               margin: const EdgeInsets.only(top: 8),
