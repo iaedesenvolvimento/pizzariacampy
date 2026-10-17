@@ -79,8 +79,18 @@ async def calculate_item(
     if item.quantity < 1:
         raise PricingError("INVALID_QUANTITY", "Quantity must be positive")
     if product.product_type == "PIZZA":
-        if not item.flavor_ids:
+        has_flavor_options = await session.scalar(
+            select(FlavorSizePrice.id)
+            .where(
+                FlavorSizePrice.product_id == product.id,
+                FlavorSizePrice.product_size_id == size.id,
+            )
+            .limit(1)
+        ) is not None
+        if has_flavor_options and not item.flavor_ids:
             raise PricingError("FLAVOR_REQUIRED", "Pizza requires at least one flavor")
+        if not has_flavor_options and item.flavor_ids:
+            raise PricingError("FLAVOR_NOT_ALLOWED", "This product does not accept flavors")
         if len(item.flavor_ids) != len(set(item.flavor_ids)):
             raise PricingError("DUPLICATE_FLAVOR", "A flavor cannot be repeated in the same item")
         configuration = None

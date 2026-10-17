@@ -920,7 +920,8 @@ class _ProductOptionsViewState extends State<_ProductOptionsView> {
 
   @override
   Widget build(BuildContext context) {
-    final isPizza = isPizzaProductType(widget.options.product.type);
+    final isPizza = isPizzaProductType(widget.options.product.type) &&
+        widget.options.flavors.isNotEmpty;
     final hasSizes = widget.options.sizes.isNotEmpty;
     return ListView(
       padding: EdgeInsets.fromLTRB(
