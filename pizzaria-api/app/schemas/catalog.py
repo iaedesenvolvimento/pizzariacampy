@@ -93,6 +93,33 @@ class ProductSizeUpdate(BaseModel):
     is_active: bool | None = None
 
 
+class PizzaConfigurationCreate(BaseModel):
+    flavor_count: int = Field(ge=1, le=10)
+    display_name: str = Field(min_length=1, max_length=100)
+    display_order: int = Field(default=0, ge=0)
+    pricing_rule: str = Field(default="MAX_FLAVOR_PRICE", pattern=r"^(MAX_FLAVOR_PRICE|AVERAGE_FLAVOR_PRICE)$")
+
+
+class PizzaConfigurationUpdate(BaseModel):
+    flavor_count: int | None = Field(default=None, ge=1, le=10)
+    display_name: str | None = Field(default=None, min_length=1, max_length=100)
+    display_order: int | None = Field(default=None, ge=0)
+    pricing_rule: str | None = Field(
+        default=None, pattern=r"^(MAX_FLAVOR_PRICE|AVERAGE_FLAVOR_PRICE)$"
+    )
+    is_active: bool | None = None
+
+
+class PizzaConfigurationResponse(CatalogBase):
+    id: UUID
+    product_size_id: UUID
+    flavor_count: int
+    display_name: str
+    display_order: int
+    pricing_rule: str
+    is_active: bool
+
+
 class FlavorCreate(BaseModel):
     name: str = Field(min_length=1, max_length=100)
     description: str | None = None
@@ -156,6 +183,7 @@ class PricedOptionResponse(CatalogBase):
 class ProductOptionsResponse(BaseModel):
     product: ProductResponse
     sizes: list[ProductSizeResponse]
+    configurations: list[PizzaConfigurationResponse]
     flavors: list[FlavorResponse]
     flavor_prices: list[FlavorSizePriceResponse]
     edges: list[PricedOptionResponse]

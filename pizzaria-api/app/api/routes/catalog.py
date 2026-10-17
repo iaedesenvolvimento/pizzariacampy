@@ -15,6 +15,7 @@ from app.models.catalog import (
     FlavorSizePrice,
     Product,
     ProductSize,
+    PizzaConfiguration,
 )
 from app.models.user import User
 from app.schemas.catalog import (
@@ -38,6 +39,9 @@ from app.schemas.catalog import (
     ProductSizeUpdate,
     ProductFlavorSelectionUpdate,
     ProductUpdate,
+    PizzaConfigurationCreate,
+    PizzaConfigurationResponse,
+    PizzaConfigurationUpdate,
 )
 
 
@@ -175,11 +179,22 @@ async def get_product_options(
             .order_by(FlavorSizePrice.price)
         )
     ) if sizes else []
+    configurations = list(
+        await session.scalars(
+            select(PizzaConfiguration)
+            .where(
+                PizzaConfiguration.product_size_id.in_([size.id for size in sizes]),
+                PizzaConfiguration.is_active.is_(True),
+            )
+            .order_by(PizzaConfiguration.display_order, PizzaConfiguration.flavor_count)
+        )
+    ) if sizes else []
     edges = list(await session.scalars(select(Edge).where(Edge.is_active.is_(True)).order_by(Edge.name))) if is_pizza else []
     extras = list(await session.scalars(select(Extra).where(Extra.is_active.is_(True)).order_by(Extra.name))) if is_pizza else []
     return ProductOptionsResponse(
         product=product,
         sizes=sizes,
+        configurations=configurations,
         flavors=flavors,
         flavor_prices=flavor_prices,
         edges=edges,
@@ -458,6 +473,118 @@ async def update_product_size(
     await session.commit()
     await session.refresh(size)
     return size
+
+
+async def get_pizza_size_for_admin(
+    product_id: UUID,
+    size_id: UUID,
+    session: AsyncSession,
+) -> ProductSize:
+    product = await session.get(Product, product_id)
+    size = await session.scalar(
+        select(ProductSize).where(ProductSize.id == size_id, ProductSize.product_id == product_id)
+    )
+    if product is None or size is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product or size not found")
+    if product.product_type != "PIZZA":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Only pizzas have configurations")
+    return size
+
+
+@admin_router.get(
+    "/products/{product_id}/sizes/{size_id}/configurations",
+    response_model=list[PizzaConfigurationResponse],
+)
+async def list_pizza_configurations(
+    product_id: UUID,
+    size_id: UUID,
+    session: AsyncSession = Depends(get_session),
+    _: User = Depends(get_admin_user),
+) -> list[PizzaConfiguration]:
+    await get_pizza_size_for_admin(product_id, size_id, session)
+    result = await session.scalars(
+        select(PizzaConfiguration)
+        .where(PizzaConfiguration.product_size_id == size_id)
+        .order_by(PizzaConfiguration.display_order, PizzaConfiguration.flavor_count)
+    )
+    return list(result)
+
+
+@admin_router.post(
+    "/products/{product_id}/sizes/{size_id}/configurations",
+    response_model=PizzaConfigurationResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_pizza_configuration(
+    product_id: UUID,
+    size_id: UUID,
+    payload: PizzaConfigurationCreate,
+    session: AsyncSession = Depends(get_session),
+    _: User = Depends(get_admin_user),
+) -> PizzaConfiguration:
+    size = await get_pizza_size_for_admin(product_id, size_id, session)
+    if payload.flavor_count > size.max_flavors:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Flavor count cannot exceed the size limit of {size.max_flavors}",
+        )
+    existing = await session.scalar(
+        select(PizzaConfiguration).where(
+            PizzaConfiguration.product_size_id == size_id,
+            PizzaConfiguration.flavor_count == payload.flavor_count,
+        )
+    )
+    if existing is not None:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Flavor count already configured")
+    configuration = PizzaConfiguration(product_size_id=size_id, **payload.model_dump())
+    session.add(configuration)
+    await session.commit()
+    await session.refresh(configuration)
+    return configuration
+
+
+@admin_router.patch(
+    "/products/{product_id}/sizes/{size_id}/configurations/{configuration_id}",
+    response_model=PizzaConfigurationResponse,
+)
+async def update_pizza_configuration(
+    product_id: UUID,
+    size_id: UUID,
+    configuration_id: UUID,
+    payload: PizzaConfigurationUpdate,
+    session: AsyncSession = Depends(get_session),
+    _: User = Depends(get_admin_user),
+) -> PizzaConfiguration:
+    size = await get_pizza_size_for_admin(product_id, size_id, session)
+    configuration = await session.scalar(
+        select(PizzaConfiguration).where(
+            PizzaConfiguration.id == configuration_id,
+            PizzaConfiguration.product_size_id == size_id,
+        )
+    )
+    if configuration is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Configuration not found")
+    values = payload.model_dump(exclude_unset=True)
+    if values.get("flavor_count") is not None and values["flavor_count"] > size.max_flavors:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Flavor count cannot exceed the size limit of {size.max_flavors}",
+        )
+    if "flavor_count" in values:
+        duplicate = await session.scalar(
+            select(PizzaConfiguration).where(
+                PizzaConfiguration.product_size_id == size_id,
+                PizzaConfiguration.flavor_count == values["flavor_count"],
+                PizzaConfiguration.id != configuration_id,
+            )
+        )
+        if duplicate is not None:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Flavor count already configured")
+    for field, value in values.items():
+        setattr(configuration, field, value)
+    await session.commit()
+    await session.refresh(configuration)
+    return configuration
 
 
 @admin_router.post("/flavors", response_model=FlavorResponse, status_code=status.HTTP_201_CREATED)

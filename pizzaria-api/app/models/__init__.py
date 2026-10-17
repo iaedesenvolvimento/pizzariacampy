@@ -6,6 +6,7 @@ from app.models.catalog import (
     FlavorSizePrice,
     Product,
     ProductSize,
+    PizzaConfiguration,
 )
 from app.models.business_hours import BusinessHours
 from app.models.address import CustomerAddress
@@ -34,6 +35,7 @@ __all__ = [
     "FlavorSizePrice",
     "Product",
     "ProductSize",
+    "PizzaConfiguration",
     "Order",
     "OrderItem",
     "OrderItemExtra",

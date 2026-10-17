@@ -12,6 +12,7 @@ class PricingExtraInput(BaseModel):
 class PricingItemInput(BaseModel):
     product_id: UUID
     product_size_id: UUID
+    pizza_configuration_id: UUID | None = None
     flavor_ids: list[UUID] = Field(default_factory=list, max_length=4)
     edge_id: UUID | None = None
     extras: list[PricingExtraInput] = Field(default_factory=list)
@@ -34,6 +35,7 @@ class PricingExtraBreakdown(BaseModel):
 class PricingItemBreakdown(BaseModel):
     product_id: UUID
     product_size_id: UUID
+    pizza_configuration_id: UUID | None = None
     flavor_ids: list[UUID]
     base_price: Decimal
     edge_price: Decimal

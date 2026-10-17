@@ -12,12 +12,16 @@ class PizzaBuilderPage extends StatefulWidget {
       required this.cartController,
       required this.accessToken,
       required this.refreshAccessToken,
+      this.maxFlavorsOverride,
       super.key});
 
   final MenuProductOptions options;
   final CartController cartController;
   final String? accessToken;
   final Future<String?> Function() refreshAccessToken;
+  final int? maxFlavorsOverride;
+
+  static const fixedDoughs = ['Tradicional', 'Fina', 'Grossa'];
 
   @override
   State<PizzaBuilderPage> createState() => _PizzaBuilderPageState();
@@ -30,13 +34,13 @@ class _PizzaBuilderPageState extends State<PizzaBuilderPage> {
   @override
   void initState() {
     super.initState();
-    _controller =
-        PizzaBuilderController(
-          ApiClient(),
-          widget.options,
-          widget.accessToken,
-          refreshAccessToken: widget.refreshAccessToken,
-        );
+    _controller = PizzaBuilderController(
+      ApiClient(),
+      widget.options,
+      widget.accessToken,
+      maxFlavorsOverride: widget.maxFlavorsOverride,
+      refreshAccessToken: widget.refreshAccessToken,
+    );
     _controller.addListener(_onControllerChanged);
     _controller.initialize();
   }
@@ -109,7 +113,34 @@ class _PizzaBuilderPageState extends State<PizzaBuilderPage> {
               secondary: Text(_formatPrice(size.price)),
             ),
           ),
-          _sectionTitle(context, '2. Escolha os sabores'),
+          _sectionTitle(context, '2. Escolha a massa'),
+          ...PizzaBuilderPage.fixedDoughs.map(
+            (dough) => RadioListTile<String>(
+              contentPadding: EdgeInsets.zero,
+              value: dough,
+              groupValue: _controller.selectedDoughName,
+              onChanged: (value) {
+                if (value != null) _controller.selectDough(value);
+              },
+              title: Text(dough),
+            ),
+          ),
+          if (_configurationsForSelectedSize.isNotEmpty) ...[
+            _sectionTitle(context, '3. Escolha a oferta'),
+            ..._configurationsForSelectedSize.map(
+              (configuration) => RadioListTile<String>(
+                contentPadding: EdgeInsets.zero,
+                value: configuration.id,
+                groupValue: _controller.selectedConfigurationId,
+                onChanged: (value) {
+                  if (value != null) _controller.selectConfiguration(value);
+                },
+                title: Text(configuration.displayName),
+                subtitle: Text('${configuration.flavorCount} sabor(es)'),
+              ),
+            ),
+          ],
+          _sectionTitle(context, '4. Escolha os sabores'),
           Text(_flavorLimitText),
           const SizedBox(height: 8),
           ...widget.options.flavors.map(
@@ -128,7 +159,7 @@ class _PizzaBuilderPageState extends State<PizzaBuilderPage> {
                 style: Theme.of(context).textTheme.labelLarge),
           ],
           if (widget.options.edges.isNotEmpty) ...[
-            _sectionTitle(context, '3. Escolha a borda'),
+            _sectionTitle(context, '5. Escolha a borda'),
             RadioListTile<String>(
               contentPadding: EdgeInsets.zero,
               value: _noEdgeId,
@@ -148,7 +179,7 @@ class _PizzaBuilderPageState extends State<PizzaBuilderPage> {
             ),
           ],
           if (widget.options.extras.isNotEmpty) ...[
-            _sectionTitle(context, '4. Adicionais'),
+            _sectionTitle(context, '6. Adicionais'),
             ...widget.options.extras.map(
               (extra) => CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
@@ -159,7 +190,7 @@ class _PizzaBuilderPageState extends State<PizzaBuilderPage> {
               ),
             ),
           ],
-          _sectionTitle(context, '5. Quantidade'),
+          _sectionTitle(context, '7. Quantidade'),
           Row(
             children: [
               IconButton(
@@ -232,9 +263,18 @@ class _PizzaBuilderPageState extends State<PizzaBuilderPage> {
   }
 
   String get _flavorLimitText {
-    final maxFlavors = _controller.selectedSize?.maxFlavors ?? 0;
+    final maxFlavors = _controller.flavorLimit;
     return 'Selecione até $maxFlavors ${maxFlavors == 1 ? 'sabor' : 'sabores'}.';
   }
+
+  List<MenuPizzaConfiguration> get _configurationsForSelectedSize => widget
+      .options.configurations
+      .where((configuration) =>
+          configuration.productSizeId == _controller.selectedSizeId &&
+          configuration.isActive)
+      .toList()
+    ..sort(
+        (first, second) => first.displayOrder.compareTo(second.displayOrder));
 
   String get _selectedFlavorsText {
     final names = widget.options.flavors
@@ -268,6 +308,8 @@ class _PizzaBuilderPageState extends State<PizzaBuilderPage> {
         productName: widget.options.product.name,
         sizeId: selectedSize.id,
         sizeName: selectedSize.name,
+        pizzaConfigurationId: _controller.selectedConfigurationId,
+        doughName: _controller.selectedDoughName,
         flavorIds: selectedFlavors.map((flavor) => flavor.id).toList(),
         flavorNames: selectedFlavors.map((flavor) => flavor.name).toList(),
         edgeId: _controller.selectedEdgeId,

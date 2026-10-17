@@ -59,6 +59,30 @@ class ProductSize(TimestampedModel):
     flavor_prices: Mapped[list["FlavorSizePrice"]] = relationship(
         back_populates="product_size", cascade="all, delete-orphan"
     )
+    configurations: Mapped[list["PizzaConfiguration"]] = relationship(
+        back_populates="product_size", cascade="all, delete-orphan", order_by="PizzaConfiguration.display_order"
+    )
+
+
+class PizzaConfiguration(TimestampedModel):
+    __tablename__ = "pizza_configurations"
+    __table_args__ = (
+        UniqueConstraint(
+            "product_size_id", "flavor_count", name="uq_pizza_configurations_size_flavor_count"
+        ),
+    )
+
+    product_size_id: Mapped[UUID] = mapped_column(
+        PostgreSQLUUID(as_uuid=True), ForeignKey("product_sizes.id", ondelete="RESTRICT"), nullable=False
+    )
+    flavor_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    display_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    display_order: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
+    pricing_rule: Mapped[str] = mapped_column(
+        String(30), nullable=False, server_default=text("'MAX_FLAVOR_PRICE'")
+    )
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("true"))
+    product_size: Mapped[ProductSize] = relationship(back_populates="configurations")
 
 
 class Flavor(TimestampedModel):

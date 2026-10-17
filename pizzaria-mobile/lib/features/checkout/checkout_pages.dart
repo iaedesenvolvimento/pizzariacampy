@@ -477,7 +477,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
               (item) => ListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text('${item.quantity}x ${item.productName}'),
-                subtitle: Text(item.sizeName),
+                subtitle: Text([
+                  item.sizeName,
+                  if (item.doughName != null) 'Massa: ${item.doughName}',
+                  if (item.flavorNames.isNotEmpty)
+                    'Sabores: ${item.flavorNames.join(', ')}',
+                ].join(' · ')),
                 trailing: Text(_formatPrice(item.totalPrice)),
               ),
             ),

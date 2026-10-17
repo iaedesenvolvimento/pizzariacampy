@@ -82,7 +82,7 @@ class _MenuHomePageState extends State<MenuHomePage> {
     await _menuController.search(normalizedQuery);
   }
 
-  Future<void> _openProduct(MenuProduct product) async {
+  Future<void> _openProduct(MenuProduct product, {int? maxFlavorsOverride}) async {
     final added = await Navigator.of(context).push<bool>(
       MaterialPageRoute<bool>(
         builder: (_) => ProductDetailsPage(
@@ -96,6 +96,7 @@ class _MenuHomePageState extends State<MenuHomePage> {
             await widget.authController.refreshSession();
             return widget.authController.accessToken;
           },
+          maxFlavorsOverride: maxFlavorsOverride,
         ),
       ),
     );
@@ -107,6 +108,42 @@ class _MenuHomePageState extends State<MenuHomePage> {
           duration: Duration(seconds: 2),
         ),
       );
+    }
+  }
+
+  Future<void> _openPizzaMode(int maxFlavors) async {
+    final pizzas = _menuController.products
+        .where((product) => isPizzaProductType(product.type))
+        .toList();
+    if (pizzas.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Nenhuma pizza disponível no momento.')));
+      return;
+    }
+    final product = await showModalBottomSheet<MenuProduct>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+              child: Text('Escolha a pizza base',
+                  style: Theme.of(context).textTheme.titleLarge),
+            ),
+            ...pizzas.map((product) => ListTile(
+                  leading: const Icon(Icons.local_pizza_outlined),
+                  title: Text(product.name),
+                  subtitle: Text(product.description ?? 'Pizza'),
+                  onTap: () => Navigator.of(context).pop(product),
+                )),
+          ],
+        ),
+      ),
+    );
+    if (product != null && mounted) {
+      await _openProduct(product, maxFlavorsOverride: maxFlavors);
     }
   }
 
@@ -302,6 +339,28 @@ class _MenuHomePageState extends State<MenuHomePage> {
         Text('Escolha seu próximo sabor.',
             style: Theme.of(context).textTheme.bodyMedium),
         const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: _PizzaModeCard(
+                title: 'Pizza grande',
+                subtitle: '1 sabor',
+                icon: Icons.looks_one_outlined,
+                onTap: () => _openPizzaMode(1),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _PizzaModeCard(
+                title: 'Pizza grande',
+                subtitle: '2 sabores',
+                icon: Icons.looks_two_outlined,
+                onTap: () => _openPizzaMode(2),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
         TextField(
           controller: _searchController,
           textInputAction: TextInputAction.search,
@@ -416,6 +475,47 @@ class ProductCard extends StatelessWidget {
   }
 }
 
+class _PizzaModeCard extends StatelessWidget {
+  const _PizzaModeCard({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, color: colors.primary),
+              const SizedBox(height: 8),
+              Text(title, style: Theme.of(context).textTheme.titleMedium),
+              Text(subtitle),
+              const SizedBox(height: 8),
+              Text('Montar agora',
+                  style: TextStyle(
+                      color: colors.primary, fontWeight: FontWeight.w700)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class ProductDetailsPage extends StatefulWidget {
   const ProductDetailsPage(
       {required this.product,
@@ -424,6 +524,7 @@ class ProductDetailsPage extends StatefulWidget {
       required this.isStoreOpen,
       required this.storeStatusMessage,
       required this.refreshAccessToken,
+      this.maxFlavorsOverride,
       super.key});
 
   final MenuProduct product;
@@ -432,6 +533,7 @@ class ProductDetailsPage extends StatefulWidget {
   final bool isStoreOpen;
   final String? storeStatusMessage;
   final Future<String?> Function() refreshAccessToken;
+  final int? maxFlavorsOverride;
 
   @override
   State<ProductDetailsPage> createState() => _ProductDetailsPageState();
@@ -471,6 +573,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             isStoreOpen: widget.isStoreOpen,
             storeStatusMessage: widget.storeStatusMessage,
             refreshAccessToken: widget.refreshAccessToken,
+            maxFlavorsOverride: widget.maxFlavorsOverride,
           );
         },
       ),
@@ -485,7 +588,8 @@ class _ProductOptionsView extends StatefulWidget {
       required this.accessToken,
       required this.isStoreOpen,
       required this.storeStatusMessage,
-      required this.refreshAccessToken});
+      required this.refreshAccessToken,
+      this.maxFlavorsOverride});
 
   final MenuProductOptions options;
   final CartController cartController;
@@ -493,6 +597,7 @@ class _ProductOptionsView extends StatefulWidget {
   final bool isStoreOpen;
   final String? storeStatusMessage;
   final Future<String?> Function() refreshAccessToken;
+  final int? maxFlavorsOverride;
 
   @override
   State<_ProductOptionsView> createState() => _ProductOptionsViewState();
@@ -509,6 +614,7 @@ class _ProductOptionsViewState extends State<_ProductOptionsView> {
           cartController: widget.cartController,
           accessToken: widget.accessToken,
           refreshAccessToken: widget.refreshAccessToken,
+          maxFlavorsOverride: widget.maxFlavorsOverride,
         ),
       ),
     );
@@ -568,6 +674,7 @@ class _ProductOptionsViewState extends State<_ProductOptionsView> {
           productName: widget.options.product.name,
           sizeId: size.id,
           sizeName: size.name,
+          doughName: null,
           flavorIds: const [],
           flavorNames: const [],
           edgeId: null,

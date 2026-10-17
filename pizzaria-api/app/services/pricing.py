@@ -4,7 +4,15 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.catalog import Edge, Extra, Flavor, FlavorSizePrice, Product, ProductSize
+from app.models.catalog import (
+    Edge,
+    Extra,
+    Flavor,
+    FlavorSizePrice,
+    PizzaConfiguration,
+    Product,
+    ProductSize,
+)
 from app.services.coupons import CouponError, calculate_coupon_discount
 from app.schemas.pricing import (
     PricingExtraBreakdown,
@@ -75,6 +83,22 @@ async def calculate_item(
             raise PricingError("FLAVOR_REQUIRED", "Pizza requires at least one flavor")
         if len(item.flavor_ids) != len(set(item.flavor_ids)):
             raise PricingError("DUPLICATE_FLAVOR", "A flavor cannot be repeated in the same item")
+        configuration = None
+        if item.pizza_configuration_id is not None:
+            configuration = await session.scalar(
+                select(PizzaConfiguration).where(
+                    PizzaConfiguration.id == item.pizza_configuration_id,
+                    PizzaConfiguration.product_size_id == size.id,
+                    PizzaConfiguration.is_active.is_(True),
+                )
+            )
+            if configuration is None:
+                raise PricingError("CONFIGURATION_UNAVAILABLE", "Pizza configuration is unavailable")
+            if len(item.flavor_ids) != configuration.flavor_count:
+                raise PricingError(
+                    "FLAVOR_COUNT_INVALID",
+                    f"This offer requires exactly {configuration.flavor_count} flavor(s)",
+                )
         if len(item.flavor_ids) > size.max_flavors:
             raise PricingError("FLAVOR_LIMIT_EXCEEDED", "Flavor limit exceeded for this size")
     elif item.flavor_ids:
@@ -85,7 +109,10 @@ async def calculate_item(
         flavor_prices = await get_flavor_prices(
             session, size.id, item.flavor_ids, fallback_price=size.price
         )
-        base_price = max(flavor_prices.values())
+        if configuration is not None and configuration.pricing_rule == "AVERAGE_FLAVOR_PRICE":
+            base_price = sum(flavor_prices.values(), ZERO) / len(flavor_prices)
+        else:
+            base_price = max(flavor_prices.values())
 
     edge_price = ZERO
     if item.edge_id is not None:
@@ -119,6 +146,7 @@ async def calculate_item(
     return PricingItemBreakdown(
         product_id=product.id,
         product_size_id=size.id,
+        pizza_configuration_id=item.pizza_configuration_id,
         flavor_ids=item.flavor_ids,
         base_price=base_price,
         edge_price=edge_price,

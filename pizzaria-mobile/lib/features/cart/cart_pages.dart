@@ -110,6 +110,7 @@ class _CartItemTile extends StatelessWidget {
               ],
             ),
             Text(item.sizeName),
+            if (item.doughName != null) Text('Massa: ${item.doughName}'),
             if (flavorText.isNotEmpty) Text(flavorText),
             if (item.edgeName != null) Text('Borda: ${item.edgeName}'),
             if (item.extras.isNotEmpty)

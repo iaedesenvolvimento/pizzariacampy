@@ -48,6 +48,14 @@ class CheckoutController extends ChangeNotifier {
     result = null;
     notifyListeners();
     try {
+      final doughNotes = cart.items
+          .where((item) => item.doughName != null)
+          .map((item) => '${item.productName}: massa ${item.doughName}')
+          .join('; ');
+      final combinedNote = [
+        if (customerNote?.trim().isNotEmpty == true) customerNote!.trim(),
+        if (doughNotes.isNotEmpty) 'Massas escolhidas: $doughNotes',
+      ].join(' | ');
       final response = await _apiClient.post(
         '/orders',
         headers: accessToken == null
@@ -59,6 +67,7 @@ class CheckoutController extends ChangeNotifier {
                 (item) => {
                   'product_id': item.productId,
                   'product_size_id': item.sizeId,
+                  'pizza_configuration_id': item.pizzaConfigurationId,
                   'flavor_ids': item.flavorIds,
                   'edge_id': item.edgeId,
                   'extras': item.extras
@@ -78,9 +87,7 @@ class CheckoutController extends ChangeNotifier {
           'delivery_city': deliveryCity,
           'coupon_code':
               couponCode?.trim().isEmpty == true ? null : couponCode?.trim(),
-          'customer_note': customerNote?.trim().isEmpty == true
-              ? null
-              : customerNote?.trim(),
+          'customer_note': combinedNote.isEmpty ? null : combinedNote,
         },
       );
       if (response is! Map<String, dynamic>) {

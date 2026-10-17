@@ -90,6 +90,38 @@ class MenuProductSize {
   final int maxFlavors;
 }
 
+class MenuPizzaConfiguration {
+  const MenuPizzaConfiguration({
+    required this.id,
+    required this.productSizeId,
+    required this.flavorCount,
+    required this.displayName,
+    required this.displayOrder,
+    required this.pricingRule,
+    required this.isActive,
+  });
+
+  factory MenuPizzaConfiguration.fromJson(Map<String, dynamic> json) {
+    return MenuPizzaConfiguration(
+      id: json['id'].toString(),
+      productSizeId: json['product_size_id'].toString(),
+      flavorCount: json['flavor_count'] as int? ?? 1,
+      displayName: json['display_name'] as String? ?? '',
+      displayOrder: json['display_order'] as int? ?? 0,
+      pricingRule: json['pricing_rule'] as String? ?? 'MAX_FLAVOR_PRICE',
+      isActive: json['is_active'] as bool? ?? true,
+    );
+  }
+
+  final String id;
+  final String productSizeId;
+  final int flavorCount;
+  final String displayName;
+  final int displayOrder;
+  final String pricingRule;
+  final bool isActive;
+}
+
 class MenuFlavor {
   const MenuFlavor(
       {required this.id, required this.name, required this.description});
@@ -128,6 +160,7 @@ class MenuProductOptions {
   const MenuProductOptions({
     required this.product,
     required this.sizes,
+    required this.configurations,
     required this.flavors,
     required this.edges,
     required this.extras,
@@ -137,6 +170,8 @@ class MenuProductOptions {
     return MenuProductOptions(
       product: MenuProduct.fromJson(json['product'] as Map<String, dynamic>),
       sizes: _list(json['sizes'], MenuProductSize.fromJson),
+      configurations:
+          _list(json['configurations'], MenuPizzaConfiguration.fromJson),
       flavors: _list(json['flavors'], MenuFlavor.fromJson),
       edges: _list(json['edges'], MenuPricedOption.fromJson),
       extras: _list(json['extras'], MenuPricedOption.fromJson),
@@ -145,6 +180,7 @@ class MenuProductOptions {
 
   final MenuProduct product;
   final List<MenuProductSize> sizes;
+  final List<MenuPizzaConfiguration> configurations;
   final List<MenuFlavor> flavors;
   final List<MenuPricedOption> edges;
   final List<MenuPricedOption> extras;

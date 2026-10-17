@@ -23,6 +23,8 @@ class CartItem {
     required this.productName,
     required this.sizeId,
     required this.sizeName,
+    this.pizzaConfigurationId,
+    this.doughName,
     required this.flavorIds,
     required this.flavorNames,
     required this.edgeId,
@@ -39,6 +41,8 @@ class CartItem {
       productName: json['product_name'] as String? ?? '',
       sizeId: json['size_id'].toString(),
       sizeName: json['size_name'] as String? ?? '',
+      pizzaConfigurationId: json['pizza_configuration_id'] as String?,
+      doughName: json['dough_name'] as String?,
       flavorIds: _strings(json['flavor_ids']),
       flavorNames: _strings(json['flavor_names']),
       edgeId: json['edge_id'] as String?,
@@ -54,6 +58,8 @@ class CartItem {
   final String productName;
   final String sizeId;
   final String sizeName;
+  final String? pizzaConfigurationId;
+  final String? doughName;
   final List<String> flavorIds;
   final List<String> flavorNames;
   final String? edgeId;
@@ -70,6 +76,8 @@ class CartItem {
         productName: productName,
         sizeId: sizeId,
         sizeName: sizeName,
+        pizzaConfigurationId: pizzaConfigurationId,
+        doughName: doughName,
         flavorIds: flavorIds,
         flavorNames: flavorNames,
         edgeId: edgeId,
@@ -85,6 +93,8 @@ class CartItem {
         'product_name': productName,
         'size_id': sizeId,
         'size_name': sizeName,
+        'pizza_configuration_id': pizzaConfigurationId,
+        'dough_name': doughName,
         'flavor_ids': flavorIds,
         'flavor_names': flavorNames,
         'edge_id': edgeId,
@@ -97,6 +107,8 @@ class CartItem {
 
 double _number(dynamic value) => double.tryParse(value.toString()) ?? 0;
 
-List<String> _strings(dynamic value) => value is List ? value.map((item) => item.toString()).toList() : const [];
+List<String> _strings(dynamic value) =>
+    value is List ? value.map((item) => item.toString()).toList() : const [];
 
-List<Map<String, dynamic>> _maps(dynamic value) => value is List ? value.whereType<Map<String, dynamic>>().toList() : const [];
+List<Map<String, dynamic>> _maps(dynamic value) =>
+    value is List ? value.whereType<Map<String, dynamic>>().toList() : const [];
