@@ -19,7 +19,7 @@ class MenuController extends ChangeNotifier {
   String? selectedCategoryId;
   String? errorMessage;
 
-  Future<void> load() async {
+  Future<void> load({int attempt = 0}) async {
     final storage = await (_storageFuture ??= AppStorage.create());
     if (_loadedProducts.isEmpty) {
       final cached = storage.readMenuCache();
@@ -43,9 +43,17 @@ class MenuController extends ChangeNotifier {
       );
       status = products.isEmpty ? MenuStatus.empty : MenuStatus.success;
     } on AppException catch (error) {
+      if (attempt == 0) {
+        await Future<void>.delayed(const Duration(milliseconds: 800));
+        return load(attempt: 1);
+      }
       status = MenuStatus.error;
       errorMessage = error.message;
     } catch (_) {
+      if (attempt == 0) {
+        await Future<void>.delayed(const Duration(milliseconds: 800));
+        return load(attempt: 1);
+      }
       status = MenuStatus.error;
       errorMessage = 'Não foi possível carregar o cardápio.';
     }
