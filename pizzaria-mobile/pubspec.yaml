@@ -25,3 +25,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/catalogo-piloto/a-moda-do-chefe-i.png

@@ -422,7 +422,6 @@ class _MenuHomePageState extends State<MenuHomePage> {
                   title: 'Pizza Grande · 1 sabor',
                   description:
                       'Um sabor inteiro, do primeiro ao último pedaço.',
-                  icon: Icons.looks_one_outlined,
                   onTap: () => _openPizzaMode(1),
                 ),
               ),
@@ -432,7 +431,7 @@ class _MenuHomePageState extends State<MenuHomePage> {
                   title: 'Pizza Grande · meio a meio',
                   description:
                       'Escolha 2 sabores. Uma metade de cada, do seu jeito.',
-                  icon: Icons.looks_two_outlined,
+                  isHalfAndHalf: true,
                   onTap: () => _openPizzaMode(2),
                 ),
               ),
@@ -445,7 +444,6 @@ class _MenuHomePageState extends State<MenuHomePage> {
               title: 'Pizza Broto · 1 sabor',
               description: 'Um sabor inteiro, do primeiro ao último pedaço.',
               priceLabel: 'R\$ 30,00',
-              icon: Icons.looks_one_outlined,
               onTap: () => _openPizzaMode(
                 1,
                 preferredSizeName: 'Broto',
@@ -571,15 +569,15 @@ class _PizzaModeCard extends StatelessWidget {
   const _PizzaModeCard({
     required this.title,
     required this.description,
-    required this.icon,
     required this.onTap,
+    this.isHalfAndHalf = false,
     this.priceLabel = 'R\$ 45,00',
   });
 
   final String title;
   final String description;
-  final IconData icon;
   final VoidCallback onTap;
+  final bool isHalfAndHalf;
   final String priceLabel;
 
   @override
@@ -597,45 +595,29 @@ class _PizzaModeCard extends StatelessWidget {
               height: 132,
               width: double.infinity,
               color: const Color(0xFFF5E8D8),
-              child: Center(
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Container(
-                      width: 94,
-                      height: 94,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: const Color(0xFFE4A24C),
-                        border: Border.all(
-                            color: const Color(0xFFB86B2A), width: 3),
-                      ),
-                      child: Icon(icon, size: 42, color: colors.primary),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Semantics(
+                    image: true,
+                    label: isHalfAndHalf
+                        ? 'Pizza com dois sabores'
+                        : 'Pizza assada',
+                    child: Image.asset(
+                      'assets/catalogo-piloto/a-moda-do-chefe-i.png',
+                      fit: BoxFit.cover,
                     ),
-                    Positioned(
-                      top: 14,
-                      left: 12,
+                  ),
+                  if (isHalfAndHalf)
+                    Align(
+                      alignment: Alignment.center,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 7, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: .9),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Text(
-                          icon == Icons.looks_two_outlined
-                              ? 'METADE DE CADA'
-                              : 'SEU SABOR FAVORITO',
-                          style: const TextStyle(
-                            fontSize: 7,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: .5,
-                          ),
-                        ),
+                        width: 2,
+                        height: 108,
+                        color: Colors.white.withValues(alpha: .75),
                       ),
                     ),
-                  ],
-                ),
+                ],
               ),
             ),
             Padding(
