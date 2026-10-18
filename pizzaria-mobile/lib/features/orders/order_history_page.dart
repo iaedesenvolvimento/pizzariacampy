@@ -38,8 +38,13 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
         '/orders?limit=50',
         headers: {'Authorization': 'Bearer $token'},
       );
-      if (response is! List<dynamic>) throw const FormatException('Pedidos inválidos.');
-      _orders = response.whereType<Map<String, dynamic>>().map(_OrderHistoryItem.fromJson).toList();
+      if (response is! List<dynamic>) {
+        throw const FormatException('Pedidos inválidos.');
+      }
+      _orders = response
+          .whereType<Map<String, dynamic>>()
+          .map(_OrderHistoryItem.fromJson)
+          .toList();
     } on AppException catch (error) {
       _errorMessage = error.message;
     } catch (_) {
@@ -62,13 +67,18 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
     if (_errorMessage != null) {
       return ListView(children: [
         const SizedBox(height: 180),
-        _Message(icon: Icons.cloud_off_outlined, text: _errorMessage!, action: _load),
+        _Message(
+            icon: Icons.cloud_off_outlined,
+            text: _errorMessage!,
+            action: _load),
       ]);
     }
     if (_orders.isEmpty) {
       return ListView(children: const [
         SizedBox(height: 180),
-        _Message(icon: Icons.receipt_long_outlined, text: 'Você ainda não fez nenhum pedido.'),
+        _Message(
+            icon: Icons.receipt_long_outlined,
+            text: 'Você ainda não fez nenhum pedido.'),
       ]);
     }
     return ListView.separated(
@@ -79,23 +89,28 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
         final order = _orders[index];
         return Card(
           child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            title: Text(order.orderNumber, style: const TextStyle(fontWeight: FontWeight.w700)),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            title: Text(order.orderNumber,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
             subtitle: Padding(
               padding: const EdgeInsets.only(top: 6),
-              child: Text('${order.itemsCount} item(ns) • ${_fulfillmentLabel(order.fulfillmentType)}\n${_statusLabel(order.status)}'),
+              child: Text(
+                  '${order.itemsCount} item(ns) • ${_fulfillmentLabel(order.fulfillmentType)}\n${_statusLabel(order)}'),
             ),
             trailing: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(_currency(order.total), style: const TextStyle(fontWeight: FontWeight.w700)),
+                Text(_currency(order.total),
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
                 const SizedBox(height: 4),
                 const Icon(Icons.chevron_right),
               ],
             ),
             onTap: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => OrderTrackingPage(orderId: order.id)),
+              MaterialPageRoute<void>(
+                  builder: (_) => OrderTrackingPage(orderId: order.id)),
             ),
           ),
         );
@@ -108,22 +123,43 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
     return 'R\$ ${amount.toStringAsFixed(2).replaceAll('.', ',')}';
   }
 
-  String _statusLabel(String status) => switch (status) {
-        'PENDING' => 'Aguardando confirmação',
-        'CONFIRMED' => 'Confirmado',
-        'PREPARING' => 'Em preparo',
-        'READY' => 'Pronto',
-        'OUT_FOR_DELIVERY' => 'Saiu para entrega',
-        'COMPLETED' => 'Concluído',
-        'CANCELLED' => 'Cancelado',
-        _ => status,
-      };
+  String _statusLabel(_OrderHistoryItem order) {
+    if (order.paymentMethod == 'PIX') {
+      switch (order.paymentStatus) {
+        case 'CONFIRMED':
+          return 'Pagamento confirmado';
+        case 'UNDER_REVIEW':
+          return 'Pagamento em análise';
+        case 'PENDING':
+          return 'Aguardando comprovante PIX';
+      }
+    }
+    return switch (order.status) {
+      'PENDING' => 'Aguardando confirmação',
+      'CONFIRMED' => 'Confirmado',
+      'PREPARING' => 'Em preparo',
+      'READY' => 'Pronto',
+      'OUT_FOR_DELIVERY' => 'Saiu para entrega',
+      'COMPLETED' => 'Concluído',
+      'CANCELLED' => 'Cancelado',
+      _ => order.status,
+    };
+  }
 
-  String _fulfillmentLabel(String type) => type == 'DELIVERY' ? 'Entrega' : 'Retirada';
+  String _fulfillmentLabel(String type) =>
+      type == 'DELIVERY' ? 'Entrega' : 'Retirada';
 }
 
 class _OrderHistoryItem {
-  const _OrderHistoryItem({required this.id, required this.orderNumber, required this.status, required this.fulfillmentType, required this.total, required this.itemsCount});
+  const _OrderHistoryItem(
+      {required this.id,
+      required this.orderNumber,
+      required this.status,
+      required this.paymentMethod,
+      required this.paymentStatus,
+      required this.fulfillmentType,
+      required this.total,
+      required this.itemsCount});
 
   factory _OrderHistoryItem.fromJson(Map<String, dynamic> json) {
     final items = json['items'];
@@ -131,6 +167,8 @@ class _OrderHistoryItem {
       id: json['id']?.toString() ?? '',
       orderNumber: json['order_number']?.toString() ?? 'Pedido',
       status: json['status']?.toString() ?? '',
+      paymentMethod: json['payment_method']?.toString() ?? '',
+      paymentStatus: json['payment_status']?.toString() ?? '',
       fulfillmentType: json['fulfillment_type']?.toString() ?? 'PICKUP',
       total: json['total_amount']?.toString() ?? '0.00',
       itemsCount: items is List<dynamic> ? items.length : 0,
@@ -140,6 +178,8 @@ class _OrderHistoryItem {
   final String id;
   final String orderNumber;
   final String status;
+  final String paymentMethod;
+  final String paymentStatus;
   final String fulfillmentType;
   final String total;
   final int itemsCount;
@@ -164,7 +204,8 @@ class _Message extends StatelessWidget {
               Text(text, textAlign: TextAlign.center),
               if (action != null) ...[
                 const SizedBox(height: 16),
-                FilledButton(onPressed: action, child: const Text('Tentar novamente')),
+                FilledButton(
+                    onPressed: action, child: const Text('Tentar novamente')),
               ],
             ],
           ),
