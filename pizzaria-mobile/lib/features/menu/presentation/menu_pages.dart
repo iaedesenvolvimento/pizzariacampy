@@ -796,33 +796,12 @@ class _PizzaModeCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
+            SizedBox(
               height: 132,
               width: double.infinity,
-              color: const Color(0xFFF5E8D8),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Semantics(
-                    image: true,
-                    label: isHalfAndHalf
-                        ? 'Pizza com dois sabores'
-                        : 'Pizza assada',
-                    child: Image.asset(
-                      'assets/catalogo-piloto/a-moda-do-chefe-i.png',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  if (isHalfAndHalf)
-                    Align(
-                      alignment: Alignment.center,
-                      child: Container(
-                        width: 2,
-                        height: 108,
-                        color: Colors.white.withValues(alpha: .75),
-                      ),
-                    ),
-                ],
+              child: _PizzaTypeVisual(
+                isHalfAndHalf: isHalfAndHalf,
+                isSmall: priceLabel != 'R\$ 45,00',
               ),
             ),
             Padding(
@@ -877,6 +856,163 @@ class _PizzaModeCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _PizzaTypeVisual extends StatelessWidget {
+  const _PizzaTypeVisual({
+    required this.isHalfAndHalf,
+    required this.isSmall,
+  });
+
+  final bool isHalfAndHalf;
+  final bool isSmall;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final foreground = isDark ? const Color(0xFFFFB174) : AppTheme.primary;
+    final background =
+        isDark ? const Color(0xFF382722) : const Color(0xFFF8EBDD);
+    final label = isSmall
+        ? 'BROTO'
+        : isHalfAndHalf
+            ? '2 SABORES'
+            : '1 SABOR';
+    final title = isSmall
+        ? 'Pizza broto'
+        : isHalfAndHalf
+            ? 'Meio a meio'
+            : 'Pizza grande';
+
+    return Semantics(
+      label: '$title, $label',
+      child: Container(
+        color: background,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Positioned(
+              right: -22,
+              top: -34,
+              child: Container(
+                width: 118,
+                height: 118,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: foreground.withValues(alpha: .10),
+                    width: 18,
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              width: isSmall ? 76 : 92,
+              height: isSmall ? 76 : 92,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFFF2B45C),
+                border: Border.all(color: foreground, width: 3),
+                boxShadow: [
+                  BoxShadow(
+                    color: foreground.withValues(alpha: .20),
+                    blurRadius: 0,
+                    spreadRadius: 7,
+                  ),
+                ],
+              ),
+              child: Stack(
+                children: [
+                  if (isHalfAndHalf)
+                    ClipOval(
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Container(
+                          width: isSmall ? 38 : 46,
+                          height: isSmall ? 76 : 92,
+                          color: const Color(0xFFF7D98D),
+                        ),
+                      ),
+                    ),
+                  Center(
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: foreground,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: isSmall ? 18 : 22,
+                    top: isSmall ? 20 : 24,
+                    child: _VisualDot(color: foreground),
+                  ),
+                  Positioned(
+                    right: isSmall ? 16 : 20,
+                    bottom: isSmall ? 18 : 22,
+                    child: _VisualDot(color: foreground),
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              top: 14,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF251A18) : Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: foreground.withValues(alpha: .24)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isHalfAndHalf
+                          ? Icons.compare_arrows_rounded
+                          : Icons.local_pizza_rounded,
+                      size: 13,
+                      color: foreground,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      label,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: foreground,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: .8,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _VisualDot extends StatelessWidget {
+  const _VisualDot({required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 12,
+      height: 12,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: .88),
+        shape: BoxShape.circle,
       ),
     );
   }
