@@ -210,7 +210,7 @@ class AdminFinanceController extends ChangeNotifier {
   int cancellationsTotal = 0;
   bool sectionLoading = false;
   String? sectionError;
-  FinancePeriod period = FinancePeriod.today;
+  FinancePeriod period = FinancePeriod.sevenDays;
   DateTime? customStart;
   DateTime? customEnd;
   int _requestId = 0;
