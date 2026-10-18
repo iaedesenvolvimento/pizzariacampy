@@ -20,6 +20,7 @@ class OrderTrackingPage extends StatefulWidget {
 class _OrderTrackingPageState extends State<OrderTrackingPage> {
   OrderTrackingController? _controller;
   StreamSubscription<RealtimeNotification>? _notificationSubscription;
+  bool _uploadingProof = false;
 
   @override
   void initState() {
@@ -75,7 +76,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
           onRefresh: () => controller.load(widget.orderId),
           onSubmitProof: controller.order!.paymentMethod == 'PIX' &&
                   controller.order!.paymentStatus != 'CONFIRMED'
-              ? () => _submitProof(controller)
+              ? _uploadingProof
+                  ? null
+                  : () => _submitProof(controller)
               : null,
         );
       },
@@ -87,6 +90,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.any,
         allowMultiple: false,
+        withData: true,
       );
       if (result == null) {
         if (mounted) {
@@ -99,7 +103,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
 
       final file = result.files.single;
       final path = file.path;
-      if (path == null) {
+      if (path == null && file.bytes == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -121,8 +125,22 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
         return;
       }
 
-      await controller.submitPixProofFile(widget.orderId, path);
+      if (mounted) setState(() => _uploadingProof = true);
+      final uploaded = file.bytes != null
+          ? await controller.submitPixProofBytes(
+              widget.orderId, file.bytes!, file.name)
+          : await controller.submitPixProofFile(widget.orderId, path!);
+      if (mounted) {
+        setState(() => _uploadingProof = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(uploaded
+              ? 'Comprovante enviado para conferência.'
+              : controller.errorMessage ??
+                  'Não foi possível enviar o comprovante.'),
+        ));
+      }
     } catch (_) {
+      if (mounted) setState(() => _uploadingProof = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

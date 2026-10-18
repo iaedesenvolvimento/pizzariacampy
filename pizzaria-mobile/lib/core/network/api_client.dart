@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:async';
 
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 import '../config/app_config.dart';
 import '../errors/app_exception.dart';
@@ -68,9 +69,37 @@ class ApiClient {
     final request = http.MultipartRequest('POST', _uri(path));
     request.headers.addAll({'Accept': 'application/json', ...?headers});
     request.files.add(await http.MultipartFile.fromPath(fieldName, filePath));
-    final streamed = await request.send();
+    final streamed = await request.send().timeout(_requestTimeout);
     final response = await http.Response.fromStream(streamed);
     return _decode(response);
+  }
+
+  Future<dynamic> uploadBytes(String path,
+      {required List<int> bytes,
+      required String filename,
+      required String fieldName,
+      Map<String, String>? headers}) async {
+    final request = http.MultipartRequest('POST', _uri(path));
+    request.headers.addAll({'Accept': 'application/json', ...?headers});
+    request.files.add(http.MultipartFile.fromBytes(
+      fieldName,
+      bytes,
+      filename: filename,
+      contentType: _contentType(filename),
+    ));
+    final streamed = await request.send().timeout(_requestTimeout);
+    final response = await http.Response.fromStream(streamed);
+    return _decode(response);
+  }
+
+  MediaType? _contentType(String filename) {
+    final extension = filename.toLowerCase().split('.').last;
+    return switch (extension) {
+      'pdf' => MediaType('application', 'pdf'),
+      'jpg' || 'jpeg' => MediaType('image', 'jpeg'),
+      'png' => MediaType('image', 'png'),
+      _ => null,
+    };
   }
 
   Uri _uri(String path) => Uri.parse('${_config.apiBaseUrl}$path');

@@ -211,4 +211,27 @@ class OrderTrackingController extends ChangeNotifier {
     notifyListeners();
     return false;
   }
+
+  Future<bool> submitPixProofBytes(
+      String orderId, List<int> bytes, String filename) async {
+    try {
+      final token = _storage.accessToken;
+      if (token == null) throw const FormatException('Sessão expirada.');
+      await _apiClient.uploadBytes(
+        '/payments/orders/$orderId/proof/upload',
+        bytes: bytes,
+        filename: filename,
+        fieldName: 'proof',
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      await load(orderId);
+      return true;
+    } on AppException catch (error) {
+      errorMessage = error.message;
+    } catch (_) {
+      errorMessage = 'Não foi possível enviar o comprovante.';
+    }
+    notifyListeners();
+    return false;
+  }
 }
