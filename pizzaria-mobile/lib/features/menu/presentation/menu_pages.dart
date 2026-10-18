@@ -407,6 +407,8 @@ class _MenuHomePageState extends State<MenuHomePage> {
         BusinessStatusBanner(controller: _businessStatusController),
         const SizedBox(height: 16),
         if (_menuController.selectedCategoryId == null) ...[
+          const _CampyHeroCard(),
+          const SizedBox(height: 24),
           Text('Pizzas salgadas',
               style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: 6),
@@ -493,6 +495,190 @@ class _MenuHomePageState extends State<MenuHomePage> {
           ),
         ],
       ],
+    );
+  }
+}
+
+class _CampyHeroCard extends StatelessWidget {
+  const _CampyHeroCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = Theme.of(context).colorScheme;
+    final titleColor = isDark ? Colors.white : AppTheme.textPrimary;
+    final bodyColor =
+        isDark ? const Color(0xFFE4D5CE) : Colors.white.withValues(alpha: .82);
+    final panelColor = isDark ? const Color(0xFF3A211D) : AppTheme.primary;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 188),
+        decoration: BoxDecoration(
+          color: panelColor,
+          gradient: LinearGradient(
+            colors: isDark
+                ? const [Color(0xFF4A241F), Color(0xFF241816)]
+                : const [Color(0xFFB72D2D), Color(0xFF7E2025)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              right: -38,
+              top: -48,
+              child: Container(
+                width: 180,
+                height: 180,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                      color: Colors.white.withValues(alpha: .10), width: 22),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 102,
+              bottom: -66,
+              child: Container(
+                width: 130,
+                height: 130,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: colors.secondary.withValues(alpha: .16),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 18, 18),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: .14),
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(
+                                color: Colors.white.withValues(alpha: .18)),
+                          ),
+                          child: Text(
+                            'O SABOR COMEÇA AQUI',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.1,
+                                ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Seu próximo pedaço\ninesquecível.',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(
+                                color: titleColor,
+                                fontWeight: FontWeight.w700,
+                                height: 1.02,
+                              ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Escolha a massa, combine sabores\ne monte do seu jeito.',
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: bodyColor,
+                                    height: 1.35,
+                                  ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    width: 126,
+                    height: 150,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          width: 122,
+                          height: 122,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.black.withValues(alpha: .16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: .24),
+                                blurRadius: 24,
+                                offset: const Offset(0, 12),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Transform.rotate(
+                          angle: -.08,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(70),
+                            child: Image.asset(
+                              'assets/catalogo-piloto/a-moda-do-chefe-i.png',
+                              width: 118,
+                              height: 118,
+                              fit: BoxFit.cover,
+                              semanticLabel:
+                                  'Pizza artesanal da Pizzaria Campy',
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          right: 0,
+                          bottom: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 9, vertical: 7),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(14),
+                              boxShadow: const [
+                                BoxShadow(
+                                    color: Color(0x33000000),
+                                    blurRadius: 8,
+                                    offset: Offset(0, 3)),
+                              ],
+                            ),
+                            child: Text(
+                              'feito na hora',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelSmall
+                                  ?.copyWith(
+                                    color: AppTheme.primary,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
