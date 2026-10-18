@@ -910,52 +910,72 @@ class _PizzaTypeVisual extends StatelessWidget {
               ),
             ),
             Container(
-              width: isSmall ? 76 : 92,
-              height: isSmall ? 76 : 92,
+              width: isSmall ? 108 : 128,
+              height: isSmall ? 72 : 82,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFFF2B45C),
-                border: Border.all(color: foreground, width: 3),
+                color: isDark ? const Color(0xFF241A18) : Colors.white,
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: foreground.withValues(alpha: .28)),
                 boxShadow: [
                   BoxShadow(
-                    color: foreground.withValues(alpha: .20),
-                    blurRadius: 0,
-                    spreadRadius: 7,
+                    color: foreground.withValues(alpha: .14),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
                   ),
                 ],
               ),
-              child: Stack(
+              child: Row(
                 children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: foreground.withValues(alpha: .12),
+                        borderRadius: const BorderRadius.horizontal(
+                          left: Radius.circular(21),
+                        ),
+                      ),
+                    ),
+                  ),
                   if (isHalfAndHalf)
-                    ClipOval(
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: Container(
-                          width: isSmall ? 38 : 46,
-                          height: isSmall ? 76 : 92,
-                          color: const Color(0xFFF7D98D),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF2B45C).withValues(alpha: .55),
+                          borderRadius: const BorderRadius.horizontal(
+                            right: Radius.circular(21),
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (!isHalfAndHalf)
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: foreground.withValues(alpha: .22),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                     ),
                   Center(
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: foreground,
-                        shape: BoxShape.circle,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Text(
+                        isSmall
+                            ? '03'
+                            : isHalfAndHalf
+                                ? '02'
+                                : '01',
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(
+                              color: foreground,
+                              fontWeight: FontWeight.w800,
+                              height: 1,
+                            ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    left: isSmall ? 18 : 22,
-                    top: isSmall ? 20 : 24,
-                    child: _VisualDot(color: foreground),
-                  ),
-                  Positioned(
-                    right: isSmall ? 16 : 20,
-                    bottom: isSmall ? 18 : 22,
-                    child: _VisualDot(color: foreground),
                   ),
                 ],
               ),
@@ -975,8 +995,10 @@ class _PizzaTypeVisual extends StatelessWidget {
                   children: [
                     Icon(
                       isHalfAndHalf
-                          ? Icons.compare_arrows_rounded
-                          : Icons.local_pizza_rounded,
+                          ? Icons.call_split_rounded
+                          : isSmall
+                              ? Icons.crop_square_rounded
+                              : Icons.looks_one_rounded,
                       size: 13,
                       color: foreground,
                     ),
@@ -995,24 +1017,6 @@ class _PizzaTypeVisual extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _VisualDot extends StatelessWidget {
-  const _VisualDot({required this.color});
-
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 12,
-      height: 12,
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: .88),
-        shape: BoxShape.circle,
       ),
     );
   }
