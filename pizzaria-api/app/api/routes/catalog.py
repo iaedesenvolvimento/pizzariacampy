@@ -467,6 +467,31 @@ async def update_product_size(
     return size
 
 
+@admin_router.delete("/products/{product_id}/sizes/{size_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_product_size(
+    product_id: UUID,
+    size_id: UUID,
+    session: AsyncSession = Depends(get_session),
+    _: User = Depends(get_admin_user),
+) -> None:
+    size = await session.scalar(
+        select(ProductSize).where(ProductSize.id == size_id, ProductSize.product_id == product_id)
+    )
+    if size is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Size not found")
+
+    await session.execute(
+        PizzaConfiguration.__table__.delete().where(
+            PizzaConfiguration.product_size_id == size_id
+        )
+    )
+    await session.execute(
+        FlavorSizePrice.__table__.delete().where(FlavorSizePrice.product_size_id == size_id)
+    )
+    await session.delete(size)
+    await session.commit()
+
+
 async def get_pizza_size_for_admin(
     product_id: UUID,
     size_id: UUID,

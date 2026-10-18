@@ -123,6 +123,31 @@ class _AdminProductSizesPageState extends State<AdminProductSizesPage> {
     }
   }
 
+  Future<void> _delete(Map<String, dynamic> size) async {
+    final id = size['id']?.toString();
+    if (_token == null || id == null) return;
+    final name = size['name']?.toString() ?? 'esta variação';
+    final confirmed = await AdminConfirmationDialog.show(
+      context: context,
+      title: 'Excluir variação?',
+      message:
+          'A variação "$name" e suas configurações de sabores serão removidas. Esta ação não pode ser desfeita.',
+      confirmLabel: 'Excluir',
+      destructive: true,
+    );
+    if (!confirmed) return;
+    try {
+      await _adminApi!
+          .delete('/admin/catalog/products/${widget.productId}/sizes/$id');
+      await _load();
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Não foi possível excluir a variação.')));
+      }
+    }
+  }
+
   Future<void> _configureFlavors(Map<String, dynamic> size) async {
     final sizeId = size['id']?.toString();
     if (sizeId == null) return;
@@ -201,6 +226,12 @@ class _AdminProductSizesPageState extends State<AdminProductSizesPage> {
                                           tooltip: 'Editar preço e variação',
                                           icon: const Icon(Icons.edit_outlined),
                                           onPressed: () => _edit(size),
+                                        ),
+                                        IconButton(
+                                          tooltip: 'Excluir variação',
+                                          icon:
+                                              const Icon(Icons.delete_outline),
+                                          onPressed: () => _delete(size),
                                         ),
                                         Switch(
                                             value: size['is_active'] == true,
