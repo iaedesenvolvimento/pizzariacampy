@@ -326,6 +326,9 @@ async def delete_product(
     product = await session.get(Product, product_id)
     if product is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+    await session.execute(
+        ProductFlavor.__table__.delete().where(ProductFlavor.product_id == product_id)
+    )
     try:
         await session.delete(product)
         await session.commit()
