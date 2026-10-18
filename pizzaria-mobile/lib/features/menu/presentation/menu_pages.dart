@@ -514,9 +514,13 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryText = isDark ? Colors.white : AppTheme.textPrimary;
+    final secondaryText =
+        isDark ? const Color(0xFFD8C8C2) : AppTheme.textSecondary;
     return Card(
       clipBehavior: Clip.antiAlias,
-      color: const Color(0xFFFFF7F4),
+      color: isDark ? const Color(0xFF2B211E) : const Color(0xFFFFF7F4),
       child: InkWell(
         onTap: onOpen,
         child: Row(
@@ -535,11 +539,19 @@ class ProductCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(product.name,
-                        style: Theme.of(context).textTheme.titleMedium),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: primaryText,
+                                )),
                     if (product.description != null) ...[
                       const SizedBox(height: 4),
                       Text(product.description!,
-                          maxLines: 2, overflow: TextOverflow.ellipsis),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(color: secondaryText)),
                     ],
                     const SizedBox(height: 10),
                     Row(
@@ -1080,6 +1092,7 @@ class _CategoryListState extends State<_CategoryList> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final categories = <({String label, String emoji, String? id})>[
       (label: 'Pizzas salgadas', emoji: '🍕', id: null),
       ...widget.controller.categories
@@ -1107,13 +1120,21 @@ class _CategoryListState extends State<_CategoryList> {
                 label: Text(category.label),
                 side: BorderSide(
                   color: widget.controller.selectedCategoryId == category.id
-                      ? AppTheme.primary
-                      : const Color(0xFFE1D2C8),
+                      ? (isDark ? const Color(0xFFFF6B61) : AppTheme.primary)
+                      : (isDark
+                          ? const Color(0xFF6B554D)
+                          : const Color(0xFFE1D2C8)),
                 ),
-                backgroundColor:
-                    widget.controller.selectedCategoryId == category.id
-                        ? const Color(0xFFFFF0E8)
-                        : Colors.transparent,
+                backgroundColor: widget.controller.selectedCategoryId ==
+                        category.id
+                    ? (isDark
+                        ? const Color(0xFF8F302C)
+                        : const Color(0xFFFFF0E8))
+                    : (isDark ? const Color(0xFF2B211E) : Colors.transparent),
+                labelStyle: TextStyle(
+                  color: isDark ? Colors.white : AppTheme.textPrimary,
+                  fontWeight: FontWeight.w500,
+                ),
                 onPressed: () => widget.controller.selectCategory(category.id),
               ),
             ),
