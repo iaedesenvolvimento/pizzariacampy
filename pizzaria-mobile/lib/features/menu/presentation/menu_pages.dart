@@ -583,9 +583,16 @@ class _PizzaModeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? const Color(0xFF2B211E) : Colors.white;
+    final primaryText = isDark ? Colors.white : AppTheme.textPrimary;
+    final secondaryText =
+        isDark ? const Color(0xFFD8C8C2) : AppTheme.textSecondary;
     return Card(
       clipBehavior: Clip.antiAlias,
-      color: Colors.white,
+      color: cardColor,
+      elevation: isDark ? 1 : 0,
+      surfaceTintColor: Colors.transparent,
       child: InkWell(
         onTap: onTap,
         child: Column(
@@ -628,23 +635,33 @@ class _PizzaModeCard extends StatelessWidget {
                   Text(title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: primaryText,
+                            fontSize: 16,
+                            height: 1.15,
+                          )),
                   const SizedBox(height: 10),
                   Text(description,
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyMedium),
-                  const SizedBox(height: 20),
-                  const Text('A partir de',
-                      style: TextStyle(
-                          fontSize: 11, color: AppTheme.textSecondary)),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: secondaryText,
+                            fontSize: 13,
+                            height: 1.3,
+                          )),
+                  const SizedBox(height: 16),
+                  Text('A partir de',
+                      style: TextStyle(fontSize: 11, color: secondaryText)),
                   const SizedBox(height: 2),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(priceLabel,
                           style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.w700)),
+                              fontSize: 20,
+                              height: 1.1,
+                              color: primaryText,
+                              fontWeight: FontWeight.w700)),
                       Container(
                         width: 32,
                         height: 32,
