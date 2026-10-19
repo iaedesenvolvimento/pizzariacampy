@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+import logging
 from decimal import Decimal
 from uuid import UUID
 
@@ -10,6 +11,9 @@ from app.core.config import settings
 
 class MercadoPagoError(Exception):
     pass
+
+
+logger = logging.getLogger(__name__)
 
 
 def _headers(idempotency_key: str | None = None) -> dict[str, str]:
@@ -56,7 +60,15 @@ async def create_pix_payment(
             json=body,
         )
     if response.status_code >= 400:
-        raise MercadoPagoError("Mercado Pago recusou a criação do pagamento.")
+        detail = response.text.strip().replace("\n", " ")[:1000]
+        logger.error(
+            "Mercado Pago recusou a criação da order: status=%s body=%s",
+            response.status_code,
+            detail,
+        )
+        raise MercadoPagoError(
+            f"Mercado Pago recusou a criação do pagamento ({response.status_code}): {detail}"
+        )
     return response.json()
 
 
