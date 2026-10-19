@@ -1,3 +1,4 @@
+import logging
 from uuid import UUID
 
 from datetime import datetime, timezone
@@ -27,6 +28,7 @@ from app.services.mercado_pago import (
 
 
 router = APIRouter(prefix="/payments")
+logger = logging.getLogger(__name__)
 admin_router = APIRouter(prefix="/admin/payments")
 UPLOAD_DIR = Path("/app/uploads")
 MAX_PROOF_SIZE = 10 * 1024 * 1024
@@ -79,6 +81,7 @@ async def create_mercado_pago_pix(
     if payment.external_id and payment.provider == "MERCADO_PAGO":
         return MercadoPagoPixResponse(
             payment_id=payment.external_id,
+            order_id=None,
             status=payment.status,
             qr_code=payment.qr_code,
             qr_code_base64=payment.qr_code_base64,
@@ -98,6 +101,7 @@ async def create_mercado_pago_pix(
         .get("payment_method", {})
     )
     nested_payment = data.get("transactions", {}).get("payments", [{}])[0]
+    mercado_pago_order_id = str(data.get("id") or "") or None
     payment.provider = "MERCADO_PAGO"
     payment.external_id = str(nested_payment.get("id") or data.get("id"))
     payment.status = payment_status(
@@ -106,9 +110,16 @@ async def create_mercado_pago_pix(
     payment.qr_code = transaction.get("qr_code")
     payment.qr_code_base64 = transaction.get("qr_code_base64")
     order.payment_status = payment.status
+    logger.info(
+        "Mercado Pago order criada: order_id=%s payment_id=%s local_order_id=%s",
+        mercado_pago_order_id,
+        payment.external_id,
+        order.id,
+    )
     await session.commit()
     return MercadoPagoPixResponse(
         payment_id=payment.external_id,
+        order_id=mercado_pago_order_id,
         status=payment.status,
         qr_code=payment.qr_code,
         qr_code_base64=payment.qr_code_base64,

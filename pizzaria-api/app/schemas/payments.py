@@ -20,6 +20,7 @@ class PaymentReviewRequest(BaseModel):
 
 class MercadoPagoPixResponse(BaseModel):
     payment_id: str
+    order_id: str | None = None
     status: str
     qr_code: str | None = None
     qr_code_base64: str | None = None
