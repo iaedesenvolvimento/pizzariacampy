@@ -51,8 +51,6 @@ async def create_pix_payment(
         },
         "payer": {"email": payer_email},
     }
-    if settings.mercado_pago_webhook_url:
-        body["notification_url"] = settings.mercado_pago_webhook_url
     async with httpx.AsyncClient(timeout=20) as client:
         response = await client.post(
             "https://api.mercadopago.com/v1/orders",
