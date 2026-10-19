@@ -39,6 +39,25 @@ router = APIRouter(prefix="/orders")
 admin_router = APIRouter(prefix="/admin/orders")
 
 
+def admin_order_summary(order: Order, customer: User) -> AdminOrderSummary:
+    payment = order.payments[-1] if order.payments else None
+    return AdminOrderSummary(
+        id=str(order.id),
+        order_number=order.order_number,
+        status=order.status,
+        fulfillment_type=order.fulfillment_type,
+        total_amount=order.total_amount,
+        created_at=order.created_at,
+        payment_id=str(payment.id) if payment else None,
+        payment_status=payment.status if payment else None,
+        proof_url=payment.proof_url if payment else None,
+        customer_name=customer.name,
+        customer_phone=customer.phone,
+        customer_email=customer.email,
+        delivery_address_snapshot=order.delivery_address_snapshot,
+    )
+
+
 def order_error_response(error: OrderError) -> HTTPException:
     error_status = status.HTTP_404_NOT_FOUND if error.code == "ORDER_NOT_FOUND" else status.HTTP_422_UNPROCESSABLE_ENTITY
     return HTTPException(
@@ -146,21 +165,15 @@ async def list_admin_orders(
     session: AsyncSession = Depends(get_session),
     _: User = Depends(get_admin_user),
 ) -> list[AdminOrderSummary]:
-    statement = select(Order).options(selectinload(Order.payments)).order_by(Order.created_at.desc()).limit(limit).offset(offset)
+    statement = (
+        select(Order, User)
+        .join(User, User.id == Order.user_id)
+        .options(selectinload(Order.payments))
+        .order_by(Order.created_at.desc())
+        .limit(limit)
+        .offset(offset)
+    )
     if status_filter:
         statement = statement.where(Order.status == status_filter)
-    orders = list(await session.scalars(statement))
-    return [
-        AdminOrderSummary(
-            id=str(order.id),
-            order_number=order.order_number,
-            status=order.status,
-            fulfillment_type=order.fulfillment_type,
-            total_amount=order.total_amount,
-            created_at=order.created_at,
-            payment_id=str(order.payments[-1].id) if order.payments else None,
-            payment_status=order.payments[-1].status if order.payments else None,
-            proof_url=order.payments[-1].proof_url if order.payments else None,
-        )
-        for order in orders
-    ]
+    orders = list((await session.execute(statement)).all())
+    return [admin_order_summary(order, customer) for order, customer in orders]

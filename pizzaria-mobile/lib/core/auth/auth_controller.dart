@@ -118,9 +118,9 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> updateProfile({required String name}) async {
+  Future<bool> updateProfile({required String name, String? phone}) async {
     try {
-      user = await _service.updateProfile(name: name);
+      user = await _service.updateProfile(name: name, phone: phone);
       notifyListeners();
       return true;
     } on AppException catch (error) {

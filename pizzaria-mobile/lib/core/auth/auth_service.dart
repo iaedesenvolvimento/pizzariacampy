@@ -110,10 +110,10 @@ class AuthService {
         body: {'token': token.trim(), 'password': password});
   }
 
-  Future<AuthUser> updateProfile({required String name}) async {
+  Future<AuthUser> updateProfile({required String name, String? phone}) async {
     final response = await _apiClient.patch('/auth/me',
         headers: _authHeaders(_storage.accessToken!),
-        body: {'name': name.trim()});
+        body: {'name': name.trim(), 'phone': phone?.trim()});
     if (response is! Map<String, dynamic>) {
       throw const FormatException('Resposta de perfil inválida.');
     }
@@ -183,6 +183,7 @@ class AuthService {
         'name': user.name,
         'email': user.email,
         'role': user.role,
+        'phone': user.phone,
         'avatar_url': user.avatarUrl,
       };
 

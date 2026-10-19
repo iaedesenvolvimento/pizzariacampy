@@ -16,6 +16,7 @@ class User(TimestampedModel):
 
     name: Mapped[str] = mapped_column(String(120), nullable=False)
     email: Mapped[str] = mapped_column(String(254), nullable=False, unique=True, index=True)
+    phone: Mapped[str | None] = mapped_column(String(40), nullable=True)
     avatar_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[str] = mapped_column(

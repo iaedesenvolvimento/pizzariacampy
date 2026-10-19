@@ -14,6 +14,10 @@ class AdminOrderSummary(BaseModel):
     payment_id: str | None = None
     payment_status: str | None = None
     proof_url: str | None = None
+    customer_name: str | None = None
+    customer_phone: str | None = None
+    customer_email: str | None = None
+    delivery_address_snapshot: dict | None = None
 
 
 class AdminDashboardResponse(BaseModel):

@@ -14,17 +14,21 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   late final TextEditingController _nameController;
+  late final TextEditingController _phoneController;
   bool _saving = false;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.controller.user?.name);
+    _phoneController =
+        TextEditingController(text: widget.controller.user?.phone);
   }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
@@ -35,7 +39,8 @@ class _ProfilePageState extends State<ProfilePage> {
       return;
     }
     setState(() => _saving = true);
-    final success = await widget.controller.updateProfile(name: name);
+    final success = await widget.controller
+        .updateProfile(name: name, phone: _phoneController.text.trim());
     if (!mounted) return;
     setState(() => _saving = false);
     _showMessage(success
@@ -111,6 +116,15 @@ class _ProfilePageState extends State<ProfilePage> {
                 decoration: const InputDecoration(
                   labelText: 'Nome',
                   prefixIcon: Icon(Icons.person_outline),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _phoneController,
+                keyboardType: TextInputType.phone,
+                decoration: const InputDecoration(
+                  labelText: 'Telefone (opcional)',
+                  prefixIcon: Icon(Icons.phone_outlined),
                 ),
               ),
               const SizedBox(height: 16),

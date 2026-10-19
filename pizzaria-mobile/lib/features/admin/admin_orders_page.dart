@@ -313,11 +313,22 @@ class _AdminOrdersPageState extends State<AdminOrdersPage> {
               if (order.paymentStatus != null)
                 _detailRow('Pagamento', _paymentLabel(order.paymentStatus!)),
               _detailRow('Total', 'R\$ ${order.total.replaceAll('.', ',')}'),
+              if (order.customerName?.isNotEmpty == true) ...[
+                const Divider(height: AdminSpacing.xl),
+                Text('Cliente', style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: AdminSpacing.sm),
+                _detailRow('Nome', order.customerName!),
+                if (order.customerPhone?.isNotEmpty == true)
+                  _detailRow('Telefone', order.customerPhone!),
+                if (order.customerEmail?.isNotEmpty == true)
+                  _detailRow('E-mail', order.customerEmail!),
+              ],
+              if (order.deliveryAddressSnapshot != null) ...[
+                const SizedBox(height: AdminSpacing.sm),
+                _detailRow(
+                    'Endereço', _formatAddress(order.deliveryAddressSnapshot!)),
+              ],
               const SizedBox(height: AdminSpacing.md),
-              Text(
-                'O resumo atual da API não fornece cliente, endereço ou itens para o painel administrativo.',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
             ],
           ),
         ),
@@ -345,6 +356,24 @@ class _AdminOrdersPageState extends State<AdminOrdersPage> {
         'FAILED' => 'Pagamento recusado',
         _ => value,
       };
+
+  String _formatAddress(Map<String, dynamic> address) {
+    final street = address['address']?.toString().trim() ?? '';
+    final number = address['number']?.toString().trim() ?? '';
+    final complement = address['complement']?.toString().trim() ?? '';
+    final neighborhood = address['neighborhood']?.toString().trim() ?? '';
+    final city = address['city']?.toString().trim() ?? '';
+    final line = [
+      if (street.isNotEmpty) street,
+      if (number.isNotEmpty) number,
+      if (complement.isNotEmpty) complement,
+    ].join(', ');
+    return [
+      if (line.isNotEmpty) line,
+      if (neighborhood.isNotEmpty) neighborhood,
+      if (city.isNotEmpty) city,
+    ].join(' · ');
+  }
 
   bool _canCancel(AdminOrderSummary order) =>
       {'PENDING', 'CONFIRMED', 'PREPARING'}.contains(order.status);

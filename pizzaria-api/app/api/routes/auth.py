@@ -121,6 +121,7 @@ async def update_me(
     session: AsyncSession = Depends(get_session),
 ) -> User:
     current_user.name = payload.name.strip()
+    current_user.phone = payload.phone.strip() if payload.phone else None
     await session.commit()
     await session.refresh(current_user)
     return current_user

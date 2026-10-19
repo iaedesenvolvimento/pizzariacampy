@@ -52,12 +52,14 @@ class UserResponse(BaseModel):
     id: UUID
     name: str
     email: EmailStr
+    phone: str | None = None
     role: str
     avatar_url: str | None = None
 
 
 class UserUpdate(BaseModel):
     name: str = Field(min_length=2, max_length=120)
+    phone: str | None = Field(default=None, max_length=40)
 
 
 class TokenResponse(BaseModel):

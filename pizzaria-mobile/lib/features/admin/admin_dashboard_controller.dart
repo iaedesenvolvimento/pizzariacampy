@@ -15,6 +15,10 @@ class AdminOrderSummary {
       required this.paymentId,
       required this.paymentStatus,
       required this.proofUrl,
+      this.customerName,
+      this.customerPhone,
+      this.customerEmail,
+      this.deliveryAddressSnapshot,
       this.createdAt});
 
   factory AdminOrderSummary.fromJson(Map<String, dynamic> json) =>
@@ -27,6 +31,13 @@ class AdminOrderSummary {
         paymentId: json['payment_id']?.toString(),
         paymentStatus: json['payment_status']?.toString(),
         proofUrl: json['proof_url']?.toString(),
+        customerName: json['customer_name']?.toString(),
+        customerPhone: json['customer_phone']?.toString(),
+        customerEmail: json['customer_email']?.toString(),
+        deliveryAddressSnapshot:
+            json['delivery_address_snapshot'] is Map<String, dynamic>
+                ? json['delivery_address_snapshot'] as Map<String, dynamic>
+                : null,
         createdAt: DateTime.tryParse(json['created_at']?.toString() ?? ''),
       );
 
@@ -38,6 +49,10 @@ class AdminOrderSummary {
   final String? paymentId;
   final String? paymentStatus;
   final String? proofUrl;
+  final String? customerName;
+  final String? customerPhone;
+  final String? customerEmail;
+  final Map<String, dynamic>? deliveryAddressSnapshot;
   final DateTime? createdAt;
 }
 

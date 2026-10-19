@@ -11,6 +11,7 @@ from app.models.catalog import Category, Edge, Extra, Flavor, Product, ProductSi
 from app.models.order import Order
 from app.models.user import User
 from app.models.store_settings import StoreSettings
+from app.api.routes.orders import admin_order_summary
 from app.schemas.admin import AdminCustomerResponse, AdminDashboardResponse, AdminImageUploadResponse, AdminOrderSummary, PublicStoreSettingsResponse, StoreSettingsResponse, StoreSettingsUpdate
 from app.core.config import settings
 
@@ -155,23 +156,14 @@ async def get_dashboard(
     ready_orders = int(
         await session.scalar(select(func.count()).select_from(Order).where(Order.status == "READY")) or 0
     )
-    recent = await session.scalars(
-        select(Order).options(selectinload(Order.payments)).order_by(Order.created_at.desc()).limit(10)
+    recent = await session.execute(
+        select(Order, User)
+        .join(User, User.id == Order.user_id)
+        .options(selectinload(Order.payments))
+        .order_by(Order.created_at.desc())
+        .limit(10)
     )
-    recent_orders = [
-        AdminOrderSummary(
-            id=str(order.id),
-            order_number=order.order_number,
-            status=order.status,
-            fulfillment_type=order.fulfillment_type,
-            total_amount=order.total_amount,
-            created_at=order.created_at,
-            payment_id=str(order.payments[-1].id) if order.payments else None,
-            payment_status=order.payments[-1].status if order.payments else None,
-            proof_url=order.payments[-1].proof_url if order.payments else None,
-        )
-        for order in recent
-    ]
+    recent_orders = [admin_order_summary(order, customer) for order, customer in recent.all()]
     return AdminDashboardResponse(
         pending_orders=pending_orders,
         preparing_orders=preparing_orders,
