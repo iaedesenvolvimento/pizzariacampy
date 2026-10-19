@@ -39,6 +39,7 @@ class MenuHomePage extends StatefulWidget {
 }
 
 class _MenuHomePageState extends State<MenuHomePage> {
+  late final MenuService _menuService;
   late final menu_state.MenuController _menuController;
   late final BusinessStatusController _businessStatusController;
   final _searchController = TextEditingController();
@@ -48,8 +49,8 @@ class _MenuHomePageState extends State<MenuHomePage> {
   @override
   void initState() {
     super.initState();
-    _menuController = menu_state.MenuController(MenuService(ApiClient()))
-      ..load();
+    _menuService = MenuService(ApiClient());
+    _menuController = menu_state.MenuController(_menuService)..load();
     _businessStatusController = BusinessStatusController()..load();
   }
 
@@ -228,6 +229,10 @@ class _MenuHomePageState extends State<MenuHomePage> {
                             await widget.authController.refreshSession();
                             return widget.authController.accessToken;
                           },
+                          menuService: _menuService,
+                          isStoreOpen: _businessStatusController.isOpen &&
+                              !_businessStatusController.isLoading,
+                          storeStatusMessage: _businessStatusController.message,
                         ),
                       ),
                     ),

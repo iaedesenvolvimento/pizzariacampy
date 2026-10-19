@@ -3,17 +3,26 @@ import 'package:flutter/material.dart';
 import 'cart_controller.dart';
 import 'cart_models.dart';
 import '../checkout/checkout_pages.dart';
+import '../menu/data/menu_models.dart';
+import '../menu/data/menu_service.dart';
+import '../menu/presentation/menu_pages.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage(
       {required this.controller,
       required this.accessToken,
       required this.refreshAccessToken,
+      required this.menuService,
+      required this.isStoreOpen,
+      this.storeStatusMessage,
       super.key});
 
   final CartController controller;
   final String? accessToken;
   final Future<String?> Function() refreshAccessToken;
+  final MenuService menuService;
+  final bool isStoreOpen;
+  final String? storeStatusMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +45,14 @@ class CartPage extends StatelessWidget {
               ? const Center(child: CircularProgressIndicator())
               : controller.isEmpty
                   ? _EmptyCart(onBrowse: () => Navigator.of(context).pop())
-                  : _CartContents(controller: controller),
+                  : _CartContents(
+                      controller: controller,
+                      accessToken: accessToken,
+                      refreshAccessToken: refreshAccessToken,
+                      menuService: menuService,
+                      isStoreOpen: isStoreOpen,
+                      storeStatusMessage: storeStatusMessage,
+                    ),
           bottomNavigationBar: controller.isEmpty
               ? null
               : _CartSummary(
@@ -70,20 +86,193 @@ class CartPage extends StatelessWidget {
 }
 
 class _CartContents extends StatelessWidget {
-  const _CartContents({required this.controller});
+  const _CartContents({
+    required this.controller,
+    required this.accessToken,
+    required this.refreshAccessToken,
+    required this.menuService,
+    required this.isStoreOpen,
+    this.storeStatusMessage,
+  });
 
   final CartController controller;
+  final String? accessToken;
+  final Future<String?> Function() refreshAccessToken;
+  final MenuService menuService;
+  final bool isStoreOpen;
+  final String? storeStatusMessage;
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
+    return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-      itemCount: controller.items.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (context, index) =>
-          _CartItemTile(controller: controller, item: controller.items[index]),
+      children: [
+        ...controller.items.expand((item) => [
+              _CartItemTile(controller: controller, item: item),
+              const SizedBox(height: 12),
+            ]),
+        _CartSuggestions(
+          cartController: controller,
+          accessToken: accessToken,
+          refreshAccessToken: refreshAccessToken,
+          menuService: menuService,
+          isStoreOpen: isStoreOpen,
+          storeStatusMessage: storeStatusMessage,
+        ),
+      ],
     );
   }
+}
+
+class _CartSuggestions extends StatefulWidget {
+  const _CartSuggestions({
+    required this.cartController,
+    required this.accessToken,
+    required this.refreshAccessToken,
+    required this.menuService,
+    required this.isStoreOpen,
+    this.storeStatusMessage,
+  });
+
+  final String? accessToken;
+  final CartController cartController;
+  final Future<String?> Function() refreshAccessToken;
+  final MenuService menuService;
+  final bool isStoreOpen;
+  final String? storeStatusMessage;
+
+  @override
+  State<_CartSuggestions> createState() => _CartSuggestionsState();
+}
+
+class _CartSuggestionsState extends State<_CartSuggestions> {
+  late final Future<List<MenuProduct>> _products;
+
+  @override
+  void initState() {
+    super.initState();
+    _products = _loadSuggestions();
+  }
+
+  Future<List<MenuProduct>> _loadSuggestions() async {
+    try {
+      final categories = await widget.menuService.fetchCategories();
+      final products = await widget.menuService.fetchProducts();
+      final categoryNames = {
+        for (final category in categories)
+          category.id: '${category.name} ${category.slug}'.toLowerCase(),
+      };
+      final suggestions = products.where((product) {
+        final category = categoryNames[product.categoryId] ?? '';
+        final searchable =
+            '${product.name} ${product.description ?? ''} $category'
+                .toLowerCase();
+        return !isPizzaProductType(product.type) &&
+            (searchable.contains('bebida') ||
+                searchable.contains('doce') ||
+                searchable.contains('sobremesa') ||
+                searchable.contains('esfiha') ||
+                searchable.contains('combo'));
+      }).toList();
+      return suggestions.take(8).toList();
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  Future<void> _openProduct(MenuProduct product) async {
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => ProductDetailsPage(
+          product: product,
+          cartController: widget.cartController,
+          accessToken: widget.accessToken,
+          isStoreOpen: widget.isStoreOpen,
+          storeStatusMessage: widget.storeStatusMessage,
+          refreshAccessToken: widget.refreshAccessToken,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<MenuProduct>>(
+      future: _products,
+      builder: (context, snapshot) {
+        final products = snapshot.data ?? const <MenuProduct>[];
+        if (products.isEmpty) return const SizedBox.shrink();
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 12),
+            Text('Que tal completar seu pedido?',
+                style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 4),
+            Text('Bebidas, doces e outros itens para acompanhar.',
+                style: Theme.of(context).textTheme.bodyMedium),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 188,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: products.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemBuilder: (context, index) {
+                  final product = products[index];
+                  return SizedBox(
+                    width: 156,
+                    child: Card(
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        onTap: () => _openProduct(product),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(_productIcon(product),
+                                  color: Theme.of(context).colorScheme.primary,
+                                  size: 28),
+                              const Spacer(),
+                              Text(product.name,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style:
+                                      Theme.of(context).textTheme.titleSmall),
+                              const SizedBox(height: 4),
+                              Text('Ver opções →',
+                                  style: TextStyle(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+IconData _productIcon(MenuProduct product) {
+  final text = '${product.name} ${product.description ?? ''}'.toLowerCase();
+  if (text.contains('bebida') ||
+      text.contains('suco') ||
+      text.contains('refrigerante')) {
+    return Icons.local_drink_outlined;
+  }
+  if (text.contains('doce') || text.contains('sobremesa')) {
+    return Icons.icecream_outlined;
+  }
+  return Icons.restaurant_outlined;
 }
 
 class _CartItemTile extends StatelessWidget {
