@@ -65,12 +65,7 @@ class OrderTracking {
   factory OrderTracking.fromJson(Map<String, dynamic> json) {
     final address = json['delivery_address_snapshot'];
     final deliveryAddress = address is Map<String, dynamic>
-        ? address['formatted']?.toString() ??
-            [
-              address['address']?.toString(),
-              address['neighborhood']?.toString(),
-              address['city']?.toString(),
-            ].where((part) => part != null && part.isNotEmpty).join(' · ')
+        ? _formatDeliveryAddress(address)
         : null;
     return OrderTracking(
       orderNumber: json['order_number']?.toString() ?? '',
@@ -110,6 +105,30 @@ class OrderTracking {
   final String? couponCode;
   final String? deliveryAddress;
   final List<OrderTrackingItem> items;
+}
+
+String? _formatDeliveryAddress(Map<String, dynamic> address) {
+  final street = address['address']?.toString().trim() ?? '';
+  final number = address['number']?.toString().trim() ??
+      address['delivery_number']?.toString().trim() ??
+      '';
+  final complement = address['complement']?.toString().trim() ?? '';
+  final neighborhood = address['neighborhood']?.toString().trim() ?? '';
+  final city = address['city']?.toString().trim() ?? '';
+
+  final streetLine = [
+    if (street.isNotEmpty) street,
+    if (number.isNotEmpty) number,
+    if (complement.isNotEmpty) complement,
+  ].join(', ');
+  final parts = [
+    if (streetLine.isNotEmpty) streetLine,
+    if (neighborhood.isNotEmpty) neighborhood,
+    if (city.isNotEmpty) city,
+  ];
+  if (parts.isNotEmpty) return parts.join(' · ');
+  final formatted = address['formatted']?.toString().trim() ?? '';
+  return formatted.isEmpty ? null : formatted;
 }
 
 class OrderTrackingController extends ChangeNotifier {
