@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/config/app_config.dart';
+import '../../core/errors/app_exception.dart';
 import '../../core/network/api_client.dart';
 import '../../core/storage/app_storage.dart';
 import 'admin_api_client.dart';
@@ -39,12 +40,13 @@ class _AdminHoursPageState extends State<AdminHoursPage> {
     _load();
   }
 
-  Future<void> _load() async {
-    if (mounted)
+  Future<void> _load({int attempt = 0}) async {
+    if (mounted) {
       setState(() {
         _loading = true;
         _error = null;
       });
+    }
     try {
       final storage = await AppStorage.create();
       _adminApi = AdminApiClient(
@@ -63,16 +65,21 @@ class _AdminHoursPageState extends State<AdminHoursPage> {
             _close[day];
       }
       if (mounted) setState(() => _loading = false);
-    } catch (_) {
-      if (mounted)
+    } catch (error) {
+      if (attempt == 0 && error is NetworkException) {
+        await Future<void>.delayed(const Duration(seconds: 1));
+        if (mounted) return _load(attempt: 1);
+      }
+      if (mounted) {
         setState(() {
           _loading = false;
           _error = 'Não foi possível carregar os horários.';
         });
+      }
     }
   }
 
-  Future<void> _save(int day) async {
+  Future<void> _save(int day, {int attempt = 0}) async {
     if (_adminApi == null || _saving[day]) return;
     if (!_closed[day] &&
         !AdminBusinessHourPresentation.isValidRange(_open[day], _close[day])) {
@@ -95,10 +102,15 @@ class _AdminHoursPageState extends State<AdminHoursPage> {
         'is_closed': _closed[day],
       });
       if (mounted) setState(() => _message = '${_days[day]} atualizado.');
-    } catch (_) {
-      if (mounted)
+    } catch (error) {
+      if (attempt == 0 && error is NetworkException) {
+        await Future<void>.delayed(const Duration(seconds: 1));
+        if (mounted) return _save(day, attempt: 1);
+      }
+      if (mounted) {
         setState(() => _message =
             'Não foi possível salvar ${_days[day].toLowerCase()}. Tente novamente.');
+      }
     } finally {
       if (mounted) setState(() => _saving[day] = false);
     }
