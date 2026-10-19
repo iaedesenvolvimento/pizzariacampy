@@ -19,6 +19,7 @@ from app.services.payments import payment_processor
 from app.services.mercado_pago import (
     MercadoPagoError,
     create_pix_payment,
+    get_order,
     get_payment,
     payment_status,
     valid_webhook_signature,
@@ -91,10 +92,17 @@ async def create_mercado_pago_pix(
         )
     except MercadoPagoError as error:
         raise HTTPException(status_code=502, detail=str(error)) from error
-    transaction = data.get("point_of_interaction", {}).get("transaction_data", {})
+    transaction = (
+        data.get("transactions", {})
+        .get("payments", [{}])[0]
+        .get("payment_method", {})
+    )
+    nested_payment = data.get("transactions", {}).get("payments", [{}])[0]
     payment.provider = "MERCADO_PAGO"
-    payment.external_id = str(data.get("id"))
-    payment.status = payment_status(str(data.get("status", "pending")))
+    payment.external_id = str(nested_payment.get("id") or data.get("id"))
+    payment.status = payment_status(
+        str(nested_payment.get("status") or data.get("status", "pending"))
+    )
     payment.qr_code = transaction.get("qr_code")
     payment.qr_code_base64 = transaction.get("qr_code_base64")
     order.payment_status = payment.status
@@ -113,7 +121,7 @@ async def mercado_pago_webhook(request: Request, session: AsyncSession = Depends
     payload = await request.json()
     payment_id = str((payload.get("data") or {}).get("id") or request.query_params.get("data.id") or "")
     event_type = str(payload.get("type") or request.query_params.get("type") or "")
-    if event_type != "payment" or not payment_id:
+    if event_type not in {"order", "payment"} or not payment_id:
         return
     if not valid_webhook_signature(
         signature=request.headers.get("x-signature"),
@@ -121,15 +129,26 @@ async def mercado_pago_webhook(request: Request, session: AsyncSession = Depends
         payment_id=payment_id,
     ):
         raise HTTPException(status_code=401, detail="Invalid webhook signature")
-    payment = await session.scalar(select(Payment).where(Payment.external_id == payment_id))
-    if payment is None:
-        return
     try:
-        data = await get_payment(payment_id)
+        data = await get_order(payment_id) if event_type == "order" else await get_payment(payment_id)
     except MercadoPagoError:
         return
-    payment.status = payment_status(str(data.get("status", "pending")))
-    order = await session.get(Order, payment.order_id)
+    if event_type == "order":
+        local_order_id = data.get("external_reference")
+        order = await session.scalar(select(Order).where(Order.id == local_order_id))
+        nested_payment = data.get("transactions", {}).get("payments", [{}])[0]
+        provider_payment_id = str(nested_payment.get("id") or "")
+        payment = await session.scalar(select(Payment).where(Payment.order_id == order.id)) if order else None
+        status_value = nested_payment.get("status") or data.get("status", "pending")
+    else:
+        payment = await session.scalar(select(Payment).where(Payment.external_id == payment_id))
+        order = await session.get(Order, payment.order_id) if payment else None
+        status_value = data.get("status", "pending")
+    if payment is None:
+        return
+    payment.status = payment_status(str(status_value))
+    if event_type == "order" and provider_payment_id:
+        payment.external_id = provider_payment_id
     if order is not None:
         order.payment_status = payment.status
     await session.commit()

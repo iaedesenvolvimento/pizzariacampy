@@ -1,6 +1,5 @@
 import hashlib
 import hmac
-import re
 from decimal import Decimal
 from uuid import UUID
 
@@ -33,22 +32,42 @@ async def create_pix_payment(
     payer_email: str,
 ) -> dict:
     body = {
-        "transaction_amount": float(amount),
-        "description": f"Pedido {order_number} - Pizzaria Campy",
-        "payment_method_id": "pix",
-        "payer": {"email": payer_email},
+        "type": "online",
+        "total_amount": f"{amount:.2f}",
         "external_reference": str(order_id),
+        "processing_mode": "automatic",
+        "description": f"Pedido {order_number} - Pizzaria Campy",
+        "transactions": {
+            "payments": [
+                {
+                    "amount": f"{amount:.2f}",
+                    "payment_method": {"id": "pix", "type": "bank_transfer"},
+                }
+            ]
+        },
+        "payer": {"email": payer_email},
     }
     if settings.mercado_pago_webhook_url:
         body["notification_url"] = settings.mercado_pago_webhook_url
     async with httpx.AsyncClient(timeout=20) as client:
         response = await client.post(
-            "https://api.mercadopago.com/v1/payments",
+            "https://api.mercadopago.com/v1/orders",
             headers=_headers(f"campy-{order_id}"),
             json=body,
         )
     if response.status_code >= 400:
         raise MercadoPagoError("Mercado Pago recusou a criação do pagamento.")
+    return response.json()
+
+
+async def get_order(order_id: str) -> dict:
+    async with httpx.AsyncClient(timeout=15) as client:
+        response = await client.get(
+            f"https://api.mercadopago.com/v1/orders/{order_id}",
+            headers=_headers(),
+        )
+    if response.status_code >= 400:
+        raise MercadoPagoError("Não foi possível consultar o pagamento.")
     return response.json()
 
 
@@ -66,8 +85,10 @@ async def get_payment(payment_id: str) -> dict:
 def payment_status(value: str) -> str:
     return {
         "approved": "CONFIRMED",
+        "processed": "CONFIRMED",
         "rejected": "FAILED",
         "cancelled": "FAILED",
+        "expired": "FAILED",
     }.get(value, "PENDING")
 
 
