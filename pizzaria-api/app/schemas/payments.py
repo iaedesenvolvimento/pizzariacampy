@@ -16,3 +16,11 @@ class PaymentProofRequest(BaseModel):
 class PaymentReviewRequest(BaseModel):
     status: str = Field(pattern=r"^(CONFIRMED|FAILED)$")
     notes: str | None = Field(default=None, max_length=300)
+
+
+class MercadoPagoPixResponse(BaseModel):
+    payment_id: str
+    status: str
+    qr_code: str | None = None
+    qr_code_base64: str | None = None
+    ticket_url: str | None = None

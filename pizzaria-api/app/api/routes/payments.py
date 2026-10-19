@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,8 +14,15 @@ from app.dependencies.auth import get_admin_user
 from app.models.order import Order, Payment
 from app.models.user import User
 from app.schemas.orders import PaymentResponse
-from app.schemas.payments import PaymentMethodResponse, PaymentProofRequest, PaymentReviewRequest
+from app.schemas.payments import MercadoPagoPixResponse, PaymentMethodResponse, PaymentProofRequest, PaymentReviewRequest
 from app.services.payments import payment_processor
+from app.services.mercado_pago import (
+    MercadoPagoError,
+    create_pix_payment,
+    get_payment,
+    payment_status,
+    valid_webhook_signature,
+)
 
 
 router = APIRouter(prefix="/payments")
@@ -50,6 +57,82 @@ async def list_payment_methods() -> list[PaymentMethodResponse]:
             collects_card_data=False,
         ),
     ]
+
+
+@router.post("/orders/{order_id}/mercadopago/pix", response_model=MercadoPagoPixResponse)
+async def create_mercado_pago_pix(
+    order_id: UUID,
+    session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+) -> MercadoPagoPixResponse:
+    order = await session.scalar(select(Order).where(Order.id == order_id, Order.user_id == current_user.id))
+    if order is None:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order.payment_method != "PIX":
+        raise HTTPException(status_code=422, detail="Order is not paid by PIX")
+    payment = await session.scalar(
+        select(Payment).where(Payment.order_id == order_id).order_by(Payment.created_at.desc())
+    )
+    if payment is None:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    if payment.external_id and payment.provider == "MERCADO_PAGO":
+        return MercadoPagoPixResponse(
+            payment_id=payment.external_id,
+            status=payment.status,
+            qr_code=payment.qr_code,
+            qr_code_base64=payment.qr_code_base64,
+        )
+    try:
+        data = await create_pix_payment(
+            order_id=order.id,
+            order_number=order.order_number,
+            amount=payment.amount,
+            payer_email=current_user.email,
+        )
+    except MercadoPagoError as error:
+        raise HTTPException(status_code=502, detail=str(error)) from error
+    transaction = data.get("point_of_interaction", {}).get("transaction_data", {})
+    payment.provider = "MERCADO_PAGO"
+    payment.external_id = str(data.get("id"))
+    payment.status = payment_status(str(data.get("status", "pending")))
+    payment.qr_code = transaction.get("qr_code")
+    payment.qr_code_base64 = transaction.get("qr_code_base64")
+    order.payment_status = payment.status
+    await session.commit()
+    return MercadoPagoPixResponse(
+        payment_id=payment.external_id,
+        status=payment.status,
+        qr_code=payment.qr_code,
+        qr_code_base64=payment.qr_code_base64,
+        ticket_url=transaction.get("ticket_url"),
+    )
+
+
+@router.post("/mercadopago/webhook", status_code=204)
+async def mercado_pago_webhook(request: Request, session: AsyncSession = Depends(get_session)) -> None:
+    payload = await request.json()
+    payment_id = str((payload.get("data") or {}).get("id") or request.query_params.get("data.id") or "")
+    event_type = str(payload.get("type") or request.query_params.get("type") or "")
+    if event_type != "payment" or not payment_id:
+        return
+    if not valid_webhook_signature(
+        signature=request.headers.get("x-signature"),
+        request_id=request.headers.get("x-request-id"),
+        payment_id=payment_id,
+    ):
+        raise HTTPException(status_code=401, detail="Invalid webhook signature")
+    payment = await session.scalar(select(Payment).where(Payment.external_id == payment_id))
+    if payment is None:
+        return
+    try:
+        data = await get_payment(payment_id)
+    except MercadoPagoError:
+        return
+    payment.status = payment_status(str(data.get("status", "pending")))
+    order = await session.get(Order, payment.order_id)
+    if order is not None:
+        order.payment_status = payment.status
+    await session.commit()
 
 
 @router.post("/orders/{order_id}/proof", response_model=PaymentResponse)

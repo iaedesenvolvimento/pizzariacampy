@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -646,6 +648,28 @@ class OrderConfirmedPage extends StatelessWidget {
               Text('Número: ${result.orderNumber}'),
               const SizedBox(height: 8),
               Text('Total: R\$ ${result.total.replaceAll('.', ',')}'),
+              if (result.pixQrCode != null) ...[
+                const SizedBox(height: 20),
+                const Text('Pix gerado',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                if (result.pixQrCodeBase64 != null)
+                  Image.memory(base64Decode(result.pixQrCodeBase64!),
+                      width: 220, height: 220),
+                const SizedBox(height: 8),
+                SelectableText(result.pixQrCode!),
+                TextButton.icon(
+                  onPressed: () async {
+                    await Clipboard.setData(
+                        ClipboardData(text: result.pixQrCode!));
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Código Pix copiado.')));
+                  },
+                  icon: const Icon(Icons.copy_outlined),
+                  label: const Text('Copiar código Pix'),
+                ),
+              ],
               const SizedBox(height: 28),
               ElevatedButton(
                 onPressed: () => Navigator.of(context).pushReplacement(

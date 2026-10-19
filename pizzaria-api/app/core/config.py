@@ -51,6 +51,11 @@ class Settings(BaseSettings):
     cloudinary_api_secret: str | None = None
     cloudinary_upload_folder: str = "pizzaria-campy/products"
     firebase_service_account_base64: str | None = None
+    mercado_pago_access_token: str | None = None
+    mercado_pago_public_key: str | None = None
+    mercado_pago_webhook_secret: str | None = None
+    mercado_pago_environment: str = "test"
+    mercado_pago_webhook_url: str | None = None
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -12,13 +12,21 @@ class CheckoutResult {
       required this.orderNumber,
       required this.total,
       required this.discountAmount,
-      required this.couponCode});
+      required this.couponCode,
+      this.pixPaymentId,
+      this.pixStatus,
+      this.pixQrCode,
+      this.pixQrCodeBase64});
 
   final String orderId;
   final String orderNumber;
   final String total;
   final String discountAmount;
   final String? couponCode;
+  final String? pixPaymentId;
+  final String? pixStatus;
+  final String? pixQrCode;
+  final String? pixQrCodeBase64;
 }
 
 class CheckoutController extends ChangeNotifier {
@@ -108,12 +116,36 @@ class CheckoutController extends ChangeNotifier {
       if (response is! Map<String, dynamic>) {
         throw const FormatException('Resposta de pedido inválida.');
       }
+      String? pixPaymentId;
+      String? pixStatus;
+      String? pixQrCode;
+      String? pixQrCodeBase64;
+      if (paymentMethod == 'PIX' && token != null) {
+        try {
+          final pixResponse = await _apiClient.post(
+            '/payments/orders/${response['id']}/mercadopago/pix',
+            headers: {'Authorization': 'Bearer $token'},
+          );
+          if (pixResponse is Map<String, dynamic>) {
+            pixPaymentId = pixResponse['payment_id']?.toString();
+            pixStatus = pixResponse['status']?.toString();
+            pixQrCode = pixResponse['qr_code']?.toString();
+            pixQrCodeBase64 = pixResponse['qr_code_base64']?.toString();
+          }
+        } on ApiException {
+          // The manual PIX proof flow remains available as a fallback.
+        }
+      }
       result = CheckoutResult(
         orderId: response['id']?.toString() ?? '',
         orderNumber: response['order_number']?.toString() ?? '',
         total: response['total_amount']?.toString() ?? '0.00',
         discountAmount: response['discount_amount']?.toString() ?? '0.00',
         couponCode: response['coupon_code']?.toString(),
+        pixPaymentId: pixPaymentId,
+        pixStatus: pixStatus,
+        pixQrCode: pixQrCode,
+        pixQrCodeBase64: pixQrCodeBase64,
       );
       status = CheckoutStatus.success;
       await cart.clear();

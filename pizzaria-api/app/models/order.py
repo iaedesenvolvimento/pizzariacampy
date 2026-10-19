@@ -126,6 +126,10 @@ class Payment(TimestampedModel):
     )
     reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     notes: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    provider: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    external_id: Mapped[str | None] = mapped_column(String(120), nullable=True, index=True)
+    qr_code: Mapped[str | None] = mapped_column(Text, nullable=True)
+    qr_code_base64: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     order: Mapped[Order] = relationship(back_populates="payments")
 
