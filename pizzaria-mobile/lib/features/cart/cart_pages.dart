@@ -167,12 +167,13 @@ class _CartSuggestionsState extends State<_CartSuggestions> {
         final searchable =
             '${product.name} ${product.description ?? ''} $category'
                 .toLowerCase();
-        return !isPizzaProductType(product.type) &&
-            (searchable.contains('bebida') ||
-                searchable.contains('doce') ||
-                searchable.contains('sobremesa') ||
-                searchable.contains('esfiha') ||
-                searchable.contains('combo'));
+        final isComplementaryCategory = searchable.contains('bebida') ||
+            searchable.contains('doce') ||
+            searchable.contains('sobremesa') ||
+            searchable.contains('esfiha') ||
+            searchable.contains('combo');
+        return isComplementaryCategory &&
+            !searchable.contains('pizza salgada');
       }).toList();
       return suggestions.take(8).toList();
     } catch (_) {
