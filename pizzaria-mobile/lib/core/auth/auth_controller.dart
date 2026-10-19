@@ -118,6 +118,38 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<bool> updateProfile({required String name}) async {
+    try {
+      user = await _service.updateProfile(name: name);
+      notifyListeners();
+      return true;
+    } on AppException catch (error) {
+      errorMessage = error.message;
+    } catch (_) {
+      errorMessage = 'Não foi possível atualizar o perfil.';
+    }
+    notifyListeners();
+    return false;
+  }
+
+  Future<bool> uploadProfilePhoto({
+    required List<int> bytes,
+    required String filename,
+  }) async {
+    try {
+      user =
+          await _service.uploadProfilePhoto(bytes: bytes, filename: filename);
+      notifyListeners();
+      return true;
+    } on AppException catch (error) {
+      errorMessage = error.message;
+    } catch (_) {
+      errorMessage = 'Não foi possível atualizar a foto.';
+    }
+    notifyListeners();
+    return false;
+  }
+
   Future<bool> _submit(Future<AuthSession> Function() action) async {
     status = AuthStatus.submitting;
     errorMessage = null;

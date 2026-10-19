@@ -14,6 +14,7 @@ import '../../cart/cart_models.dart';
 import '../../cart/cart_pages.dart';
 import '../../addresses/customer_addresses_page.dart';
 import '../../orders/order_history_page.dart';
+import '../../profile/profile_page.dart';
 import '../../settings/settings_pages.dart';
 import '../business_status.dart';
 import '../data/menu_models.dart';
@@ -241,6 +242,14 @@ class _MenuHomePageState extends State<MenuHomePage> {
                   tooltip: 'Mais opções',
                   onSelected: (value) async {
                     switch (value) {
+                      case 'profile':
+                        await Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => ProfilePage(
+                              controller: widget.authController,
+                            ),
+                          ),
+                        );
                       case 'addresses':
                         await Navigator.of(context).push(
                           MaterialPageRoute<void>(
@@ -276,6 +285,26 @@ class _MenuHomePageState extends State<MenuHomePage> {
                     }
                   },
                   itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'profile',
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: CircleAvatar(
+                          radius: 16,
+                          backgroundImage:
+                              widget.authController.user?.avatarUrl != null
+                                  ? NetworkImage(
+                                      widget.authController.user!.avatarUrl!)
+                                  : null,
+                          child: widget.authController.user?.avatarUrl == null
+                              ? const Icon(Icons.person_outline, size: 18)
+                              : null,
+                        ),
+                        title: Text(
+                            widget.authController.user?.name ?? 'Meu perfil'),
+                        subtitle: const Text('Editar perfil'),
+                      ),
+                    ),
                     const PopupMenuItem(
                       value: 'addresses',
                       child: ListTile(

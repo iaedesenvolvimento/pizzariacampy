@@ -110,6 +110,33 @@ class AuthService {
         body: {'token': token.trim(), 'password': password});
   }
 
+  Future<AuthUser> updateProfile({required String name}) async {
+    final response = await _apiClient.patch('/auth/me',
+        headers: _authHeaders(_storage.accessToken!),
+        body: {'name': name.trim()});
+    if (response is! Map<String, dynamic>) {
+      throw const FormatException('Resposta de perfil inválida.');
+    }
+    await _storage.saveUser(response);
+    return AuthUser.fromJson(response);
+  }
+
+  Future<AuthUser> uploadProfilePhoto({
+    required List<int> bytes,
+    required String filename,
+  }) async {
+    final response = await _apiClient.uploadBytes('/auth/me/avatar',
+        bytes: bytes,
+        filename: filename,
+        fieldName: 'file',
+        headers: _authHeaders(_storage.accessToken!));
+    if (response is! Map<String, dynamic>) {
+      throw const FormatException('Resposta de perfil inválida.');
+    }
+    await _storage.saveUser(response);
+    return AuthUser.fromJson(response);
+  }
+
   Future<void> logout() async {
     final refreshToken = _storage.refreshToken;
     if (refreshToken != null) {
@@ -156,6 +183,7 @@ class AuthService {
         'name': user.name,
         'email': user.email,
         'role': user.role,
+        'avatar_url': user.avatarUrl,
       };
 
   Map<String, String> _authHeaders(String accessToken) {

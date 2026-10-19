@@ -1,9 +1,13 @@
-from fastapi import APIRouter, Depends, Form, HTTPException, Query, Request, status
+from io import BytesIO
+from pathlib import Path
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile, status
 from fastapi.responses import HTMLResponse
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_session
+from app.core.config import settings
 from app.dependencies.auth import get_current_user
 from app.models.user import User
 from app.schemas.auth import (
@@ -15,6 +19,7 @@ from app.schemas.auth import (
     RegisterRequest,
     TokenResponse,
     UserResponse,
+    UserUpdate,
 )
 from app.services.auth import (
     AuthError,
@@ -106,6 +111,55 @@ async def logout(
 
 @router.get("/me", response_model=UserResponse)
 async def me(current_user: User = Depends(get_current_user)) -> User:
+    return current_user
+
+
+@router.patch("/me", response_model=UserResponse)
+async def update_me(
+    payload: UserUpdate,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> User:
+    current_user.name = payload.name.strip()
+    await session.commit()
+    await session.refresh(current_user)
+    return current_user
+
+
+@router.post("/me/avatar", response_model=UserResponse)
+async def update_my_avatar(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> User:
+    allowed_types = {"image/jpeg", "image/png", "image/webp"}
+    allowed_extensions = {".jpg", ".jpeg", ".png", ".webp"}
+    extension = Path(file.filename or "").suffix.lower()
+    if file.content_type not in allowed_types and extension not in allowed_extensions:
+        raise HTTPException(status_code=415, detail="Use uma imagem JPG, PNG ou WebP.")
+    content = await file.read()
+    if len(content) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="A imagem deve ter no máximo 5 MB.")
+    if not all((settings.cloudinary_cloud_name, settings.cloudinary_api_key, settings.cloudinary_api_secret)):
+        raise HTTPException(status_code=503, detail="Cloudinary não está configurado na API.")
+    try:
+        import cloudinary
+        import cloudinary.uploader
+
+        cloudinary.config(
+            cloud_name=settings.cloudinary_cloud_name,
+            api_key=settings.cloudinary_api_key,
+            api_secret=settings.cloudinary_api_secret,
+            secure=True,
+        )
+        result = cloudinary.uploader.upload(
+            BytesIO(content), folder="pizzaria-campy/profiles", resource_type="image"
+        )
+    except Exception as error:
+        raise HTTPException(status_code=502, detail="Não foi possível enviar a foto.") from error
+    current_user.avatar_url = str(result["secure_url"])
+    await session.commit()
+    await session.refresh(current_user)
     return current_user
 
 

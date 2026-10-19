@@ -1,5 +1,10 @@
 class AuthUser {
-  const AuthUser({required this.id, required this.name, required this.email, required this.role});
+  const AuthUser(
+      {required this.id,
+      required this.name,
+      required this.email,
+      required this.role,
+      this.avatarUrl});
 
   factory AuthUser.fromJson(Map<String, dynamic> json) {
     return AuthUser(
@@ -7,6 +12,7 @@ class AuthUser {
       name: json['name'] as String? ?? '',
       email: json['email'] as String? ?? '',
       role: json['role'] as String? ?? 'CUSTOMER',
+      avatarUrl: json['avatar_url'] as String?,
     );
   }
 
@@ -14,10 +20,14 @@ class AuthUser {
   final String name;
   final String email;
   final String role;
+  final String? avatarUrl;
 }
 
 class AuthSession {
-  const AuthSession({required this.accessToken, required this.refreshToken, required this.user});
+  const AuthSession(
+      {required this.accessToken,
+      required this.refreshToken,
+      required this.user});
 
   factory AuthSession.fromJson(Map<String, dynamic> json) {
     return AuthSession(

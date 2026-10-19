@@ -53,6 +53,11 @@ class UserResponse(BaseModel):
     name: str
     email: EmailStr
     role: str
+    avatar_url: str | None = None
+
+
+class UserUpdate(BaseModel):
+    name: str = Field(min_length=2, max_length=120)
 
 
 class TokenResponse(BaseModel):
