@@ -13,6 +13,8 @@ class AuthService {
 
   String? get accessToken => _storage.accessToken;
 
+  AuthSession? get cachedSession => _cachedSession();
+
   Future<Map<String, String>?> readSavedCredentials() =>
       _storage.readSavedCredentials();
 

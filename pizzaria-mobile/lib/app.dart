@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'core/auth/auth_controller.dart';
@@ -44,28 +46,37 @@ class _PizzariaAppState extends State<PizzariaApp> with WidgetsBindingObserver {
 
   Future<void> _initializeAuth() async {
     final storage = await AppStorage.create();
-    _cartController = CartController(storage)..initialize();
-    _settingsController = AppSettingsController(storage)..initialize();
+    _authController = AuthController(
+      AuthService(
+          apiClient: ApiClient(config: AppConfig.fromEnvironment()),
+          storage: storage),
+    );
+    _authController!.addListener(_syncRealtime);
+    _cartController = CartController(storage);
+    _settingsController = AppSettingsController(storage);
+    if (mounted) setState(() {});
+
+    unawaited(_cartController!.initialize());
+    unawaited(_settingsController!.initialize());
+    unawaited(_initializeFirebaseNotifications());
+    realtimeNotificationService.events.listen(_showRealtimeNotification);
+    unawaited(_authController!.initialize());
+  }
+
+  Future<void> _initializeFirebaseNotifications() async {
     try {
       await _firebaseNotifications.initialize(
         onMessage: _showRealtimeNotification,
         onTokenRefresh: (token) {
           final accessToken = _authController?.accessToken;
-          if (accessToken != null) _registerFirebaseTokenValue(token, accessToken);
+          if (accessToken != null) {
+            unawaited(_registerFirebaseTokenValue(token, accessToken));
+          }
         },
       );
     } catch (_) {
       // Realtime WebSocket remains available if Firebase is unavailable.
     }
-    _authController = AuthController(
-      AuthService(
-          apiClient: ApiClient(config: AppConfig.fromEnvironment()),
-          storage: storage),
-    )..addListener(_syncRealtime);
-    realtimeNotificationService.events.listen(_showRealtimeNotification);
-    await _authController!.initialize();
-    _syncRealtime();
-    if (mounted) setState(() {});
   }
 
   void _syncRealtime() {
@@ -90,7 +101,8 @@ class _PizzariaAppState extends State<PizzariaApp> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _registerFirebaseTokenValue(String token, String accessToken) async {
+  Future<void> _registerFirebaseTokenValue(
+      String token, String accessToken) async {
     try {
       await ApiClient(config: AppConfig.fromEnvironment()).post(
         '/notifications/devices',
@@ -106,7 +118,8 @@ class _PizzariaAppState extends State<PizzariaApp> with WidgetsBindingObserver {
   void _showRealtimeNotification(RealtimeNotification notification) {
     final number = notification.orderNumber;
     final message = switch (notification.type) {
-      'order.created' => 'Novo pedido recebido${number.isEmpty ? '' : ': $number'}',
+      'order.created' =>
+        'Novo pedido recebido${number.isEmpty ? '' : ': $number'}',
       'order.status_changed' =>
         'Pedido ${number.isEmpty ? '' : '$number: '} ${_statusLabel(notification.status)}',
       'push.notification' => notification.data['body']?.toString(),

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../errors/app_exception.dart';
@@ -22,6 +24,16 @@ class AuthController extends ChangeNotifier {
   Future<void> initialize() async {
     status = AuthStatus.loading;
     notifyListeners();
+
+    final cachedSession = _service.cachedSession;
+    if (cachedSession != null) {
+      user = cachedSession.user;
+      status = AuthStatus.authenticated;
+      notifyListeners();
+      unawaited(_validateCachedSession());
+      return;
+    }
+
     try {
       final session = await _service.restoreSession();
       user = session?.user;
@@ -32,6 +44,20 @@ class AuthController extends ChangeNotifier {
       status = AuthStatus.unauthenticated;
     }
     notifyListeners();
+  }
+
+  Future<void> _validateCachedSession() async {
+    try {
+      final session = await _service.restoreSession();
+      if (session == null) {
+        user = null;
+        status = AuthStatus.unauthenticated;
+      } else {
+        user = session.user;
+        status = AuthStatus.authenticated;
+      }
+      notifyListeners();
+    } catch (_) {}
   }
 
   Future<void> refreshSession() async {
