@@ -1,3 +1,4 @@
 <resources>
-    <color name="campy_orange">#E85D04</color>
+    <color name="campy_surface">#FBF8F3</color>
+    <color name="campy_primary">#B72D2D</color>
 </resources>
