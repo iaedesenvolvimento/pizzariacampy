@@ -67,7 +67,7 @@ class _PizzariaAppState extends State<PizzariaApp> with WidgetsBindingObserver {
   }
 
   Future<void> _releaseStartupSplash() async {
-    await Future<void>.delayed(const Duration(milliseconds: 800));
+    await Future<void>.delayed(const Duration(milliseconds: 1500));
     if (mounted) setState(() => _startupReady = true);
   }
 
