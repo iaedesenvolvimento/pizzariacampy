@@ -6,6 +6,7 @@ import '../../../core/settings/app_settings_controller.dart';
 import '../../cart/cart_controller.dart';
 import '../../settings/settings_pages.dart';
 import '../../menu/presentation/menu_pages.dart';
+import '../../../shared/campy_splash.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate(
@@ -594,6 +595,6 @@ class _LoadingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    return const CampySplashPage();
   }
 }

@@ -13,6 +13,7 @@ import 'core/notifications/realtime_notification_service.dart';
 import 'features/cart/cart_controller.dart';
 import 'features/auth/presentation/auth_pages.dart';
 import 'routes/app_router.dart';
+import 'shared/campy_splash.dart';
 import 'theme/app_theme.dart';
 
 class PizzariaApp extends StatefulWidget {
@@ -159,7 +160,7 @@ class _PizzariaAppState extends State<PizzariaApp> with WidgetsBindingObserver {
     final cartController = _cartController;
     final settingsController = _settingsController;
     if (settingsController == null) {
-      return const MaterialApp(home: _StartupPage());
+      return const MaterialApp(home: CampySplashPage());
     }
     return AnimatedBuilder(
       animation: settingsController,
@@ -171,7 +172,7 @@ class _PizzariaAppState extends State<PizzariaApp> with WidgetsBindingObserver {
         darkTheme: AppTheme.dark,
         themeMode: settingsController.themeMode,
         home: controller == null || cartController == null
-            ? const _StartupPage()
+            ? const CampySplashPage()
             : AuthGate(
                 controller: controller,
                 cartController: cartController,
@@ -180,7 +181,7 @@ class _PizzariaAppState extends State<PizzariaApp> with WidgetsBindingObserver {
         onGenerateRoute: (settings) {
           if (controller == null || cartController == null) {
             return MaterialPageRoute<void>(
-              builder: (_) => const _StartupPage(),
+              builder: (_) => const CampySplashPage(),
               settings: settings,
             );
           }
@@ -200,14 +201,5 @@ class _PizzariaAppState extends State<PizzariaApp> with WidgetsBindingObserver {
     _cartController?.dispose();
     _settingsController?.dispose();
     super.dispose();
-  }
-}
-
-class _StartupPage extends StatelessWidget {
-  const _StartupPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }
