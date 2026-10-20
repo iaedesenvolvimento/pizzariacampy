@@ -27,6 +27,7 @@ class _PizzariaAppState extends State<PizzariaApp> with WidgetsBindingObserver {
   AuthController? _authController;
   CartController? _cartController;
   AppSettingsController? _settingsController;
+  bool _startupReady = false;
   final _firebaseNotifications = FirebaseNotificationService();
   String? _registeredFirebaseToken;
   final _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
@@ -57,11 +58,17 @@ class _PizzariaAppState extends State<PizzariaApp> with WidgetsBindingObserver {
     _settingsController = AppSettingsController(storage);
     if (mounted) setState(() {});
 
+    unawaited(_releaseStartupSplash());
     unawaited(_cartController!.initialize());
     unawaited(_settingsController!.initialize());
     unawaited(_initializeFirebaseNotifications());
     realtimeNotificationService.events.listen(_showRealtimeNotification);
     unawaited(_authController!.initialize());
+  }
+
+  Future<void> _releaseStartupSplash() async {
+    await Future<void>.delayed(const Duration(milliseconds: 800));
+    if (mounted) setState(() => _startupReady = true);
   }
 
   Future<void> _initializeFirebaseNotifications() async {
@@ -171,7 +178,7 @@ class _PizzariaAppState extends State<PizzariaApp> with WidgetsBindingObserver {
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
         themeMode: settingsController.themeMode,
-        home: controller == null || cartController == null
+        home: !_startupReady || controller == null || cartController == null
             ? const CampySplashPage()
             : AuthGate(
                 controller: controller,
@@ -179,7 +186,7 @@ class _PizzariaAppState extends State<PizzariaApp> with WidgetsBindingObserver {
                 settingsController: settingsController,
               ),
         onGenerateRoute: (settings) {
-          if (controller == null || cartController == null) {
+          if (!_startupReady || controller == null || cartController == null) {
             return MaterialPageRoute<void>(
               builder: (_) => const CampySplashPage(),
               settings: settings,
