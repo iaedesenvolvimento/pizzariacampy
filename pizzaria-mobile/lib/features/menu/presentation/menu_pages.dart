@@ -380,7 +380,7 @@ class _MenuHomePageState extends State<MenuHomePage> {
   Widget _buildBodyContent(BuildContext context) {
     if (_menuController.status == menu_state.MenuStatus.loading ||
         _menuController.status == menu_state.MenuStatus.initial) {
-      return const Center(child: CircularProgressIndicator());
+      return const _MenuLoadingSkeleton();
     }
     if (_menuController.status == menu_state.MenuStatus.error) {
       return _StateMessage(
@@ -1605,6 +1605,182 @@ class _StateMessage extends StatelessWidget {
         const SizedBox(height: 20),
         ElevatedButton(onPressed: onAction, child: Text(actionLabel)),
       ],
+    );
+  }
+}
+
+class _MenuLoadingSkeleton extends StatelessWidget {
+  const _MenuLoadingSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final baseColor = Theme.of(context).colorScheme.surfaceContainerHighest;
+    final highlightColor = Theme.of(context).colorScheme.surface;
+
+    return Semantics(
+      label: 'Carregando cardápio',
+      liveRegion: true,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+        children: [
+          SizedBox(
+            height: 42,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: 4,
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemBuilder: (_, index) => _SkeletonBox(
+                width: index == 0 ? 138 : 104,
+                height: 42,
+                color: baseColor,
+                highlightColor: highlightColor,
+                radius: 12,
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          _SkeletonBox(
+            width: double.infinity,
+            height: 56,
+            color: baseColor,
+            highlightColor: highlightColor,
+            radius: 12,
+          ),
+          const SizedBox(height: 16),
+          _SkeletonBox(
+            width: double.infinity,
+            height: 64,
+            color: baseColor,
+            highlightColor: highlightColor,
+            radius: 14,
+          ),
+          const SizedBox(height: 18),
+          _SkeletonBox(
+            width: double.infinity,
+            height: 190,
+            color: baseColor,
+            highlightColor: highlightColor,
+            radius: 20,
+          ),
+          const SizedBox(height: 24),
+          _SkeletonBox(
+            width: 210,
+            height: 28,
+            color: baseColor,
+            highlightColor: highlightColor,
+            radius: 8,
+          ),
+          const SizedBox(height: 10),
+          _SkeletonBox(
+            width: 290,
+            height: 18,
+            color: baseColor,
+            highlightColor: highlightColor,
+            radius: 6,
+          ),
+          const SizedBox(height: 18),
+          Row(
+            children: [
+              Expanded(
+                child: _SkeletonProductCard(
+                  color: baseColor,
+                  highlightColor: highlightColor,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _SkeletonProductCard(
+                  color: baseColor,
+                  highlightColor: highlightColor,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SkeletonProductCard extends StatelessWidget {
+  const _SkeletonProductCard({
+    required this.color,
+    required this.highlightColor,
+  });
+
+  final Color color;
+  final Color highlightColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _SkeletonBox(
+            width: double.infinity,
+            height: 116,
+            color: color,
+            highlightColor: highlightColor,
+            radius: 12,
+          ),
+          const SizedBox(height: 12),
+          _SkeletonBox(
+            width: 118,
+            height: 16,
+            color: color,
+            highlightColor: highlightColor,
+            radius: 6,
+          ),
+          const SizedBox(height: 8),
+          _SkeletonBox(
+            width: 82,
+            height: 14,
+            color: color,
+            highlightColor: highlightColor,
+            radius: 6,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SkeletonBox extends StatelessWidget {
+  const _SkeletonBox({
+    required this.width,
+    required this.height,
+    required this.color,
+    required this.highlightColor,
+    required this.radius,
+  });
+
+  final double width;
+  final double height;
+  final Color color;
+  final Color highlightColor;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(radius),
+        gradient: LinearGradient(
+          colors: [color, highlightColor.withValues(alpha: 0.55), color],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+      ),
+      child: SizedBox(width: width, height: height),
     );
   }
 }
