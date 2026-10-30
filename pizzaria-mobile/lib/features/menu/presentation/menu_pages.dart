@@ -9,6 +9,7 @@ import '../../../core/network/api_client.dart';
 import '../../../core/settings/app_settings_controller.dart';
 import '../../../theme/app_theme.dart';
 import '../../admin/admin_dashboard_page.dart';
+import '../../ai/ai_chat_page.dart';
 import '../../cart/cart_controller.dart';
 import '../../cart/cart_models.dart';
 import '../../cart/cart_pages.dart';
@@ -191,6 +192,15 @@ class _MenuHomePageState extends State<MenuHomePage> {
               ));
           },
           child: Scaffold(
+            floatingActionButton: FloatingActionButton.extended(
+              heroTag: 'ai-attendant',
+              tooltip: 'Conversar com o atendente virtual',
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const AiChatPage()),
+              ),
+              icon: const Icon(Icons.smart_toy_outlined),
+              label: const Text('Atendente IA'),
+            ),
             appBar: AppBar(
               titleSpacing: 16,
               title: Row(
