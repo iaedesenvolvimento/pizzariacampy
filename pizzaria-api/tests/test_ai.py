@@ -1,8 +1,6 @@
 """Testes isolados do atendente; não fazem chamadas reais à OpenAI."""
 from types import SimpleNamespace
-from unittest.mock import AsyncMock
 
-import httpx
 import pytest
 from fastapi import HTTPException
 from pydantic import ValidationError
@@ -29,16 +27,15 @@ def test_chat_rejects_long_message():
 
 
 @pytest.mark.asyncio
-async def test_chat_requires_server_key(monkeypatch):
+async def test_chat_uses_catalog_without_server_key(monkeypatch):
     monkeypatch.setattr(ai.settings, "openai_api_key", None)
     monkeypatch.setattr(ai, "ai_rate_limiter", ai.InMemoryRateLimiter(10, 60))
-    with pytest.raises(HTTPException) as error:
-        await ai.chat(
-            ai.ChatRequest(message="Quais pizzas existem?"),
-            FakeSession([]),
-            SimpleNamespace(id="test-user"),
-        )
-    assert error.value.status_code == 503
+    result = await ai.chat(
+        ai.ChatRequest(message="Quais pizzas existem?"),
+        FakeSession([SimpleNamespace(name="Mussarela", description="Queijo")]),
+        SimpleNamespace(id="test-user"),
+    )
+    assert "Mussarela" in result.reply
 
 
 @pytest.mark.asyncio

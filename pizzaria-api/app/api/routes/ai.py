@@ -11,8 +11,8 @@ from app.core.config import settings
 from app.core.database import get_session
 from app.core.rate_limit import InMemoryRateLimiter
 from app.dependencies.auth import get_current_user
-from app.models.user import User
 from app.models.catalog import Product
+from app.models.user import User
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/ai", tags=["ai-attendant"])
@@ -27,6 +27,32 @@ class ChatResponse(BaseModel):
     reply: str
 
 
+def _fallback_reply(message: str, products: list[Product]) -> str:
+    query = message.casefold().strip()
+    if any(term in query for term in (
+        "cardápio", "cardapio", "opções", "opcoes", "temos", "quais",
+        "pizzas", "bebidas", "sobremesas",
+    )):
+        names = ", ".join(product.name for product in products[:12])
+        if names:
+            return f"No momento temos: {names}. Escolha um item no cardápio para ver detalhes e montar seu pedido."
+
+    matches = [
+        product
+        for product in products
+        if query in product.name.casefold()
+        or query in (product.description or "").casefold()
+    ]
+    if matches:
+        details = "; ".join(
+            f"{product.name}: {product.description or 'consulte as opções no cardápio'}"
+            for product in matches[:5]
+        )
+        return f"Encontrei estas opções: {details}. Para adicionar ao pedido, toque no produto."
+
+    return "Posso ajudar a consultar o cardápio. Diga o nome de uma pizza, bebida ou sobremesa."
+
+
 @router.post("/chat", response_model=ChatResponse)
 async def chat(
     request: ChatRequest,
@@ -37,13 +63,13 @@ async def chat(
     allowed, retry_after = ai_rate_limiter.allow(str(user.id))
     if not allowed:
         raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="Muitas mensagens. Aguarde um minuto.", headers={"Retry-After": str(retry_after)})
-    if not settings.openai_api_key:
-        raise HTTPException(status_code=503, detail="Atendente indisponível")
-
     products = list(await session.scalars(
         select(Product).where(Product.is_active.is_(True))
         .order_by(Product.sort_order, Product.name).limit(100)
     ))
+    if not settings.openai_api_key:
+        return ChatResponse(reply=_fallback_reply(request.message, products))
+
     menu = "\n".join(
         f"- {p.name} ({p.product_type}): {(p.description or 'Sem descrição')[:180]}"
         for p in products
@@ -75,7 +101,7 @@ async def chat(
             data = response.json()
     except (httpx.HTTPError, ValueError):
         logger.warning("Falha no provedor de IA", exc_info=True)
-        raise HTTPException(status_code=503, detail="Atendente temporariamente indisponível")
+        return ChatResponse(reply=_fallback_reply(request.message, products))
 
     reply = "Desculpe, não consegui responder agora. Consulte o cardápio no aplicativo."
     for item in data.get("output", []):
