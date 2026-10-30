@@ -96,13 +96,19 @@ class _AiChatPageState extends State<AiChatPage> {
         normalized.contains('dois sabores') ||
         normalized.contains('2 sabores')) {
       await widget.onStartPizza!(2);
-      return 'Vamos montar sua pizza meio a meio. Escolha os dois sabores na próxima tela.';
+      final additionalItems = await _openAdditionalItems(message);
+      return additionalItems == 0
+          ? 'Vamos montar sua pizza meio a meio. Escolha os dois sabores na próxima tela.'
+          : 'Pizza meio a meio e $additionalItems item(ns) encaminhados para configuração.';
     }
     if (normalized.contains('1 sabor') ||
         normalized.contains('um sabor') ||
         normalized.contains('pizza grande')) {
       await widget.onStartPizza!(1);
-      return 'Vamos montar sua pizza de um sabor. Escolha o tamanho e o sabor na próxima tela.';
+      final additionalItems = await _openAdditionalItems(message);
+      return additionalItems == 0
+          ? 'Vamos montar sua pizza de um sabor. Escolha o tamanho e o sabor na próxima tela.'
+          : 'Pizza de um sabor e $additionalItems item(ns) encaminhados para configuração.';
     }
     if (normalized.contains('carrinho') ||
         normalized.contains('finalizar pedido')) {
@@ -120,6 +126,23 @@ class _AiChatPageState extends State<AiChatPage> {
       }
     }
     return null;
+  }
+
+  Future<int> _openAdditionalItems(String message) async {
+    if (widget.onOpenProduct == null) return 0;
+    final segments = message.split(RegExp(r'\s+e\s+', caseSensitive: false));
+    var opened = 0;
+    for (final segment in segments.skip(1)) {
+      final normalized = segment.toLowerCase();
+      final isAdditionalItem = RegExp(
+        r'coca|guarana|refrigerante|suco|agua|sobremesa|doce|bebida',
+        caseSensitive: false,
+      ).hasMatch(normalized);
+      if (isAdditionalItem && await widget.onOpenProduct!(segment)) {
+        opened++;
+      }
+    }
+    return opened;
   }
 
   Future<dynamic> _sendMessage(String message) async {
