@@ -28,7 +28,11 @@ class ChatResponse(BaseModel):
 
 
 @router.post("/chat", response_model=ChatResponse)
-async def chat(\n    request: ChatRequest,\n    session: AsyncSession = Depends(get_session),\n    user: User = Depends(get_current_user),\n) -> ChatResponse:
+async def chat(
+    request: ChatRequest,
+    session: AsyncSession = Depends(get_session),
+    user: User = Depends(get_current_user),
+) -> ChatResponse:
     """Responde dúvidas do cardápio; preços e pedidos ficam fora deste MVP."""
     allowed, retry_after = ai_rate_limiter.allow(str(user.id))
     if not allowed:
