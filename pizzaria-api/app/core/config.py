@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     openai_api_key: str | None = None
     openai_model: str = "gpt-4.1-mini"
     app_name: str = "Pizzaria Campy API"
+    openai_api_key: str | None = None
+    openai_model: str = "gpt-4.1-mini"
     app_env: str = "development"
     debug: bool = False
     api_v1_prefix: str = "/api/v1"
