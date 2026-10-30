@@ -8,12 +8,16 @@ class AiChatPage extends StatefulWidget {
     required this.accessToken,
     this.refreshAccessToken,
     this.onStartPizza,
+    this.onOpenProduct,
+    this.onOpenCart,
     super.key,
   });
 
   final String? accessToken;
   final Future<String?> Function()? refreshAccessToken;
   final Future<void> Function(int maxFlavors)? onStartPizza;
+  final Future<bool> Function(String query)? onOpenProduct;
+  final Future<void> Function()? onOpenCart;
 
   @override
   State<AiChatPage> createState() => _AiChatPageState();
@@ -100,6 +104,21 @@ class _AiChatPageState extends State<AiChatPage> {
       await widget.onStartPizza!(1);
       return 'Vamos montar sua pizza de um sabor. Escolha o tamanho e o sabor na próxima tela.';
     }
+    if (normalized.contains('carrinho') ||
+        normalized.contains('finalizar pedido')) {
+      if (widget.onOpenCart == null) return null;
+      await widget.onOpenCart!();
+      return 'Aqui está seu carrinho. Confira os itens antes de finalizar.';
+    }
+    if (widget.onOpenProduct != null &&
+        (normalized.contains('quero ') ||
+            normalized.contains('comprar ') ||
+            normalized.contains('adicionar '))) {
+      final opened = await widget.onOpenProduct!(message);
+      if (opened) {
+        return 'Encontrei o produto. Configure as opções e toque em Adicionar ao carrinho.';
+      }
+    }
     return null;
   }
 
@@ -159,7 +178,7 @@ class _AiChatPageState extends State<AiChatPage> {
             const Padding(
               padding: EdgeInsets.all(12),
               child: Text(
-                  'Versão de teste: consultas ao cardápio. Pedidos devem ser feitos pelo carrinho.'),
+                  'Posso consultar o cardápio e guiar você na montagem do pedido.'),
             ),
             if (widget.onStartPizza != null)
               Padding(
@@ -180,6 +199,13 @@ class _AiChatPageState extends State<AiChatPage> {
                         label: const Text('Pizza meio a meio'),
                         onPressed: _sending ? null : () => _startPizza(2),
                       ),
+                      if (widget.onOpenCart != null)
+                        ActionChip(
+                          avatar: const Icon(Icons.shopping_cart_outlined,
+                              size: 18),
+                          label: const Text('Ver carrinho'),
+                          onPressed: _sending ? null : widget.onOpenCart,
+                        ),
                     ],
                   ),
                 ),

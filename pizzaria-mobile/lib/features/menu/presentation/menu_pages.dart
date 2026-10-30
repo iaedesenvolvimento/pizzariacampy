@@ -167,6 +167,45 @@ class _MenuHomePageState extends State<MenuHomePage> {
     }
   }
 
+  Future<bool> _openAssistantProduct(String phrase) async {
+    final query = phrase
+        .replaceFirst(
+            RegExp(r'\b(quero|comprar|adicionar|uma|um)\b',
+                caseSensitive: false),
+            '')
+        .replaceAll(
+            RegExp(r'\b(para|mim|por favor)\b', caseSensitive: false), '')
+        .trim();
+    if (query.isEmpty) return false;
+    try {
+      final products = await _menuService.fetchProducts(search: query);
+      if (products.isEmpty || !mounted) return false;
+      await _openProduct(products.first);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _openAssistantCart() async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => CartPage(
+          controller: widget.cartController,
+          accessToken: widget.authController.accessToken,
+          refreshAccessToken: () async {
+            await widget.authController.refreshSession();
+            return widget.authController.accessToken;
+          },
+          menuService: _menuService,
+          isStoreOpen: _businessStatusController.isOpen &&
+              !_businessStatusController.isLoading,
+          storeStatusMessage: _businessStatusController.message,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -204,6 +243,8 @@ class _MenuHomePageState extends State<MenuHomePage> {
                       return widget.authController.accessToken;
                     },
                     onStartPizza: _openPizzaMode,
+                    onOpenProduct: _openAssistantProduct,
+                    onOpenCart: _openAssistantCart,
                   ),
                 ),
               ),
