@@ -2,17 +2,21 @@
 import logging
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.database import get_session
+from app.core.rate_limit import InMemoryRateLimiter
+from app.dependencies.auth import get_current_user
+from app.models.user import User
 from app.models.catalog import Product
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/ai", tags=["ai-attendant"])
+ai_rate_limiter = InMemoryRateLimiter(limit=10, window_seconds=60)
 
 
 class ChatRequest(BaseModel):
@@ -24,8 +28,11 @@ class ChatResponse(BaseModel):
 
 
 @router.post("/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest, session: AsyncSession = Depends(get_session)) -> ChatResponse:
+async def chat(\n    request: ChatRequest,\n    session: AsyncSession = Depends(get_session),\n    user: User = Depends(get_current_user),\n) -> ChatResponse:
     """Responde dúvidas do cardápio; preços e pedidos ficam fora deste MVP."""
+    allowed, retry_after = ai_rate_limiter.allow(str(user.id))
+    if not allowed:
+        raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="Muitas mensagens. Aguarde um minuto.", headers={"Retry-After": str(retry_after)})
     if not settings.openai_api_key:
         raise HTTPException(status_code=503, detail="Atendente indisponível")
 
