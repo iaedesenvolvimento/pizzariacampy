@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../core/network/api_client.dart';
 
 class AiChatPage extends StatefulWidget {
-  const AiChatPage({super.key});
+  const AiChatPage({required this.accessToken, super.key});
+
+  final String? accessToken;
 
   @override
   State<AiChatPage> createState() => _AiChatPageState();
@@ -28,7 +30,7 @@ class _AiChatPageState extends State<AiChatPage> {
     });
     _scrollToEnd();
     try {
-      final response = await _api.post('/ai/chat', body: {'message': message});
+      final response = await _api.post('/ai/chat', body: {'message': message}, headers: {'Authorization': 'Bearer ${widget.accessToken}'});
       if (!mounted) return;
       final reply = response is Map ? response['reply']?.toString() : null;
       setState(() => _messages.add((
