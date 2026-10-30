@@ -1,0 +1,41 @@
+name: AI attendant checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [feature/ai-attendant-mvp]
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pizzaria-api
+    env:
+      DATABASE_URL: postgresql+asyncpg://test:test@localhost:5432/test
+      SECRET_KEY: test-secret-key-with-at-least-32-characters
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m compileall -q app
+      - run: python -m pytest -q tests/test_ai.py
+
+  flutter:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pizzaria-mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+      - run: flutter analyze lib/features/ai/ai_chat_page.dart lib/features/menu/presentation/menu_pages.dart

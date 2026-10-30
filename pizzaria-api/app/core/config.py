@@ -21,6 +21,8 @@ def normalize_async_database_url(database_url: str) -> str:
 
 
 class Settings(BaseSettings):
+    openai_api_key: str | None = None
+    openai_model: str = "gpt-4.1-mini"
     app_name: str = "Pizzaria Campy API"
     app_env: str = "development"
     debug: bool = False
