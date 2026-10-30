@@ -7,11 +7,13 @@ class AiChatPage extends StatefulWidget {
   const AiChatPage({
     required this.accessToken,
     this.refreshAccessToken,
+    this.onStartPizza,
     super.key,
   });
 
   final String? accessToken;
   final Future<String?> Function()? refreshAccessToken;
+  final Future<void> Function(int maxFlavors)? onStartPizza;
 
   @override
   State<AiChatPage> createState() => _AiChatPageState();
@@ -39,6 +41,16 @@ class _AiChatPageState extends State<AiChatPage> {
       _sending = true;
     });
     _scrollToEnd();
+    final localReply = await _handleLocalCommand(message);
+    if (localReply != null) {
+      if (!mounted) return;
+      setState(() {
+        _messages.add((isUser: false, text: localReply));
+        _sending = false;
+      });
+      _scrollToEnd();
+      return;
+    }
     try {
       final response = await _sendMessage(message);
       if (!mounted) return;
@@ -60,6 +72,35 @@ class _AiChatPageState extends State<AiChatPage> {
       if (mounted) setState(() => _sending = false);
       _scrollToEnd();
     }
+  }
+
+  Future<String?> _handleLocalCommand(String message) async {
+    final normalized = message
+        .toLowerCase()
+        .replaceAll('á', 'a')
+        .replaceAll('ã', 'a')
+        .replaceAll('â', 'a')
+        .replaceAll('é', 'e')
+        .replaceAll('ê', 'e')
+        .replaceAll('í', 'i')
+        .replaceAll('ó', 'o')
+        .replaceAll('ô', 'o')
+        .replaceAll('õ', 'o')
+        .replaceAll('ú', 'u');
+    if (widget.onStartPizza == null) return null;
+    if (normalized.contains('meio a meio') ||
+        normalized.contains('dois sabores') ||
+        normalized.contains('2 sabores')) {
+      await widget.onStartPizza!(2);
+      return 'Vamos montar sua pizza meio a meio. Escolha os dois sabores na próxima tela.';
+    }
+    if (normalized.contains('1 sabor') ||
+        normalized.contains('um sabor') ||
+        normalized.contains('pizza grande')) {
+      await widget.onStartPizza!(1);
+      return 'Vamos montar sua pizza de um sabor. Escolha o tamanho e o sabor na próxima tela.';
+    }
+    return null;
   }
 
   Future<dynamic> _sendMessage(String message) async {
@@ -120,6 +161,29 @@ class _AiChatPageState extends State<AiChatPage> {
               child: Text(
                   'Versão de teste: consultas ao cardápio. Pedidos devem ser feitos pelo carrinho.'),
             ),
+            if (widget.onStartPizza != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: [
+                      ActionChip(
+                        avatar: const Icon(Icons.looks_one_outlined, size: 18),
+                        label: const Text('Pizza 1 sabor'),
+                        onPressed: _sending ? null : () => _startPizza(1),
+                      ),
+                      ActionChip(
+                        avatar: const Icon(Icons.call_split_outlined, size: 18),
+                        label: const Text('Pizza meio a meio'),
+                        onPressed: _sending ? null : () => _startPizza(2),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             Expanded(
               child: ListView.builder(
                 controller: _scroll,
@@ -177,5 +241,30 @@ class _AiChatPageState extends State<AiChatPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _startPizza(int maxFlavors) async {
+    if (widget.onStartPizza == null || _sending) return;
+    setState(() {
+      _messages.add((
+        isUser: true,
+        text: maxFlavors == 2
+            ? 'Quero uma pizza meio a meio.'
+            : 'Quero uma pizza de um sabor.',
+      ));
+      _sending = true;
+    });
+    await widget.onStartPizza!(maxFlavors);
+    if (!mounted) return;
+    setState(() {
+      _messages.add((
+        isUser: false,
+        text: maxFlavors == 2
+            ? 'Perfeito! Escolha os dois sabores, tamanho, borda e adicionais.'
+            : 'Perfeito! Escolha o sabor, tamanho, borda e adicionais.',
+      ));
+      _sending = false;
+    });
+    _scrollToEnd();
   }
 }

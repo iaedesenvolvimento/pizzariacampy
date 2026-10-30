@@ -203,6 +203,7 @@ class _MenuHomePageState extends State<MenuHomePage> {
                       await widget.authController.refreshSession();
                       return widget.authController.accessToken;
                     },
+                    onStartPizza: _openPizzaMode,
                   ),
                 ),
               ),
