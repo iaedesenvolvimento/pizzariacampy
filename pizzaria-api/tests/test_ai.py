@@ -86,7 +86,9 @@ async def test_chat_uses_active_catalog_without_prices(monkeypatch):
 @pytest.mark.asyncio
 async def test_chat_rate_limit(monkeypatch):
     monkeypatch.setattr(ai.settings, "openai_api_key", "test-key")
-    monkeypatch.setattr(ai, "ai_rate_limiter", ai.InMemoryRateLimiter(0, 60))
+    limiter = ai.InMemoryRateLimiter(1, 60)
+    limiter.allow("customer-2")
+    monkeypatch.setattr(ai, "ai_rate_limiter", limiter)
     with pytest.raises(HTTPException) as error:
         await ai.chat(
             ai.ChatRequest(message="Oi"),
