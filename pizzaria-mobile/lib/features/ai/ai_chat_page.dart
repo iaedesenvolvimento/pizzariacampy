@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 
+import '../../core/errors/app_exception.dart';
 import '../../core/network/api_client.dart';
 
 class AiChatPage extends StatefulWidget {
-  const AiChatPage({required this.accessToken, super.key});
+  const AiChatPage({
+    required this.accessToken,
+    this.refreshAccessToken,
+    super.key,
+  });
 
   final String? accessToken;
+  final Future<String?> Function()? refreshAccessToken;
 
   @override
   State<AiChatPage> createState() => _AiChatPageState();
@@ -16,7 +22,11 @@ class _AiChatPageState extends State<AiChatPage> {
   final _scroll = ScrollController();
   final _api = ApiClient();
   final List<({bool isUser, String text})> _messages = [
-    (isUser: false, text: 'Olá! Sou o assistente da Pizzaria Campy. Posso ajudar você a conhecer nosso cardápio.'),
+    (
+      isUser: false,
+      text:
+          'Olá! Sou o assistente da Pizzaria Campy. Posso ajudar você a conhecer nosso cardápio.'
+    ),
   ];
   bool _sending = false;
 
@@ -30,22 +40,51 @@ class _AiChatPageState extends State<AiChatPage> {
     });
     _scrollToEnd();
     try {
-      final response = await _api.post('/ai/chat', body: {'message': message}, headers: {'Authorization': 'Bearer ${widget.accessToken}'});
+      final response = await _sendMessage(message);
       if (!mounted) return;
       final reply = response is Map ? response['reply']?.toString() : null;
       setState(() => _messages.add((
-        isUser: false,
-        text: reply?.isNotEmpty == true ? reply! : 'Não consegui responder agora.',
-      )));
+            isUser: false,
+            text: reply?.isNotEmpty == true
+                ? reply!
+                : 'Não consegui responder agora.',
+          )));
     } catch (_) {
       if (!mounted) return;
       setState(() => _messages.add((
-        isUser: false,
-        text: 'O atendimento está temporariamente indisponível. Consulte o cardápio no aplicativo.',
-      )));
+            isUser: false,
+            text:
+                'O atendimento está temporariamente indisponível. Consulte o cardápio no aplicativo.',
+          )));
     } finally {
       if (mounted) setState(() => _sending = false);
       _scrollToEnd();
+    }
+  }
+
+  Future<dynamic> _sendMessage(String message) async {
+    var token = widget.accessToken;
+    if (token == null || token.isEmpty) {
+      throw const FormatException('Sessão expirada.');
+    }
+
+    try {
+      return await _api.post(
+        '/ai/chat',
+        body: {'message': message},
+        headers: {'Authorization': 'Bearer $token'},
+      );
+    } on ApiException catch (error) {
+      if (error.statusCode != 401 || widget.refreshAccessToken == null) {
+        rethrow;
+      }
+      token = await widget.refreshAccessToken!();
+      if (token == null || token.isEmpty) rethrow;
+      return _api.post(
+        '/ai/chat',
+        body: {'message': message},
+        headers: {'Authorization': 'Bearer $token'},
+      );
     }
   }
 
@@ -78,7 +117,8 @@ class _AiChatPageState extends State<AiChatPage> {
           children: [
             const Padding(
               padding: EdgeInsets.all(12),
-              child: Text('Versão de teste: consultas ao cardápio. Pedidos devem ser feitos pelo carrinho.'),
+              child: Text(
+                  'Versão de teste: consultas ao cardápio. Pedidos devem ser feitos pelo carrinho.'),
             ),
             Expanded(
               child: ListView.builder(
@@ -88,13 +128,17 @@ class _AiChatPageState extends State<AiChatPage> {
                 itemBuilder: (context, index) {
                   final item = _messages[index];
                   return Align(
-                    alignment: item.isUser ? Alignment.centerRight : Alignment.centerLeft,
+                    alignment: item.isUser
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
                     child: Container(
                       constraints: const BoxConstraints(maxWidth: 320),
                       margin: const EdgeInsets.symmetric(vertical: 5),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: item.isUser ? colors.primaryContainer : colors.surfaceContainerHighest,
+                        color: item.isUser
+                            ? colors.primaryContainer
+                            : colors.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Text(item.text),

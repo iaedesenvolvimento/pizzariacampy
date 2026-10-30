@@ -196,7 +196,15 @@ class _MenuHomePageState extends State<MenuHomePage> {
               heroTag: 'ai-attendant',
               tooltip: 'Conversar com o atendente virtual',
               onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(builder: (_) => AiChatPage(accessToken: widget.authController.accessToken)),
+                MaterialPageRoute<void>(
+                  builder: (_) => AiChatPage(
+                    accessToken: widget.authController.accessToken,
+                    refreshAccessToken: () async {
+                      await widget.authController.refreshSession();
+                      return widget.authController.accessToken;
+                    },
+                  ),
+                ),
               ),
               icon: const Icon(Icons.smart_toy_outlined),
               label: const Text('Atendente IA'),

@@ -102,7 +102,8 @@ class ApiClient {
     };
   }
 
-  Uri _uri(String path) => Uri.parse('${_config.apiBaseUrl}$path');
+  Uri _uri(String path) => Uri.parse(
+      '${_config.apiBaseUrl}/${path.replaceFirst(RegExp(r'^/+'), '')}');
 
   Map<String, String> _jsonHeaders(Map<String, String>? headers) => {
         'Accept': 'application/json',
