@@ -135,7 +135,14 @@ class _AiChatPageState extends State<AiChatPage> {
     return null;
   }
 
-  Future<String?> _cartSummary() async => widget.onGetCartSummary?.call();
+  Future<String?> _cartSummary() async {
+    final getSummary = widget.onGetCartSummary;
+    if (getSummary == null) return null;
+    final summary = await getSummary();
+    if (summary != null && summary.isNotEmpty) return summary;
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+    return getSummary();
+  }
 
   String _appendSummary(String reply, String? summary) {
     if (summary == null || summary.isEmpty) return reply;
