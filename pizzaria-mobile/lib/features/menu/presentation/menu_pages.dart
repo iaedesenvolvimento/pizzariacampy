@@ -206,6 +206,21 @@ class _MenuHomePageState extends State<MenuHomePage> {
     );
   }
 
+  Future<String?> _getAssistantCartSummary() async {
+    final items = widget.cartController.items;
+    if (items.isEmpty) return null;
+    final lines = items.map((item) {
+      final quantity = item.quantity > 1 ? '${item.quantity}x ' : '';
+      return '$quantity${item.productName}';
+    }).join(', ');
+    final subtotal = itemCurrency(widget.cartController.subtotal);
+    return 'Resumo atual: $lines. Subtotal: $subtotal.\nVocê pode adicionar mais itens ou abrir o carrinho para revisar.';
+  }
+
+  String itemCurrency(double value) {
+    return 'R\$ ${value.toStringAsFixed(2).replaceAll('.', ',')}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -245,6 +260,7 @@ class _MenuHomePageState extends State<MenuHomePage> {
                     onStartPizza: _openPizzaMode,
                     onOpenProduct: _openAssistantProduct,
                     onOpenCart: _openAssistantCart,
+                    onGetCartSummary: _getAssistantCartSummary,
                   ),
                 ),
               ),

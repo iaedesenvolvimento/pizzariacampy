@@ -10,6 +10,7 @@ class AiChatPage extends StatefulWidget {
     this.onStartPizza,
     this.onOpenProduct,
     this.onOpenCart,
+    this.onGetCartSummary,
     super.key,
   });
 
@@ -18,6 +19,7 @@ class AiChatPage extends StatefulWidget {
   final Future<void> Function(int maxFlavors)? onStartPizza;
   final Future<bool> Function(String query)? onOpenProduct;
   final Future<void> Function()? onOpenCart;
+  final Future<String?> Function()? onGetCartSummary;
 
   @override
   State<AiChatPage> createState() => _AiChatPageState();
@@ -97,18 +99,20 @@ class _AiChatPageState extends State<AiChatPage> {
         normalized.contains('2 sabores')) {
       await widget.onStartPizza!(2);
       final additionalItems = await _openAdditionalItems(message);
-      return additionalItems == 0
+      final reply = additionalItems == 0
           ? 'Vamos montar sua pizza meio a meio. Escolha os dois sabores na próxima tela.'
           : 'Pizza meio a meio e $additionalItems item(ns) encaminhados para configuração.';
+      return _appendSummary(reply, await _cartSummary());
     }
     if (normalized.contains('1 sabor') ||
         normalized.contains('um sabor') ||
         normalized.contains('pizza grande')) {
       await widget.onStartPizza!(1);
       final additionalItems = await _openAdditionalItems(message);
-      return additionalItems == 0
+      final reply = additionalItems == 0
           ? 'Vamos montar sua pizza de um sabor. Escolha o tamanho e o sabor na próxima tela.'
           : 'Pizza de um sabor e $additionalItems item(ns) encaminhados para configuração.';
+      return _appendSummary(reply, await _cartSummary());
     }
     if (normalized.contains('carrinho') ||
         normalized.contains('finalizar pedido')) {
@@ -122,10 +126,20 @@ class _AiChatPageState extends State<AiChatPage> {
             normalized.contains('adicionar '))) {
       final opened = await widget.onOpenProduct!(message);
       if (opened) {
-        return 'Encontrei o produto. Configure as opções e toque em Adicionar ao carrinho.';
+        return _appendSummary(
+          'Encontrei o produto. Configure as opções e toque em Adicionar ao carrinho.',
+          await _cartSummary(),
+        );
       }
     }
     return null;
+  }
+
+  Future<String?> _cartSummary() async => widget.onGetCartSummary?.call();
+
+  String _appendSummary(String reply, String? summary) {
+    if (summary == null || summary.isEmpty) return reply;
+    return '$reply\n\n$summary';
   }
 
   Future<int> _openAdditionalItems(String message) async {
