@@ -343,12 +343,16 @@ class _AiChatPageState extends State<AiChatPage> {
     });
     await widget.onStartPizza!(maxFlavors);
     if (!mounted) return;
+    final summary = await _cartSummary();
     setState(() {
       _messages.add((
         isUser: false,
-        text: maxFlavors == 2
-            ? 'Perfeito! Escolha os dois sabores, tamanho, borda e adicionais.'
-            : 'Perfeito! Escolha o sabor, tamanho, borda e adicionais.',
+        text: _appendSummary(
+          maxFlavors == 2
+              ? 'Perfeito! Escolha os dois sabores, tamanho, borda e adicionais.'
+              : 'Perfeito! Escolha o sabor, tamanho, borda e adicionais.',
+          summary,
+        ),
       ));
       _sending = false;
     });
