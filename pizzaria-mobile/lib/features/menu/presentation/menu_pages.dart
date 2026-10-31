@@ -207,6 +207,7 @@ class _MenuHomePageState extends State<MenuHomePage> {
   }
 
   Future<String?> _getAssistantCartSummary() async {
+    await widget.cartController.initialize();
     final items = widget.cartController.items;
     if (items.isEmpty) return null;
     final lines = items.map((item) {
