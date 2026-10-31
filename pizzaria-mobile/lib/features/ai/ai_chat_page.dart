@@ -217,6 +217,30 @@ class _AiChatPageState extends State<AiChatPage> {
               child: Text(
                   'Posso consultar o cardápio e guiar você na montagem do pedido.'),
             ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Card(
+                margin: EdgeInsets.zero,
+                child: ExpansionTile(
+                  initiallyExpanded: true,
+                  leading: const Icon(Icons.lightbulb_outline),
+                  title: const Text('Como posso pedir?'),
+                  subtitle: const Text('Veja exemplos de frases'),
+                  childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                  children: const [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '• “Quero uma pizza grande”\n'
+                        '• “Quero pizza meio a meio”\n'
+                        '• “Quero uma pizza com dois sabores”\n'
+                        '• “Quero uma pizza e uma Coca-Cola”',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             if (widget.onStartPizza != null)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
